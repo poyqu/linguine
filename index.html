@@ -12,7 +12,7 @@ header{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var
 h1{font-size:17px;margin:0;color:var(--acc)}
 .tabbtn{background:var(--panel2);border:1px solid var(--bd);color:var(--tx);padding:6px 14px;border-radius:6px;cursor:pointer}
 .tabbtn.act{background:var(--acc);color:#181818;font-weight:600}
-#flash{position:fixed;top:60px;right:18px;z-index:99;background:var(--acc);color:#181818;font-weight:600;
+#flash{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99;background:var(--acc);color:#181818;font-weight:600;max-width:min(90vw,460px);text-align:center;
   padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 #teamstrip{margin-left:auto;display:flex;gap:5px;align-items:center;cursor:pointer;flex-wrap:wrap;max-width:46%}
 .tchip{background:var(--panel2);border:1px solid var(--bd);border-radius:12px;padding:2px 9px;font-size:12px;white-space:nowrap}
@@ -73,6 +73,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 .src_daily{background:#2a3348;color:#9db4e0;border:1px solid #46557a}
 .src_seas{background:#3a2a48;color:#c69df0;border:1px solid #6a4f8a}
 .src_music{background:#243a3a;color:#8fd0d0;border:1px solid #3f6a6a}
+.src_vip{background:#4a3f1e;color:#e8cf7a;border:1px solid #8a7434}
 .src_lim{background:#4a2a2a;color:#e0a0a0;border:1px solid #7a4444}
 .src_def{background:#333;color:#aaa;border:1px solid #555}
 #f_dir{padding:5px 8px}
@@ -131,13 +132,13 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
       <option value="daily">Daily</option>
       <option value="seasonal">Seasonal event</option>
       <option value="story">Story reward</option>
-      <option value="shop">SL$ shop</option>
-      <option value="music">Music mode</option>
+      <option value="shop">Steam VIP DLC</option>
+      <option value="music">Steam Music DLC</option>
       <option value="limited">Limited / past event</option>
     </select>
     <select id="f_rar" title="card rarity"><option value="">any rarity</option></select>
     <label title="Apex cards ignore their own elemental weakness (the red multiplier against them becomes 1.0)"><input type="checkbox" id="f_apex"> ★ Apex only</label>
-    <label title="Restrict the 🚀 search and ⭐ optimizer to cards that drop from crates (excludes story/shop/limited). Also filters this list."><input type="checkbox" id="f_crates"> crates only (for search)</label>
+    <label title="Restrict the 🚀 search and ⭐ optimizer to cards that drop from crates (excludes story rewards, paid DLC, and limited cards). Also filters this list."><input type="checkbox" id="f_crates"> crates only (for search)</label>
     <label title="Show only your favorited (⭐) cards"><input type="checkbox" id="f_star"> ⭐ favorites only</label>
     <select id="f_sort">
       <option value="id">sort: id</option><option value="hp">sort: HP</option><option value="atk">sort: ATK</option>
@@ -1034,8 +1035,8 @@ function lvlStats(c,lvl){
 }
 const SRCLABEL={crate:["Crate","src_crate","drops from Normal crates"],daily:["Daily","src_daily","from the Daily crate"],
   seasonal:["Seasonal","src_seas","from a seasonal event crate (Spring/Summer/Fall/Winter)"],
-  story:["Story","storychip","reward for beating a story chapter"],shop:["Shop","shopchip","buyable in the SL$ shop"],
-  music:["Music","src_music","from Music mode"],limited:["Limited","src_lim","was obtainable via a past event/contest - not currently in crates"],
+  story:["Story","storychip","reward for beating a story chapter"],shop:["VIP DLC","src_vip","Steam VIP DLC - a real-money purchase on Steam, not the in-game SL$ shop"],
+  music:["Music DLC","src_music","Steam Music DLC - a real-money purchase on Steam"],limited:["Limited","src_lim","was obtainable via a past event/contest - not currently in crates"],
   default:["Starter","src_def","the free default cat"]};
 function sourceChips(c){
   const cats=(c.srccats&&c.srccats.length)?c.srccats:["limited"];
@@ -1656,7 +1657,7 @@ function renderRec(){
   };
   if(!DATA.public){
     $("rec_pvp").innerHTML=pvpBlock(R.pvp,"OPEN division (all cards)")
-      +pvpBlock(R.pvp_crates,"CRATES-ONLY division (no story/shop cards)")
+      +pvpBlock(R.pvp_crates,"CRATES-ONLY division (no story rewards or paid DLC)")
       +`<div class="note">PvP is rock-paper-scissors - if a specific deck keeps beating you, recreate it as a custom enemy and use the ⭐ optimizer or 🚀 search (respects the crates-only toggle).</div>`;
   }
   if(R.story){
@@ -1676,7 +1677,7 @@ $("e_mode").value=state.emode;$("e_diff").value=state.diff;$("e_seedsupp").check
 renderCards();renderTeam();renderEnemy();renderSaved();showTab("battle");$("f_crates").checked=!!state.cratesOnly;
 $("f_dir").textContent=state.sortRev?"▲":"▼";
 $("f_crates").addEventListener("change",e=>{state.cratesOnly=e.target.checked;save();renderCards();
-  flash(e.target.checked?"crates-only mode ON (story/shop cards excluded from browser, search, optimizer)":"crates-only mode OFF");});
+  flash(e.target.checked?"Crates-only ON — search & optimizer use crate drops only":"Crates-only OFF");});
 window.__booted=true;
 
 </script>
