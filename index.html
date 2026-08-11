@@ -22,9 +22,10 @@ h1{font-size:17px;margin:0;color:var(--acc)}
 .wr_g{color:#6fce7e}.wr_y{color:#e8b84b}.wr_r{color:#e06c5f}
 .savedrow{display:flex;gap:8px;align-items:center;margin-top:5px}
 .cards_layout{display:grid;grid-template-columns:1fr 290px;gap:14px;align-items:start}
+.cards_main,.cards_side{min-width:0}
 .cards_side{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow-y:auto}
 @media(max-width:1000px){
-  .cards_layout{display:flex;flex-direction:column}
+  .cards_layout{display:flex;flex-direction:column;align-items:stretch}
   .cards_side{position:static;max-height:none;order:0}
   .cards_main{order:1}
 }
@@ -80,7 +81,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 #f_dir{padding:5px 8px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:1100px){.cols{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.panel{background:var(--panel);border:1px solid var(--bd);border-radius:10px;padding:12px;min-width:0}
 .panel h2{margin:0 0 8px;font-size:14px;color:var(--acc)}
 .slots{display:flex;flex-direction:column;gap:8px}
 .slot{background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:8px}
