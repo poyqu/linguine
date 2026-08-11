@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Linguine Battle Lab</title>
+<title>Linguine Sandbox</title>
 <style>
 :root{--bg:#14161b;--panel:#1d2026;--panel2:#23262e;--tx:#d7dae0;--dim:#8a8f99;--acc:#e8b84b;--grn:#6fce7e;--red:#e06c5f;--bd:#2e323b}
 *{box-sizing:border-box}
@@ -34,7 +34,7 @@ details.cbteam summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4
 .mt_row.empty{border-style:dashed;color:var(--dim);justify-content:center}
 .inteam{color:var(--acc);font-weight:600}
 #helpwrap{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow-y:auto}
-#helpbox{background:var(--panel);border:1px solid var(--bd);border-radius:12px;max-width:880px;width:100%;padding:18px 22px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#helpbox{background:var(--panel);border:1px solid var(--bd);border-radius:12px;max-width:880px;width:100%;min-width:0;overflow-wrap:break-word;padding:18px 22px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 #helpbox h2{color:var(--acc);font-size:15px;margin:14px 0 6px}
 #helpbox h2:first-child{margin-top:0}
 #helpbox table{width:auto;margin:4px 0}
@@ -57,6 +57,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 .mono{font-family:Consolas,monospace;font-size:12.5px;white-space:nowrap}
 .dim{color:#9aa0ab}
 .abil{font-size:12.5px;max-width:430px}
+.stt{color:var(--grn)}
 .unav{color:var(--red);font-size:11px;border:1px solid var(--red);border-radius:4px;padding:0 4px}
 .el{font-family:Consolas,monospace;font-size:11.5px;padding:1px 6px;border-radius:10px;white-space:nowrap}
 .e0{background:#5c2f2b;color:#ff9d90}.e1{background:#332d5e;color:#a9a0ff}.e2{background:#1e4653;color:#7fd9ef}
@@ -96,15 +97,35 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 #e_supp{font-size:12px;color:var(--dim);margin-top:6px}
 #optout{font-size:13px;margin-top:8px}
 .note{font-size:12px;color:var(--dim);margin-top:10px}
+.tblwrap{overflow-x:auto;max-width:100%}
+@media(max-width:700px){
+  header{flex-wrap:wrap;gap:8px;padding:8px 10px;position:static}
+  h1{width:100%;font-size:16px}
+  .tabbtn{flex:1 1 0;text-align:center;padding:9px 6px}
+  #teamstrip{display:none}
+  th{top:0}
+  main{padding:10px}
+  button,select,input{padding:8px 10px}
+  input[type=number]{width:56px}
+  .filters{gap:6px}
+  .filters input,.filters select{flex:1 1 44%;min-width:0}
+  .abil{max-width:none}
+  .runrow{gap:8px}
+  #helpwrap{padding:10px 6px}
+  #helpbox{padding:14px}
+  #helpbox h2{font-size:14px}
+  #helpbox table{font-size:11px}
+  #helpbox .ticks{font-size:10.5px}
+}
 </style>
 </head>
 <body>
 <header>
-  <h1>🐱 Linguine Battle Lab</h1>
-  <button class="tabbtn act" id="tb_battle" onclick="showTab('battle')">Team & Battle</button>
-  <button class="tabbtn" id="tb_cards" onclick="showTab('cards')">Card Browser</button>
-  <button class="tabbtn" id="tb_rec" onclick="showTab('rec')">⭐ Recommended</button>
-  <button class="tabbtn" id="helpbtn" onclick="toggleHelp()" title="rules, formulas, element chart, statuses">?</button>
+  <h1>Linguine Sandbox</h1>
+  <button class="tabbtn act" id="tb_battle" onclick="showTab('battle')">Team &amp; Battle</button>
+  <button class="tabbtn" id="tb_cards" onclick="showTab('cards')">Cards</button>
+  <button class="tabbtn" id="tb_rec" onclick="showTab('rec')">Recommended</button>
+  <button class="tabbtn" id="helpbtn" onclick="toggleHelp()" title="rules, formulas, element chart, statuses">Help</button>
   <span id="teamstrip" onclick="showTab('battle')" title="current team - click to open"></span>
   <span id="flash"></span>
 </header>
@@ -138,7 +159,6 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
     </select>
     <select id="f_rar" title="card rarity"><option value="">any rarity</option></select>
     <label title="Apex cards ignore their own elemental weakness (the red multiplier against them becomes 1.0)"><input type="checkbox" id="f_apex"> ★ Apex only</label>
-    <label title="Restrict the 🚀 search and ⭐ optimizer to cards that drop from crates (excludes story rewards, paid DLC, and limited cards). Also filters this list."><input type="checkbox" id="f_crates"> crates only (for search)</label>
     <label title="Show only your favorited (⭐) cards"><input type="checkbox" id="f_star"> ⭐ favorites only</label>
     <select id="f_sort">
       <option value="id">sort: id</option><option value="hp">sort: HP</option><option value="atk">sort: ATK</option>
@@ -147,15 +167,15 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
     <button id="f_dir" title="reverse sort order" onclick="toggleDir()">▼</button>
     <span class="dim" id="count"></span>
   </div>
-  <table>
-    <thead><tr><th>ID</th><th>Name (⭐ = favorite, used by the optimizer)</th>
-      <th title="Element - damage multipliers vs other elements. '?' = derived by the quota algorithm, unverified. ★ = Apex (its elemental weakness is nullified)">Elem ⓘ</th>
-      <th title="Stats at level 10 (max): health / attack / defense / speed. Defense gives dodge (def/4 %) and block (def/2 %, halves damage)">L10 hp/atk/def/spd ⓘ</th>
-      <th title="Which enemy this card attacks each turn">Targets ⓘ</th>
-      <th title="Leader abilities - active when this card is one of your 3 leaders. The second ability unlocks at level 10">Abilities (L10) ⓘ</th>
-      <th title="Fires ONLY when this card is drawn from your supporter deck. Leader abilities do nothing from the supporter deck">Support ability ⓘ</th><th></th></tr></thead>
+  <div class="tblwrap"><table>
+    <thead><tr><th>ID</th><th>Name</th>
+      <th title="Element - damage multipliers vs other elements. '?' = derived by the quota algorithm, unverified. Gold APEX = elemental weakness nullified">Elem</th>
+      <th title="Stats at level 10 (max): health / attack / defense / speed. Defense gives dodge (def/4 %) and block (def/2 %, halves damage)">L10 hp/atk/def/spd</th>
+      <th title="Which enemy this card attacks each turn">Targets</th>
+      <th title="Leader abilities - active when this card is one of your 3 leaders. The second ability unlocks at level 10">Abilities (L10)</th>
+      <th title="Fires only when this card is drawn from your supporter deck. Leader abilities do nothing from the supporter deck">Support ability</th><th></th></tr></thead>
     <tbody id="cardrows"></tbody>
-  </table>
+  </table></div>
   </div>
   <div class="cards_side">
     <div class="panel" id="cb_team"></div>
@@ -169,47 +189,43 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
     <div id="rec_pvp"></div>
   </div>
   <div class="panel">
-    <h2>Best team per EXTREME story chapter (click "load" to set team + enemy)</h2>
+    <h2>Best team per EXTREME chapter</h2>
     <div style="background:#2a2410;border:1px solid var(--acc);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px">
-      🏆 <b>One crate-obtainable team clears 17 of the 21 EXTREME chapters</b> at 95–100%:
-      <b>Linguine (chad) + Linguine (Leuitenant) + Linguine (Static)</b>, supporter just <b>TV</b> — every skin drops from crates, no paid DLC.
-      Build it once and run most of the mode. <b>Four bosses (F14, F19, F20, F21)</b> punish chad's constant drawing or need burst damage,
-      so those rows swap to their own crate teams below.
+      One team handles most of the mode: <b>chad + Leuitenant + Static</b>, with <b>TV</b> as the only supporter. Every skin drops from crates.
+      It clears 17 of the 21 chapters at 95-100%. Four bosses (F14, F19, F20, F21) counter it, so those rows use their own crate teams.
     </div>
-    <table><thead><tr><th>Ch</th><th>Winrate</th><th>Leaders</th><th>Supporters</th><th></th></tr></thead>
-    <tbody id="rec_story"></tbody></table>
-    <div class="note">Winrates from the audited engine with exact seeded CPU supporters and validated data.
-      Chapters you've already beaten stay beaten - this is for rematches or fresh saves.</div>
+    <div class="tblwrap"><table><thead><tr><th>Ch</th><th>Win</th><th>Leaders</th><th>Supporters</th><th></th></tr></thead>
+    <tbody id="rec_story"></tbody></table></div>
+    <div class="note">Win rates are simulated estimates, not the real game. Tap a row to load that team and enemy.</div>
   </div>
 </div>
 
 <div id="tab_battle">
   <div class="cols">
     <div class="panel">
-      <h2>Your team (add cards from the Card Browser)</h2>
+      <h2>Your team</h2>
       <div class="slots" id="lslots"></div>
-      <h2 style="margin-top:12px">Supporter deck (0-4, fewer = the draws repeat the same ability more)</h2>
+      <h2 style="margin-top:12px">Supporter deck (0-4)</h2>
       <div class="slots" id="sslots"></div>
-      <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--acc);font-weight:600">💾 Saved teams</summary>
+      <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--acc);font-weight:600">Saved teams</summary>
       <div class="runrow" style="margin-top:6px">
         <input id="teamname" placeholder="team name" style="width:180px">
         <button onclick="saveTeam()">Save current team</button>
       </div>
       <div id="savedteams"></div>
       </details>
-      <h2 style="margin-top:12px">Team efficiency</h2>
+      <h2 style="margin-top:12px">Test your team</h2>
       <div class="runrow">
-        <button id="evalbtn" onclick="evalAllChapters()">📊 Evaluate vs ALL story chapters (~20-40s)</button>
+        <button id="evalbtn" onclick="evalAllChapters()">Story win rates (all chapters)</button>
         <span id="eval_prog" class="dim"></span>
       </div>
       <div id="evalout"></div>
       <div class="runrow">
-        <button id="cmpbtn" onclick="compareMetaTeams()">🏅 Rank vs ~20 meta teams (~30s)</button>
+        <button id="cmpbtn" onclick="compareMetaTeams()">PvP vs meta teams</button>
         <span id="cmp_prog" class="dim"></span>
       </div>
       <div id="cmpout"></div>
-      <div class="note">Elements and Apex flags come from the validated extraction (9/9 in-game checks).
-        After a game patch, run rebuild_all.py - it re-verifies them and warns if anything shifted.</div>
+      <div class="note">PvP fights your team head-to-head against a field of meta decks and reports how you hold up. It needs a full 3 leaders and 4 supporters.</div>
     </div>
     <div class="panel">
       <h2>Enemy</h2>
@@ -233,23 +249,21 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
       <h2 style="margin-top:14px">Simulate</h2>
       <div class="runrow">
         <label>battles <input id="n_sims" type="number" value="300" min="10" max="5000"></label>
-        <button id="runbtn" onclick="runSims()">▶ Run</button>
+        <button id="runbtn" onclick="runSims()">Run</button>
         <label>seed <input id="n_seed" type="number" value="1"></label>
-        <button onclick="watchBattle()">👁 Watch one battle</button>
-        <button onclick="optimize()">🔍 Best trio from ⭐ favorites</button>
+        <button onclick="watchBattle()">Watch one battle</button>
+        <button onclick="optimize()">Best trio from favorites</button>
       </div>
       <div class="runrow">
-        <button id="searchbtn" onclick="autoSearch()">🚀 SEARCH best team vs this enemy (~30-60s, all cores)</button>
-        <button id="cancelbtn" onclick="cancelWork()" style="display:none">■ cancel</button>
+        <button id="searchbtn" onclick="autoSearch()" title="Only searches cards that drop from crates, so it won't suggest story or DLC skins you can't reliably get">Search best team vs this enemy</button>
+        <button id="cancelbtn" onclick="cancelWork()" style="display:none">Cancel</button>
         <span id="search_prog" class="dim"></span>
       </div>
       <div id="searchout"></div>
       <div id="results"></div>
       <div id="optout"></div>
       <div id="blog"></div>
-      <div class="note">Engine is a replica of the decompiled game logic (damage, statuses, triggers, supporter draws,
-        30-turn kill rule, story enemy scaling, seeded CPU supporter sets). RNG differs from the game, so treat results
-        as statistics, not exact predictions.</div>
+      <div class="note">The engine replicates the game's battle logic, but its randomness differs, so results are estimates rather than exact predictions.</div>
     </div>
   </div>
 </div>
@@ -984,6 +998,9 @@ const state=JSON.parse(localStorage.getItem("lab_state")||"null")||{
   emode:"chapter",chapter:"F21",diff:"hard",custom:[{id:646,lvl:13},{id:2,lvl:11},{id:11,lvl:12}],eElemO:{},eSupp:true,
 };
 function save(){localStorage.setItem("lab_state",JSON.stringify(state));}
+// in-game, status keywords render green - do the same. Only real statuses, not [once/turn]/[once/game].
+const STATUS_SET=new Set(["bleeding","blessed","cursed","dizzy","doomed","frozen","ice_burn","lucky","on_fire","paralyzed","poisoned","stinky","strengthened","weak","purified","stunned","slow","tired","confused","enraged","shielded"]);
+function abH(x){return String(x).replace(/\[([^\]]+)\]/g,(m,w)=>STATUS_SET.has(w)?`<span class="stt">[${w}]</span>`:m);}
 
 // ---------- derived card metadata for filters ----------
 function flatEff(a,out){if(!a)return;if(a.effect)out.add(a.effect);const p=a.params||{};
@@ -1010,6 +1027,7 @@ const META={};
   fill("f_trig",[...trigs].filter(x=>!x.startsWith("cond:")),"any trigger");
   fill("f_eff",effs,"any effect");
   fill("f_status",stats,"any status");
+  stats.forEach(x=>STATUS_SET.add(x));   // union extracted statuses into the green-highlight set
   const supLab=x=>{const[e,st]=x.split("|");return(e.startsWith("gain")?"+":"-")+(st||"?")+" → "+(e.includes("target")?"target":"?");};
   $("f_supp").innerHTML=`<option value="">any support</option><option value="__has__">has support ability</option>`+
     [...seffs].sort().map(x=>`<option value="${x}">${supLab(x)}</option>`).join("");
@@ -1050,7 +1068,6 @@ function renderCards(){
     fsrc=$("f_src").value,frar=$("f_rar").value,apexOnly=$("f_apex").checked,
     sort=$("f_sort").value,starOnly=$("f_star").checked;
   let rows=Object.values(CARDS).filter(c=>{
-    if(state.cratesOnly&&!c.crate)return false;
     if(starOnly&&!state.stars.includes(c.id))return false;
     if(apexOnly&&!c.apex)return false;
     if(fsrc&&!(c.srccats||[]).includes(fsrc))return false;
@@ -1072,7 +1089,7 @@ function renderCards(){
   if(state.sortRev)rows.reverse();
   $("count").textContent=rows.length+" cards";
   if(!rows.length&&starOnly&&!state.stars.length){
-    $("cardrows").innerHTML=`<tr><td colspan="7" class="dim" style="padding:16px">No favorites yet. Click the ☆ next to any card to favorite it, then use "🔍 Best trio from ⭐" to search only your favorites.</td></tr>`;
+    $("cardrows").innerHTML=`<tr><td colspan="7" class="dim" style="padding:16px">No favorites yet. Click the ☆ next to any card to favorite it, then use "Best trio from favorites" to search only your favorites.</td></tr>`;
     return;
   }
   $("cardrows").innerHTML=rows.map(c=>{
@@ -1084,8 +1101,8 @@ function renderCards(){
       <td>${elemBadge(c)}</td>
       <td class="mono">${s.hp}/${s.atk}/${s.def}/${s.spd}</td>
       <td class="dim">${STYLES[c.style]||c.style}</td>
-      <td class="abil">${(c.atext||[]).map(x=>`<div>• ${x}</div>`).join("")||'<span class="dim">none</span>'}</td>
-      <td class="abil">${c.stext?("▸ "+c.stext):'<span class="dim">-</span>'}</td>
+      <td class="abil">${(c.atext||[]).map(x=>`<div>• ${abH(x)}</div>`).join("")||'<span class="dim">none</span>'}</td>
+      <td class="abil">${c.stext?("▸ "+abH(c.stext)):'<span class="dim">-</span>'}</td>
       <td>${
         state.leaders.includes(c.id)
           ?`<span class="inteam">LEADER</span> <button class="x" onclick="rmSlot('L',${state.leaders.indexOf(c.id)});renderCards()">✕</button>`
@@ -1211,35 +1228,37 @@ const META_TEAMS=[
   {n:"Pixel-Simple + 10 + 20",t:[390,412,413],s:[263]},
   {n:"Witch Hat + Grunky + Muffin (story cores)",t:[601,646,647],s:[660]},
 ];
+function pad4(s,lead){const b=(s||[]).slice();const skip=new Set([...(lead||[]),...b]);
+  for(const x of [660,420,632,634,644,633,637,628]){if(b.length>=4)break;if(CARDS[x]&&!skip.has(x)){b.push(x);skip.add(x);}}
+  return b.slice(0,4);}
 window.compareMetaTeams=async()=>{
   const you=state.leaders.filter(x=>x!=null);
-  if(you.length<3)return flash("build a 3-leader team first (it's ranked against the meta)");
+  if(you.length<3)return flash("build a full team of 3 leaders first");
+  if(state.supp.length!==4)return flash("PvP uses 4 supporters - fill all 4 supporter slots first");
   const btn=$("cmpbtn");btn.disabled=true;$("cancelbtn").style.display="";
   try{
-    const teams=[{n:"★ YOUR TEAM",t:you,s:state.supp.slice(),you:true}]
-      .concat(META_TEAMS.filter(m=>m.t.every(id=>CARDS[id])));
-    const tot=teams.map(()=>0), wrst=teams.map(()=>1);
-    const chapters=DATA.chapters.filter(ch=>ch.hard&&ch.hard.length);
-    let done=0;$("cmp_prog").textContent=`0/${chapters.length} chapters`;
-    for(const ch of chapters){
-      const ed=ch.hard.map(([id,lvl])=>applyEnemyLevel(Object.assign({},ALLC[id]),lvl));
-      for(const sid of ch.csupp)ed.push(Object.assign({},ALLC[sid]));
-      const jobs=teams.map((t,i)=>({team:t.t,supp:t.s,sk:i}));
-      const out=await runJobs(jobs,ed,120,null);
-      for(const r of out){tot[r.sk]+=r.wr; wrst[r.sk]=Math.min(wrst[r.sk],r.wr);}
-      done++;$("cmp_prog").textContent=`${done}/${chapters.length} chapters`;
-    }
-    const rows=teams.map((t,i)=>({n:t.n,you:t.you,mean:tot[i]/chapters.length,worst:wrst[i],t:t.t,s:t.s}));
-    rows.sort((a,b)=>b.mean-a.mean);
-    const cls=w=>w>=.7?"wr_g":w>=.3?"wr_y":"wr_r";
-    const yourRank=rows.findIndex(r=>r.you)+1;
-    $("cmpout").innerHTML=`<div>your team ranks <b>#${yourRank} of ${rows.length}</b> by mean EXTREME win% (higher = more efficient across the whole mode)</div>
-      <table class="evtable"><thead><tr><th>#</th><th>team</th><th>mean win%</th><th>worst chapter</th><th></th></tr></thead><tbody>`+
-      rows.map((r,i)=>`<tr style="${r.you?'background:#2a2410':''}"><td>${i+1}</td>
-        <td>${r.you?'<b>'+r.n+'</b>':r.n}</td>
-        <td class="${cls(r.mean)}"><b>${(r.mean*100).toFixed(1)}%</b></td>
-        <td class="${cls(r.worst)}">${(r.worst*100).toFixed(0)}%</td>
-        <td><button onclick='loadRec(${JSON.stringify(r.t)},${JSON.stringify(r.s)},null)'>load</button></td></tr>`).join("")+`</tbody></table>`;
+    const opps=META_TEAMS.filter(m=>m.t.every(id=>CARDS[id]));
+    const jobs=opps.map((o,i)=>({team:o.t,supp:pad4(o.s,o.t),sk:i}));
+    $("cmp_prog").textContent=`0/${jobs.length} matchups`;
+    const out=await runJobs(jobs,null,250,(d,t)=>{$("cmp_prog").textContent=`${d}/${t} matchups`;},
+      {mode:"pvp",you:{team:you,supp:state.supp.slice()}});
+    const bySk={};for(const r of out)bySk[r.sk]=r;
+    const rows=opps.map((o,i)=>{const r=bySk[i]||{w:0,l:0,d:0,n:250};
+      return {n:o.n,t:o.t,s:pad4(o.s,o.t),w:r.w,l:r.l,d:r.d,N:r.n,winPct:r.w/r.n,net:(r.w-r.l)/r.n};});
+    rows.sort((a,b)=>a.net-b.net);   // worst matchups first = your weaknesses
+    const totW=rows.reduce((s,r)=>s+r.w,0),totL=rows.reduce((s,r)=>s+r.l,0),totD=rows.reduce((s,r)=>s+r.d,0),totN=rows.reduce((s,r)=>s+r.N,0)||1;
+    const favored=rows.filter(r=>r.net>=.1).length,losing=rows.filter(r=>r.net<=-.1).length,even=rows.length-favored-losing;
+    const cls=v=>v>=.55?"wr_g":v>=.45?"wr_y":"wr_r";
+    $("cmpout").innerHTML=
+      `<div>Your team vs ${rows.length} meta opponents: <b class="wr_g">${favored} favorable</b> · <b class="wr_y">${even} even</b> · <b class="wr_r">${losing} losing</b>.
+        Overall ${(totW/totN*100).toFixed(0)}% win / ${(totL/totN*100).toFixed(0)}% loss / ${(totD/totN*100).toFixed(0)}% draw.</div>
+      <div class="note" style="margin:4px 0">Worst matchups first - the opponent decks your team struggles against. A timeout counts as a draw (PvP rules).</div>
+      <div class="tblwrap"><table class="evtable"><thead><tr><th>opponent team</th><th>your win%</th><th>W-L-D</th><th></th></tr></thead><tbody>`+
+      rows.map(r=>`<tr><td>${r.n}</td>
+        <td class="${cls(r.winPct)}"><b>${(r.winPct*100).toFixed(0)}%</b></td>
+        <td class="mono">${r.w}-${r.l}-${r.d}</td>
+        <td><button onclick='loadRec(${JSON.stringify(r.t)},${JSON.stringify(r.s)},null)'>load foe</button></td></tr>`).join("")
+      +`</tbody></table></div>`;
   }catch(e){if(e!=="cancelled")throw e;}
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
 };
@@ -1254,9 +1273,9 @@ function slotHtml(id,kind,idx){
       <span class="mono">${s.hp}/${s.atk}/${s.def}/${s.spd}</span>
       Lv<input type="number" min="1" max="10" value="${lvl}" onchange="setLvl(${id},this.value)">
     </div>
-    ${kind==="L"?`<div class="sl_ab">${(lvl>=10?c.atext:c.atext.slice(0,1)).map(x=>`<div>• ${x}</div>`).join("")}</div>`:
-      `<div class="sl_ab"><b>▸ ${c.stext||"NO support ability - drawing this does nothing!"}</b>
-       <div style="opacity:.45">${(c.atext||[]).map(x=>`• ${x}`).join("<br>")||""}${c.atext&&c.atext.length?"<br><i>(leader abilities are INACTIVE in the supporter deck)</i>":""}</div></div>`}
+    ${kind==="L"?`<div class="sl_ab">${(lvl>=10?c.atext:c.atext.slice(0,1)).map(x=>`<div>• ${abH(x)}</div>`).join("")}</div>`:
+      `<div class="sl_ab"><b>▸ ${c.stext?abH(c.stext):"NO support ability - drawing this does nothing!"}</b>
+       <div style="opacity:.45">${(c.atext||[]).map(x=>`• ${abH(x)}`).join("<br>")||""}${c.atext&&c.atext.length?"<br><i>(leader abilities are INACTIVE in the supporter deck)</i>":""}</div></div>`}
   </div>`;
 }
 window.rmSlot=(kind,idx)=>{
@@ -1326,7 +1345,7 @@ function renderEnemy(){
     return`<div class="slot enemy">
       <div class="sl_head"><b>${c.name}</b> <span class="dim">L${o.lvl}${c.boss?" BOSS":""}</span></div>
       <div class="sl_row">${elemBadge(c)} <span class="mono">${lv.hp}/${lv.atk}/${lv.def}/${lv.spd}</span> <span class="dim">${STYLES[c.style]}</span></div>
-      <div class="sl_ab">${(c.atext||[]).map(x=>`<div>• ${x}</div>`).join("")}</div>
+      <div class="sl_ab">${(c.atext||[]).map(x=>`<div>• ${abH(x)}</div>`).join("")}</div>
     </div>`;
   }).join("");
   const ovKey=state.emode==="chapter"?(state.chapter+state.diff):"custom";
@@ -1409,8 +1428,8 @@ window.watchBattle=()=>{
   $("blog").textContent=log.join("\n");
 };
 window.optimize=async()=>{
-  const pool=state.stars.filter(id=>CARDS[id]&&(!state.cratesOnly||CARDS[id].crate));
-  if(pool.length<3)return flash("favorite ⭐ at least 3 cards first (Card Browser, click the ☆)");
+  const pool=state.stars.filter(id=>CARDS[id]);   // optimizer respects every card you favorited
+  if(pool.length<3)return flash("favorite at least 3 cards first (Cards tab, click the ☆)");
   if(pool.length>16)return flash("16 starred max for search ("+pool.length+" starred)");
   const N=60,ed=buildEnemyDeck(),supp=state.supp.map(id=>Object.assign({},CARDS[id]));
   const combos=[];
@@ -1510,7 +1529,7 @@ function buildHelp(){
   Decks reshuffle when empty - a 1-card deck repeats the same ability every draw. Story: 0-4 optional. Ranked: exactly 4 required.
   The in-game "All of your leaders with &lt;X&gt;..." support texts are display-only - the game never executes them.</div>
   <h2>Symbols</h2>
-  <div>⭐ = favorite (used by the optimizer) · gold APEX chip = weakness nullified · ▸ = support ability · ⓘ = hover for explanation · source chips show how a card is obtained</div>`;
+  <div>⭐ = favorite (used by the optimizer) · gold APEX chip = weakness nullified · ▸ = support ability · <span class="stt">green</span> = a status effect · source chips show how a card is obtained</div>`;
 }
 // ---------- stale-result hygiene ----------
 function clearResults(ids){
@@ -1527,10 +1546,14 @@ function enemyLabel(){
     :"custom: "+state.custom.map(x=>ALLC[x.id]?ALLC[x.id].name.replace("Linguine","L.").slice(0,14):"?").join("/");
 }
 // ---------- in-browser multi-core team search ----------
-const SEARCH_POOL=[325,275,273,324,372,484,190,191,412,413,334,319,305,170,175,253,217,
- 240,238,239,182,118,117,195,475,24,335,56,646,645,647,601,423,199,297,299,221].filter(id=>CARDS[id]);
-const SEARCH_SUPPS={pump:[645,646,647,660],pumpTV:[660,420,632,634],heal:[633,644,628,637],
- mix:[645,646,633,644],one_tv:[660],none:[]};
+// search only proposes GENERALLY-AVAILABLE (crate) cards - never a story/DLC skin you can't get yet
+// (e.g. a story reward you'd only unlock by beating the very chapter you're fighting).
+const SEARCH_POOL=[377,653,619,443,553,632,630,94,321,467,325,275,273,324,372,484,190,191,412,413,
+ 334,319,305,170,175,253,217,240,238,239,182,118,117,195,475,24,335,56,423,199,297,299,221]
+ .filter(id=>CARDS[id]&&CARDS[id].crate);
+const SEARCH_SUPPS={pump:[653,660,420,632],pumpTV:[660,420,632,634],heal:[633,644,628,637],
+ mix:[653,633,644,660],one_tv:[660],none:[]};
+for(const k in SEARCH_SUPPS)SEARCH_SUPPS[k]=SEARCH_SUPPS[k].filter(id=>CARDS[id]&&CARDS[id].crate);
 let WORKERS=null,JOB_GEN=0;const PENDING_REJECTS=[];
 window.cancelWork=()=>{
   JOB_GEN++;
@@ -1556,6 +1579,18 @@ function makeWorkers(){
       if(m.type==="init"){CARDSW=m.cards;return;}
       const out=[];
       for(const job of m.jobs){
+        if(m.mode==="pvp"){                       // your team vs an opponent team, timeout = draw
+          const you=pdeck(m.you.team,m.you.supp,null), opp=pdeck(job.team,job.supp,null);
+          let w=0,l=0,d=0;
+          for(let s=0;s<m.n;s++){
+            const S=new Sim(s*13+5,null);
+            S.run(you.map(x=>Object.assign({},x)),opp.map(x=>Object.assign({},x)));
+            const a0=S.alive(0).length,a1=S.alive(1).length;
+            if(a1===0&&a0>0)w++;else if(a0===0&&a1>0)l++;else d++;
+          }
+          out.push({sk:job.sk,w,l,d,n:m.n});
+          continue;
+        }
         let w=0;
         const pd=pdeck(job.team,job.supp,m.elemO);
         for(let s=0;s<m.n;s++){
@@ -1574,7 +1609,7 @@ function makeWorkers(){
   for(const w of WORKERS)w.postMessage({type:"init",cards:plain});
   return WORKERS;
 }
-function runJobs(jobs,ed,n,onprog){
+function runJobs(jobs,ed,n,onprog,opts){
   const ws=makeWorkers();
   const myGen=JOB_GEN;
   return new Promise((res,rej)=>{
@@ -1586,7 +1621,7 @@ function runJobs(jobs,ed,n,onprog){
     const feed=(w)=>{
       if(sent>=chunks.length)return;
       const my=chunks[sent++];
-      w.postMessage({id:jid++,jobs:my,ed,n});
+      w.postMessage({id:jid++,jobs:my,ed,n,...(opts||{})});
     };
     for(const w of ws){
       w.onmessage=(e)=>{
@@ -1607,8 +1642,7 @@ window.autoSearch=async()=>{
   const btn=$("searchbtn");btn.disabled=true;$("cancelbtn").style.display="";
   try{
   const ed=buildEnemyDeck().map(x=>Object.assign({},x));
-  const POOLX=SEARCH_POOL.filter(id=>!state.cratesOnly||CARDS[id].crate);
-  const SUPPX={};for(const k in SEARCH_SUPPS){const q=SEARCH_SUPPS[k].filter(id=>!state.cratesOnly||CARDS[id].crate);if(q.length===SEARCH_SUPPS[k].length||k==="none")SUPPX[k]=SEARCH_SUPPS[k];else SUPPX[k]=q;}
+  const POOLX=SEARCH_POOL, SUPPX=SEARCH_SUPPS;   // already generally-available (crate) by construction
   const jobs=[];
   for(let i=0;i<POOLX.length;i++)for(let j=i+1;j<POOLX.length;j++)for(let k=j+1;k<POOLX.length;k++)
     for(const sk in SUPPX)jobs.push({team:[POOLX[i],POOLX[j],POOLX[k]],supp:SUPPX[sk],sk});
@@ -1628,7 +1662,7 @@ window.autoSearch=async()=>{
   fin.sort((a,b)=>b.wr-a.wr);
   const secs=((performance.now()-t0)/1000).toFixed(0);
   $("search_prog").textContent=`done in ${secs}s (${jobs.length} team-configs)`;
-  $("searchout").innerHTML=`<b>best teams vs ${enemyLabel()}:</b><br>`+fin.slice(0,8).map(r=>
+  $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">(generally-available crate cards only)</span><br>`+fin.slice(0,8).map(r=>
     `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}
      <span class="dim">+[${r.sk}]</span>
      <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])},null)'>use</button>`).join("<br>");
@@ -1658,7 +1692,7 @@ function renderRec(){
   if(!DATA.public){
     $("rec_pvp").innerHTML=pvpBlock(R.pvp,"OPEN division (all cards)")
       +pvpBlock(R.pvp_crates,"CRATES-ONLY division (no story rewards or paid DLC)")
-      +`<div class="note">PvP is rock-paper-scissors - if a specific deck keeps beating you, recreate it as a custom enemy and use the ⭐ optimizer or 🚀 search (respects the crates-only toggle).</div>`;
+      +`<div class="note">PvP is rock-paper-scissors. If a deck keeps beating you, recreate it as a custom enemy and use the optimizer or search to find a counter.</div>`;
   }
   if(R.story){
     $("rec_story").innerHTML=Object.keys(R.story).sort((a,b)=>+a.slice(1)-+b.slice(1)).map(chId=>{
@@ -1674,10 +1708,8 @@ renderRec();
 // datalist for custom enemies
 $("cardlist").innerHTML=Object.values(ALLC).map(c=>`<option value="${c.id}">${c.name}${c.boss?" [BOSS]":""}</option>`).join("");
 $("e_mode").value=state.emode;$("e_diff").value=state.diff;$("e_seedsupp").checked=state.eSupp;
-renderCards();renderTeam();renderEnemy();renderSaved();showTab("battle");$("f_crates").checked=!!state.cratesOnly;
+renderCards();renderTeam();renderEnemy();renderSaved();showTab("battle");
 $("f_dir").textContent=state.sortRev?"▲":"▼";
-$("f_crates").addEventListener("change",e=>{state.cratesOnly=e.target.checked;save();renderCards();
-  flash(e.target.checked?"Crates-only ON — search & optimizer use crate drops only":"Crates-only OFF");});
 window.__booted=true;
 
 </script>
