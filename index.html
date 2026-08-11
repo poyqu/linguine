@@ -1648,7 +1648,19 @@ function runJobs(jobs,ed,n,onprog,opts){
     }
   });
 }
-window.autoSearch=async()=>{
+window.autoSearch=async(force)=>{
+  // Story chapters are fixed enemies with a precomputed best team - show it instantly instead of a 30-60s recompute.
+  const rec=DATA.recommended&&DATA.recommended.story;
+  if(!force && state.emode==="chapter" && state.diff==="hard" && state.eSupp && rec && rec[state.chapter]){
+    const r=rec[state.chapter], nm=id=>CARDS[id]?CARDS[id].name.replace("Linguine","L."):("#"+id);
+    $("search_prog").textContent="";
+    $("searchout").innerHTML=
+      `<div><b>Best team for ${state.chapter}: ${(r.winrate*100).toFixed(0)}%</b> <span class="dim">- saved, this is a fixed story chapter</span></div>
+       <div style="margin-top:4px">${r.team.map(nm).join(" + ")} <span class="dim">/ ${r.supp.length?r.supp.map(nm).join(" · "):"no supporters"}</span>
+         <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},"${state.chapter}")'>load</button></div>
+       <div class="note" style="margin-top:6px"><button onclick="autoSearch(true)">Run a fresh live search anyway</button> to explore alternatives.</div>`;
+    return;
+  }
   const btn=$("searchbtn");btn.disabled=true;$("cancelbtn").style.display="";
   try{
   const ed=buildEnemyDeck().map(x=>Object.assign({},x));
