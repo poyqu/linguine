@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Linguine Sandbox</title>
 <style>
-:root{--bg:#14161b;--panel:#1d2026;--panel2:#23262e;--tx:#d7dae0;--dim:#8a8f99;--acc:#e8b84b;--grn:#6fce7e;--red:#e06c5f;--bd:#2e323b}
+:root{--bg:#14161b;--panel:#1d2026;--panel2:#23262e;--tx:#d7dae0;--dim:#8a8f99;--acc:#e8b84b;--grn:#6fce7e;--red:#e06c5f;--bd:#2e323b;--head:#e9ecf2}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,Segoe UI,Arial}
 header{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
@@ -29,14 +29,14 @@ h1{font-size:17px;margin:0;color:var(--acc)}
   .cards_side{position:static;max-height:none;order:0}
   .cards_main{order:1}
 }
-details.cbteam summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
+details.cbteam summary{cursor:pointer;color:var(--head);font-weight:600;padding:4px 0}
 .mt_row{display:flex;justify-content:space-between;align-items:center;gap:6px;background:var(--panel2);
   border:1px solid var(--bd);border-radius:7px;padding:5px 8px;margin-top:6px;font-size:12.5px}
 .mt_row.empty{border-style:dashed;color:var(--dim);justify-content:center}
 .inteam{color:var(--acc);font-weight:600}
 #helpwrap{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow-y:auto}
 #helpbox{background:var(--panel);border:1px solid var(--bd);border-radius:12px;max-width:880px;width:100%;min-width:0;overflow-wrap:break-word;padding:18px 22px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-#helpbox h2{color:var(--acc);font-size:15px;margin:14px 0 6px}
+#helpbox h2{color:var(--head);font-size:15px;margin:14px 0 6px}
 #helpbox h2:first-child{margin-top:0}
 #helpbox table{width:auto;margin:4px 0}
 #helpbox td,#helpbox th{padding:3px 9px;font-size:12.5px;border-bottom:1px solid var(--bd)}
@@ -52,6 +52,9 @@ input[type=number]{width:58px}
 input[type=checkbox]{accent-color:var(--acc)}
 button{cursor:pointer}
 button:hover{border-color:var(--acc)}
+.btn-primary{background:var(--acc);color:#181818;font-weight:600;border-color:var(--acc)}
+.btn-primary:hover{filter:brightness(1.07);border-color:var(--acc)}
+button:disabled{opacity:.55;cursor:default}
 table{border-collapse:collapse;width:100%}
 th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
 th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight:600}
@@ -82,7 +85,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:1100px){.cols{grid-template-columns:1fr}}
 .panel{background:var(--panel);border:1px solid var(--bd);border-radius:10px;padding:12px;min-width:0}
-.panel h2{margin:0 0 8px;font-size:14px;color:var(--acc)}
+.panel h2{margin:0 0 8px;font-size:14px;color:var(--head)}
 .slots{display:flex;flex-direction:column;gap:8px}
 .slot{background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:8px}
 .slot.empty{color:var(--dim);text-align:center;padding:14px;border-style:dashed}
@@ -213,7 +216,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
       <div class="slots" id="lslots"></div>
       <h2 style="margin-top:12px">Supporter deck (0-4)</h2>
       <div class="slots" id="sslots"></div>
-      <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--acc);font-weight:600">Saved teams</summary>
+      <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--head);font-weight:600">Saved teams</summary>
       <div class="runrow" style="margin-top:6px">
         <input id="teamname" placeholder="team name" style="width:180px">
         <button onclick="saveTeam()">Save current team</button>
@@ -255,13 +258,13 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
       <h2 style="margin-top:14px">Simulate</h2>
       <div class="runrow">
         <label>battles <input id="n_sims" type="number" value="300" min="10" max="5000"></label>
-        <button id="runbtn" onclick="runSims()">Run</button>
+        <button id="runbtn" class="btn-primary" onclick="runSims()">Run</button>
         <label>seed <input id="n_seed" type="number" value="1"></label>
         <button onclick="watchBattle()">Watch one battle</button>
         <button onclick="optimize()">Best trio from favorites</button>
       </div>
       <div class="runrow">
-        <button id="searchbtn" onclick="autoSearch()" title="Only searches cards that drop from crates, so it won't suggest story or DLC skins you can't reliably get">Search best team vs this enemy</button>
+        <button id="searchbtn" class="btn-primary" onclick="autoSearch()" title="Only searches cards that drop from crates, so it won't suggest story or DLC skins you can't reliably get">Search best team vs this enemy</button>
         <button id="cancelbtn" onclick="cancelWork()" style="display:none">Cancel</button>
         <span id="search_prog" class="dim"></span>
       </div>
