@@ -1,0 +1,62 @@
+name: Verify build submission
+
+# Runs when someone opens (or edits) a "Build: ..." issue from the Sandbox's Submit button.
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write   # to commit builds.json
+  issues: write     # to comment / close
+
+# serialize so two submissions never clobber builds.json
+concurrency:
+  group: builds-write
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: startsWith(github.event.issue.title, 'Build:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify submission
+        id: verify
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python verify/verify.py
+
+      - name: Commit builds.json if accepted
+        if: steps.verify.outputs.status == 'accepted'
+        run: |
+          git config user.name "linguine-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add builds.json
+          git commit -m "Builds: add submission from issue #${{ github.event.issue.number }}"
+          git push
+
+      - name: Post result comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('verify/result.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number, body,
+            });
+
+      - name: Close issue if accepted
+        if: steps.verify.outputs.status == 'accepted'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number, state: 'closed',
+            });
