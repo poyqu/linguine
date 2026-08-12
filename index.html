@@ -300,8 +300,13 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
         <button onclick="watchBattle()">Watch one battle</button>
         <button onclick="optimize()">Best trio from favorites</button>
       </div>
+      <div class="runrow" style="margin-bottom:0">
+        <label>skins <select id="search_pool"><option value="auto">auto</option><option value="crate">crate only</option><option value="all">all skins</option></select></label>
+        <label>depth <select id="search_depth"><option value="full">full pool</option><option value="quick">quick (phone)</option></select></label>
+        <label>battles/team <select id="search_n"><option value="8">8</option><option value="20">20</option><option value="40">40</option></select></label>
+      </div>
       <div class="runrow">
-        <button id="searchbtn" class="btn-primary" onclick="autoSearch()" title="Story enemies: crate cards only. Custom enemies (usually PvP): any skin, with a crate-only option always marked [crate]">Search best team vs this enemy</button>
+        <button id="searchbtn" class="btn-primary" onclick="autoSearch()" title="Pool: auto uses crate for story chapters and all skins for custom (PvP) enemies. Quick depth shrinks the pool so it runs on a phone.">Search best team vs this enemy</button>
         <button id="cancelbtn" onclick="cancelWork()" style="display:none">Cancel</button>
         <span id="search_prog" class="dim"></span>
       </div>
@@ -1708,8 +1713,12 @@ window.autoSearch=async(force)=>{
   try{
   const ed=buildEnemyDeck().map(x=>Object.assign({},x));
   const isCustom=state.emode==="custom";
-  const POOLX = isCustom ? SEARCH_POOL_ALL : SEARCH_POOL;
-  const SUPPX = isCustom ? SEARCH_SUPPS_ALL : SEARCH_SUPPS;
+  const poolOpt=($("search_pool")||{}).value||"auto";
+  const useAll = poolOpt==="all" || (poolOpt==="auto" && isCustom);
+  let POOLX = (useAll ? SEARCH_POOL_ALL : SEARCH_POOL).slice();
+  const SUPPX = useAll ? SEARCH_SUPPS_ALL : SEARCH_SUPPS;
+  if((($("search_depth")||{}).value)==="quick") POOLX=POOLX.slice(0,22);   // small pool = runs on a phone
+  const coarseN=parseInt((($("search_n")||{}).value)||"8",10)||8;
   const isCrateTeam=r=>r.team.every(id=>CARDS[id]&&CARDS[id].crate)&&(r.supp||[]).every(id=>CARDS[id]&&CARDS[id].crate);
   const jobs=[];
   for(let i=0;i<POOLX.length;i++)for(let j=i+1;j<POOLX.length;j++)for(let k=j+1;k<POOLX.length;k++){
@@ -1718,7 +1727,7 @@ window.autoSearch=async(force)=>{
   }
   $("search_prog").textContent=`coarse pass: 0/${jobs.length}`;
   const t0=performance.now();
-  const coarse=await runJobs(jobs,ed,8,(d,t)=>{$("search_prog").textContent=`coarse pass: ${d}/${t}`;});
+  const coarse=await runJobs(jobs,ed,coarseN,(d,t)=>{$("search_prog").textContent=`coarse pass: ${d}/${t}`;});
   coarse.sort((a,b)=>b.wr-a.wr);
   const seen=new Set(),val=[];
   for(const r of coarse){
@@ -1727,7 +1736,7 @@ window.autoSearch=async(force)=>{
     seen.add(key);val.push({team:r.team,supp:r.supp,sk:r.sk});
     if(val.length>=14)break;
   }
-  if(isCustom){   // guarantee the best crate-only team is validated + shown
+  if(useAll){   // guarantee the best crate-only team is validated + shown
     const bc=coarse.find(isCrateTeam);
     if(bc && !val.some(v=>v.team.join()===bc.team.join()&&(v.supp||[]).join()===(bc.supp||[]).join()))
       val.push({team:bc.team,supp:bc.supp,sk:bc.sk});
@@ -1738,8 +1747,8 @@ window.autoSearch=async(force)=>{
   const secs=((performance.now()-t0)/1000).toFixed(0);
   $("search_prog").textContent=`done in ${secs}s (${jobs.length} team-configs)`;
   let show=fin.slice(0,8);
-  if(isCustom && !show.some(isCrateTeam)){const bc=fin.find(isCrateTeam);if(bc)show=[...show,bc];}
-  $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">${isCustom?"(any skin; [crate] = crate-obtainable)":"(crate cards only)"}</span><br>`+show.map(r=>
+  if(useAll && !show.some(isCrateTeam)){const bc=fin.find(isCrateTeam);if(bc)show=[...show,bc];}
+  $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">${useAll?"(any skin; [crate] = crate-obtainable)":"(crate cards only)"}</span><br>`+show.map(r=>
     `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}${isCrateTeam(r)?' <span class="dim">[crate]</span>':''}
      <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},null)'>use</button>
      <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button>`).join("<br>");
