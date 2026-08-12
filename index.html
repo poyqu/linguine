@@ -1198,6 +1198,7 @@ function renderSaved(){
       <span class="dim">${t.leaders.map(id=>CARDS[id]?CARDS[id].name.replace("Linguine","L.").slice(0,16):"?").join(" + ")}
       ${t.supp.length?" | "+t.supp.length+" supp":""}</span>
       <button onclick="loadTeam('${n.replace(/'/g,"\\'")}')">load</button>
+      <button onclick='loadFoe(${JSON.stringify(t.leaders)},${JSON.stringify(t.supp)})'>as enemy</button>
       <button class="x" onclick="delTeam('${n.replace(/'/g,"\\'")}')">✕</button></div>`;
   }).join(""):'<span class="dim">none saved yet</span>';
 }
@@ -1293,7 +1294,7 @@ window.compareMetaTeams=async()=>{
       rows.map(r=>`<tr><td>${r.n}</td>
         <td class="${cls(r.winPct)}"><b>${(r.winPct*100).toFixed(0)}%</b></td>
         <td class="mono">${r.w}-${r.l}-${r.d}</td>
-        <td><button onclick='loadRec(${JSON.stringify(r.t)},${JSON.stringify(r.s)},null)'>load foe</button></td></tr>`).join("")
+        <td><button onclick='loadFoe(${JSON.stringify(r.t)},${JSON.stringify(r.s)})'>as enemy</button></td></tr>`).join("")
       +`</tbody></table></div>`;
   }catch(e){if(e!=="cancelled")throw e;}
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
@@ -1485,7 +1486,7 @@ window.optimize=async()=>{
   }
   res.sort((a,b)=>b[0]-a[0]);
   $("optout").innerHTML=`<b>best trios vs current enemy (with current supporters, ${N} sims each):</b><br>`+
-    res.slice(0,10).map(([v,t])=>`${(v*100).toFixed(0)}% - ${t.map(id=>CARDS[id].name).join(" + ")} <button onclick='useTrio(${JSON.stringify(t)})'>use</button>`).join("<br>");
+    res.slice(0,10).map(([v,t])=>`${(v*100).toFixed(0)}% - ${t.map(id=>CARDS[id].name).join(" + ")} <button onclick='useTrio(${JSON.stringify(t)})'>use</button> <button onclick='loadFoe(${JSON.stringify(t)},[])'>as enemy</button>`).join("<br>");
 };
 window.useTrio=t=>{state.leaders=[t[0],t[1],t[2]];save();renderTeam();flash("team set");};
 
@@ -1686,7 +1687,8 @@ window.autoSearch=async(force)=>{
     $("searchout").innerHTML=
       `<div><b>Best team for ${state.chapter}: ${(r.winrate*100).toFixed(0)}%</b> <span class="dim">- saved, this is a fixed story chapter</span></div>
        <div style="margin-top:4px">${r.team.map(nm).join(" + ")} <span class="dim">/ ${r.supp.length?r.supp.map(nm).join(" · "):"no supporters"}</span>
-         <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},"${state.chapter}")'>load</button></div>
+         <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},"${state.chapter}")'>load</button>
+         <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button></div>
        <div class="note" style="margin-top:6px"><button onclick="autoSearch(true)">Run a fresh live search anyway</button> to explore alternatives.</div>`;
     return;
   }
@@ -1716,7 +1718,8 @@ window.autoSearch=async(force)=>{
   $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">(generally-available crate cards only)</span><br>`+fin.slice(0,8).map(r=>
     `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}
      <span class="dim">+[${r.sk}]</span>
-     <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])},null)'>use</button>`).join("<br>");
+     <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])},null)'>use</button>
+     <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])})'>as enemy</button>`).join("<br>");
   }catch(e){if(e!=="cancelled")throw e;}
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
 };
@@ -1725,7 +1728,14 @@ window.loadRec=(lead,supp,ch)=>{
   state.leaders=[lead[0],lead[1],lead[2]];state.supp=supp.slice(0,4);
   state.levels={};state.elemO={};
   if(ch){state.emode="chapter";state.chapter=ch;state.diff="hard";}
-  save();renderTeam();renderEnemy();showTab("battle");flash("recommended team loaded");
+  save();renderTeam();renderEnemy();showTab("battle");flash("team loaded");
+};
+window.loadFoe=(lead,supp)=>{   // load a team as the custom enemy (its supporters become the enemy's)
+  state.emode="custom";
+  state.custom=lead.slice(0,3).map(id=>({id,lvl:10}));
+  state.eSuppOv=state.eSuppOv||{};
+  state.eSuppOv["custom"]=(supp||[]).slice(0,4);
+  save();renderEnemy();$("e_mode").value="custom";showTab("battle");flash("loaded as the enemy team");
 };
 function renderRec(){
   const R=DATA.recommended||{};
@@ -1738,6 +1748,7 @@ function renderRec(){
     return`<div style="margin-bottom:10px"><b>${label}</b> - <b>${P.champion}</b>: ${ch.team.map(nm).join(" + ")}<br>
       supporters: ${ch.supp.map(nm).join(" / ")}
       <button onclick='loadRec(${JSON.stringify(ch.team)},${JSON.stringify(ch.supp)},null)'>load</button>
+      <button onclick='loadFoe(${JSON.stringify(ch.team)},${JSON.stringify(ch.supp)})'>as enemy</button>
       <div class="note" style="margin-top:4px">${stand}</div></div>`;
   };
   if(!DATA.public){
@@ -1751,7 +1762,7 @@ function renderRec(){
       return`<tr><td>${chId}</td><td class="mono">${(r.winrate*100).toFixed(0)}%</td>
         <td>${r.team.map(nm).join(" + ")}</td>
         <td class="dim">${r.supp.length?r.supp.map(nm).join(" / "):"none"}</td>
-        <td><button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},"${chId}")'>load</button></td></tr>`;
+        <td><button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},"${chId}")'>load</button> <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button></td></tr>`;
     }).join("");
   } else $("rec_story").innerHTML='<tr><td colspan="5" class="dim">run story_search.py and rebuild to fill this</td></tr>';
 }
@@ -1779,7 +1790,7 @@ function renderBuilds(){
         <td>${b.leaders.map(nm).join(" + ")}</td>
         <td class="dim">${(b.supp&&b.supp.length)?b.supp.map(nm).join(" · "):"none"}</td>
         <td class="mono">${metric}</td>
-        <td><button onclick='loadRec(${JSON.stringify(b.leaders)},${JSON.stringify(b.supp||[])},null)'>load</button></td></tr>`;
+        <td><button onclick='loadRec(${JSON.stringify(b.leaders)},${JSON.stringify(b.supp||[])},null)'>load</button> <button onclick='loadFoe(${JSON.stringify(b.leaders)},${JSON.stringify(b.supp||[])})'>as enemy</button></td></tr>`;
     }).join("")+`</tbody></table></div>`;
 }
 async function loadBuilds(){
