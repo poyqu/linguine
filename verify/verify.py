@@ -8,7 +8,8 @@ import sim, json, os, re, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-CRATE = set(json.load(open(os.path.join(HERE, "crate_ids.json"))))
+PVP_OK = set(json.load(open(os.path.join(HERE, "pvp_ok_ids.json"))))       # usable cards, story skins allowed
+STORY_OK = set(json.load(open(os.path.join(HERE, "story_ok_ids.json"))))   # excludes story-locked skins
 DECKS = json.load(open(os.path.join(HERE, "enemy_decks.json")))
 BUILDS_PATH = os.path.join(ROOT, "builds.json")
 BUILDS = json.load(open(BUILDS_PATH)) if os.path.exists(BUILDS_PATH) else []
@@ -97,11 +98,14 @@ def main():
         raise Reject("**PvP builds need exactly 4 supporters** (the ranked-PvP rule).")
     if not re.match(r"^[A-Za-z0-9_. -]{2,24}$", by):
         raise Reject("username must be 2-24 letters, numbers, or _ . -")
+    allowed = STORY_OK if cat in ("story", "both") else PVP_OK
     for i in leaders + supp:
         if i not in sim.LEADERS:
             raise Reject(f"card #{i} doesn't exist.")
-        if i not in CRATE:
-            raise Reject(f"**{sim.LEADERS[i]['name']}** isn't crate-obtainable. Builds must use generally-available cards only.")
+        if i not in allowed:
+            if i in PVP_OK:
+                raise Reject(f"**{sim.LEADERS[i]['name']}** is a story-reward skin, which can't go in a Story build (it's locked behind story progress). It's fine in PvP builds.")
+            raise Reject(f"**{sim.LEADERS[i]['name']}** can't be used in builds.")
 
     s = sig(leaders, supp)
     for b in BUILDS:
