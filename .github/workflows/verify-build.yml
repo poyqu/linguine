@@ -51,8 +51,8 @@ jobs:
               issue_number: context.issue.number, body,
             });
 
-      - name: Close issue if accepted
-        if: steps.verify.outputs.status == 'accepted'
+      - name: Close issue when resolved
+        if: steps.verify.outputs.status == 'accepted' || steps.verify.outputs.status == 'rejected'
         uses: actions/github-script@v7
         with:
           script: |
