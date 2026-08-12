@@ -1475,10 +1475,8 @@ window.optimize=async()=>{
   const res=[];
   for(let ci=0;ci<combos.length;ci++){
     const trio=combos[ci];
-    const pd=trio.map(id=>{
-      const c=applyPlayerLevel(CARDS[id],state.levels[id]||10);
-        return c;
-    }).concat(supp);
+    const pd=trio.map(id=>applyPlayerLevel(CARDS[id],state.levels[id]||10))
+      .concat(supp.filter(c=>!trio.includes(c.id)));   // no card as both leader and supporter
     let w=0;
     for(let s=0;s<N;s++)if(new Sim(s*13+5,null).run(pd.map(x=>Object.assign({},x)),ed.map(x=>Object.assign({},x)))===0)w++;
     res.push([w/N,trio]);
@@ -1488,7 +1486,7 @@ window.optimize=async()=>{
   $("optout").innerHTML=`<b>best trios vs current enemy (with current supporters, ${N} sims each):</b><br>`+
     res.slice(0,10).map(([v,t])=>`${(v*100).toFixed(0)}% - ${t.map(id=>CARDS[id].name).join(" + ")} <button onclick='useTrio(${JSON.stringify(t)})'>use</button> <button onclick='loadFoe(${JSON.stringify(t)},[])'>as enemy</button>`).join("<br>");
 };
-window.useTrio=t=>{state.leaders=[t[0],t[1],t[2]];save();renderTeam();flash("team set");};
+window.useTrio=t=>{state.leaders=[t[0],t[1],t[2]];state.supp=state.supp.filter(id=>!t.includes(id));save();renderTeam();flash("team set");};
 
 // ---------- wiring ----------
 ["f_text","f_elem","f_trig","f_eff","f_status","f_supp","f_src","f_rar","f_apex","f_sort","f_star"].forEach(id=>{
@@ -1637,7 +1635,7 @@ function makeWorkers(){
           const S=new Sim(s*13+5,null);
           if(S.run(pd.map(x=>Object.assign({},x)),m.ed.map(x=>Object.assign({},x)))===0)w++;
         }
-        out.push({team:job.team,sk:job.sk,wr:w/m.n});
+        out.push({team:job.team,supp:job.supp,sk:job.sk,wr:w/m.n});
       }
       self.postMessage({id:m.id,out});
     };`;
@@ -1697,8 +1695,10 @@ window.autoSearch=async(force)=>{
   const ed=buildEnemyDeck().map(x=>Object.assign({},x));
   const POOLX=SEARCH_POOL, SUPPX=SEARCH_SUPPS;   // already generally-available (crate) by construction
   const jobs=[];
-  for(let i=0;i<POOLX.length;i++)for(let j=i+1;j<POOLX.length;j++)for(let k=j+1;k<POOLX.length;k++)
-    for(const sk in SUPPX)jobs.push({team:[POOLX[i],POOLX[j],POOLX[k]],supp:SUPPX[sk],sk});
+  for(let i=0;i<POOLX.length;i++)for(let j=i+1;j<POOLX.length;j++)for(let k=j+1;k<POOLX.length;k++){
+    const team=[POOLX[i],POOLX[j],POOLX[k]];
+    for(const sk in SUPPX)jobs.push({team,supp:SUPPX[sk].filter(id=>!team.includes(id)),sk});   // no card as both leader and supporter
+  }
   $("search_prog").textContent=`coarse pass: 0/${jobs.length}`;
   const t0=performance.now();
   const coarse=await runJobs(jobs,ed,8,(d,t)=>{$("search_prog").textContent=`coarse pass: ${d}/${t}`;});
@@ -1707,7 +1707,7 @@ window.autoSearch=async(force)=>{
   for(const r of coarse){
     const key=r.team.join(",");
     if(seen.has(key))continue;
-    seen.add(key);val.push({team:r.team,supp:SEARCH_SUPPS[r.sk],sk:r.sk});
+    seen.add(key);val.push({team:r.team,supp:r.supp,sk:r.sk});
     if(val.length>=14)break;
   }
   $("search_prog").textContent="validating top 14 at 300 battles...";
@@ -1718,14 +1718,14 @@ window.autoSearch=async(force)=>{
   $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">(generally-available crate cards only)</span><br>`+fin.slice(0,8).map(r=>
     `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}
      <span class="dim">+[${r.sk}]</span>
-     <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])},null)'>use</button>
-     <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(SEARCH_SUPPS[r.sk])})'>as enemy</button>`).join("<br>");
+     <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},null)'>use</button>
+     <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button>`).join("<br>");
   }catch(e){if(e!=="cancelled")throw e;}
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
 };
 // ---------- recommended tab ----------
 window.loadRec=(lead,supp,ch)=>{
-  state.leaders=[lead[0],lead[1],lead[2]];state.supp=supp.slice(0,4);
+  state.leaders=[lead[0],lead[1],lead[2]];state.supp=supp.slice(0,4).filter(id=>!lead.includes(id));
   state.levels={};state.elemO={};
   if(ch){state.emode="chapter";state.chapter=ch;state.diff="hard";}
   save();renderTeam();renderEnemy();showTab("battle");flash("team loaded");
@@ -1734,7 +1734,7 @@ window.loadFoe=(lead,supp)=>{   // load a team as the custom enemy (its supporte
   state.emode="custom";
   state.custom=lead.slice(0,3).map(id=>({id,lvl:10}));
   state.eSuppOv=state.eSuppOv||{};
-  state.eSuppOv["custom"]=(supp||[]).slice(0,4);
+  state.eSuppOv["custom"]=(supp||[]).filter(id=>!lead.includes(id)).slice(0,4);
   save();renderEnemy();$("e_mode").value="custom";showTab("battle");flash("loaded as the enemy team");
 };
 function renderRec(){
