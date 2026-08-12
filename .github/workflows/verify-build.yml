@@ -38,7 +38,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add builds.json
           git commit -m "Builds: add submission from issue #${{ github.event.issue.number }}"
-          git push
+          # main may have moved (another push) while we were simulating - rebase and retry
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin main && git push; then exit 0; fi
+            echo "push attempt $i failed (main moved), retrying..."; sleep 4
+          done
+          echo "could not push after retries"; exit 1
 
       - name: Post result comment
         uses: actions/github-script@v7
