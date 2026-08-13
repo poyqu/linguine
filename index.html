@@ -101,6 +101,8 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
 #e_supp{font-size:12px;color:var(--dim);margin-top:6px}
 #optout{font-size:13px;margin-top:8px}
 .note{font-size:12px;color:var(--dim);margin-top:10px}
+.altbtn{font-size:10.5px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+.saltbox{margin-top:4px;max-height:190px;overflow-y:auto}
 .tblwrap{max-width:100%}
 @media(max-width:700px){
   header{flex-wrap:wrap;gap:8px;padding:8px 10px;position:static}
@@ -1315,6 +1317,28 @@ window.compareMetaTeams=async()=>{
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
 };
 
+// ---------- supporter alternatives (cards with the exact same ▸ effect are interchangeable) ----------
+const SUPP_ALTS={};
+for(const _id in CARDS){const _t=CARDS[_id].stext; if(_t)(SUPP_ALTS[_t]=SUPP_ALTS[_t]||[]).push(+_id);}
+function suppAltBtn(id,idx){
+  const t=CARDS[id]&&CARDS[id].stext; if(!t)return "";
+  const n=(SUPP_ALTS[t]||[]).length-1;
+  if(n<1)return "";
+  return ` <button class="altbtn" onclick="toggleSuppAlts(${idx})" title="other cards with this exact support effect - swap for one you own">${n} alt${n>1?"s":""}</button><div class="saltbox" id="salts_${idx}" style="display:none"></div>`;
+}
+window.toggleSuppAlts=idx=>{
+  const box=$("salts_"+idx); if(!box)return;
+  if(box.style.display!=="none"){box.style.display="none";return;}
+  const id=state.supp[idx], t=CARDS[id]&&CARDS[id].stext;
+  const alts=(SUPP_ALTS[t]||[]).filter(a=>a!==id).sort((a,b)=>(CARDS[b].crate?1:0)-(CARDS[a].crate?1:0));
+  box.innerHTML=`<div class="note" style="margin:4px 0 2px">Same effect - swap for one you have:</div>`+
+    alts.map(a=>`<div class="mt_row"><span>${CARDS[a].name.replace("Linguine","L.")} ${sourceChips(CARDS[a])}</span><button onclick="swapSupp(${idx},${a})">use</button></div>`).join("");
+  box.style.display="";
+};
+window.swapSupp=(idx,altId)=>{
+  if(state.leaders.includes(altId)||state.supp.includes(altId))return flash("already in your team");
+  state.supp[idx]=altId;save();renderTeam();flash(CARDS[altId].name.replace("Linguine","L.")+" swapped in");
+};
 // ---------- team panel ----------
 function slotHtml(id,kind,idx){
   if(id==null)return`<div class="slot empty">empty</div>`;
@@ -1326,7 +1350,7 @@ function slotHtml(id,kind,idx){
       Lv<input type="number" min="1" max="10" value="${lvl}" onchange="setLvl(${id},this.value)">
     </div>
     ${kind==="L"?`<div class="sl_ab">${(lvl>=10?c.atext:c.atext.slice(0,1)).map(x=>`<div>• ${abH(x)}</div>`).join("")}</div>`:
-      `<div class="sl_ab"><b>▸ ${c.stext?abH(c.stext):"NO support ability - drawing this does nothing!"}</b>
+      `<div class="sl_ab"><b>▸ ${c.stext?abH(c.stext):"NO support ability - drawing this does nothing!"}</b>${suppAltBtn(id,idx)}
        <div style="opacity:.45">${(c.atext||[]).map(x=>`• ${abH(x)}`).join("<br>")||""}${c.atext&&c.atext.length?"<br><i>(leader abilities are INACTIVE in the supporter deck)</i>":""}</div></div>`}
   </div>`;
 }
