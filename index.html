@@ -138,10 +138,11 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
   <button class="tabbtn" id="tb_rec" onclick="showTab('rec')">Recommended</button>
   <button class="tabbtn" id="tb_builds" onclick="showTab('builds')">Builds</button>
   <button class="tabbtn" id="helpbtn" onclick="toggleHelp()" title="rules, formulas, element chart, statuses">Help</button>
+  <button class="tabbtn" id="updbtn" onclick="toggleUpdates()" title="recent changes">Updates</button>
   <span id="teamstrip" onclick="showTab('battle')" title="current team - click to open"></span>
   <span id="flash"></span>
 </header>
-<div id="helpwrap" style="display:none" onclick="if(event.target===this)toggleHelp()">
+<div id="helpwrap" style="display:none" onclick="if(event.target===this)closeOverlay()">
   <div id="helpbox"></div>
 </div>
 <main>
@@ -1554,12 +1555,42 @@ window.showTab=t=>{
   $("tb_builds").classList.toggle("act",t==="builds");
 };
 // ---------- help overlay (generated from live engine data - always in sync) ----------
+// Help and Updates share one overlay; the mode flag decides which is showing so
+// clicking a button toggles it and clicking the other switches content.
+window.closeOverlay=()=>{$("helpwrap").style.display="none";};
 window.toggleHelp=()=>{
   const w=$("helpwrap");
-  if(w.style.display!=="none"){w.style.display="none";return;}
-  if(!w.dataset.built){$("helpbox").innerHTML=buildHelp();w.dataset.built=1;}
-  w.style.display="flex";
+  if(w.style.display!=="none"&&w.dataset.mode==="help"){w.style.display="none";return;}
+  $("helpbox").innerHTML=buildHelp();w.dataset.mode="help";w.style.display="flex";
 };
+window.toggleUpdates=()=>{
+  const w=$("helpwrap");
+  if(w.style.display!=="none"&&w.dataset.mode==="upd"){w.style.display="none";return;}
+  $("helpbox").innerHTML=buildUpdates();w.dataset.mode="upd";w.style.display="flex";
+};
+function buildUpdates(){
+  const groups=[
+    ["2026-08-13",[
+      `Supporter <b>alts</b>: each supporter shows how many other cards share its exact effect, so you can swap it for one you already own.`,
+      `Import / export <b>team codes</b>: paste the game's <i>Copy Team ID</i> to load a team, or export yours to share (Team &amp; Battle &rarr; Team code).`,
+      `<b>Search best team</b> options: pick the card pool (crate only or all skins), the search depth (a quick mode that runs on phones), and battles per team.`,
+      `<b>Load as enemy</b> on every listed team, so you can fight any build directly.`,
+    ]],
+    ["Earlier",[
+      `New <b>Builds</b> tab: community-submitted teams in Story and PvP categories, each re-simulated and verified before it lands.`,
+      `<b>PvP vs meta teams</b> runs real head-to-head battles (needs a full 3 leaders + 4 supporters).`,
+      `Status keywords show in the game's green, like <span class="stt">[Stinky]</span>.`,
+      `Best-team-per-chapter search is saved instead of recomputed every time.`,
+      `Renamed to <b>Linguine Sandbox</b>, with a cleaner layout for phones.`,
+    ]],
+  ];
+  return `<button class="close" onclick="closeOverlay()">&#10005; close</button>
+  <h2>Updates</h2>`+
+  groups.map(g=>`<div style="margin:0 0 12px">
+    <div style="color:var(--dim);font-size:12px;margin-bottom:5px">${g[0]}</div>
+    <ul style="margin:0;padding-left:18px;line-height:1.55">${g[1].map(x=>`<li style="margin:4px 0">${x}</li>`).join("")}</ul>
+  </div>`).join("");
+}
 function buildHelp(){
   const chart=`<table><tr><th>atk \\ def</th>${EN.map(n=>`<th>${n.slice(0,4)}</th>`).join("")}</tr>`+
     CHART.map((row,a)=>`<tr><th>${EN[a].slice(0,4)}</th>`+row.map(m=>
@@ -1584,7 +1615,7 @@ function buildHelp(){
   const sts=`<table><tr><th>Status</th><th>Turns</th><th>Per-turn (tick order)</th><th>Effect</th></tr>`+
     Object.keys(STA).map(id=>{const[dur,deltas,f]=STA[id];
       return`<tr><td>[${stName[id]||id}]</td><td>${dur}</td><td class="ticks">${dl(deltas)}</td><td>${fl(f)||"-"}</td></tr>`;}).join("")+`</table>`;
-  return`<button class="close" onclick="toggleHelp()">✕ close</button>
+  return`<button class="close" onclick="closeOverlay()">✕ close</button>
   <h2>Combat rules</h2>
   <div>Each turn: statuses tick → turn-start abilities → everyone attacks in SPEED order (fastest first) → turn-end.
   <b>Story:</b> you must kill all enemies within 30 turns; a timeout is a LOSS. <b>Ranked PvP:</b> a timeout is a draw (no rating change).</div>
