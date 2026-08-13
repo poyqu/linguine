@@ -1116,6 +1116,10 @@ function sourceChips(c){
   if(c.rarity)h=`<span class="rarchip" title="rarity">${c.rarity}</span>`+h;
   return h;
 }
+// obtainability ease (0 = easiest). Daily and seasonal crates are much harder to get
+// than the Normal crate, so they rank below it when suggesting supporter swaps.
+const _SRC_EASE={default:0,crate:0,seasonal:1,daily:2,limited:3,story:4,shop:4,music:4};
+function srcEase(c){const cats=(c&&c.srccats&&c.srccats.length)?c.srccats:["limited"];let m=9;for(const k of cats){const r=_SRC_EASE[k];if(r!=null&&r<m)m=r;}return m;}
 function renderCards(){
   const q=$("f_text").value.toLowerCase(),fe=$("f_elem").value,ft=$("f_trig").value,
     fx=$("f_eff").value,fs=$("f_status").value,fsup=$("f_supp").value,
@@ -1333,8 +1337,9 @@ window.toggleSuppAlts=(btn,idx)=>{
   const box=btn.nextElementSibling; if(!box)return;
   if(box.style.display!=="none"){box.style.display="none";return;}
   const id=state.supp[idx], t=CARDS[id]&&CARDS[id].stext;
-  const alts=(SUPP_ALTS[t]||[]).filter(a=>a!==id).sort((a,b)=>(CARDS[b].crate?1:0)-(CARDS[a].crate?1:0));
-  box.innerHTML=`<div class="note" style="margin:4px 0 2px">Same effect - swap for one you have:</div>`+
+  const alts=(SUPP_ALTS[t]||[]).filter(a=>a!==id).sort((a,b)=>srcEase(CARDS[a])-srcEase(CARDS[b])||a-b);
+  const easier=alts.length&&srcEase(CARDS[alts[0]])<srcEase(CARDS[id]);
+  box.innerHTML=`<div class="note" style="margin:4px 0 2px">${easier?"Same effect, easier to get:":"Same effect, easiest to get first:"}</div>`+
     alts.map(a=>`<div class="mt_row"><span>${CARDS[a].name.replace("Linguine","L.")} ${sourceChips(CARDS[a])}</span><button onclick="swapSupp(${idx},${a})">use</button></div>`).join("");
   box.style.display="";
 };
@@ -1571,7 +1576,8 @@ window.toggleUpdates=()=>{
 function buildUpdates(){
   const groups=[
     ["2026-08-13",[
-      `Supporter <b>alts</b>: each supporter shows how many other cards share its exact effect, so you can swap it for one you already own.`,
+      `<b>Search best team</b> shows more teams now, kept varied so you still have options if you don't own the top cards.`,
+      `Supporter <b>alts</b>: each supporter lists other cards with the exact same effect, easiest-to-get first (Daily counts as harder than the Normal crate).`,
       `Import / export <b>team codes</b>: paste the game's <i>Copy Team ID</i> to load a team, or export yours to share (Team &amp; Battle &rarr; Team code).`,
       `<b>Search best team</b> options: pick the card pool (crate only or all skins), the search depth (a quick mode that runs on phones), and battles per team.`,
       `<b>Load as enemy</b> on every listed team, so you can fight any build directly.`,
@@ -1786,12 +1792,16 @@ window.autoSearch=async(force)=>{
   const t0=performance.now();
   const coarse=await runJobs(jobs,ed,coarseN,(d,t)=>{$("search_prog").textContent=`coarse pass: ${d}/${t}`;});
   coarse.sort((a,b)=>b.wr-a.wr);
-  const seen=new Set(),val=[];
+  const seen=new Set(),val=[],usedCard={};
   for(const r of coarse){
     const key=r.team.join(",");
     if(seen.has(key))continue;
+    // variety: cap how many shortlisted teams lean on any one card, so you don't get
+    // 8 near-clones of the top trio and players who lack that card still get options
+    if(r.team.some(id=>(usedCard[id]||0)>=3))continue;
     seen.add(key);val.push({team:r.team,supp:r.supp,sk:r.sk});
-    if(val.length>=14)break;
+    r.team.forEach(id=>usedCard[id]=(usedCard[id]||0)+1);
+    if(val.length>=24)break;
   }
   if(useAll){   // guarantee the best crate-only team is validated + shown
     const bc=coarse.find(isCrateTeam);
@@ -1803,9 +1813,10 @@ window.autoSearch=async(force)=>{
   fin.sort((a,b)=>b.wr-a.wr);
   const secs=((performance.now()-t0)/1000).toFixed(0);
   $("search_prog").textContent=`done in ${secs}s (${jobs.length} team-configs)`;
-  let show=fin.slice(0,8);
+  let show=fin.slice(0,16);
   if(useAll && !show.some(isCrateTeam)){const bc=fin.find(isCrateTeam);if(bc)show=[...show,bc];}
-  $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">${useAll?"(any skin; [crate] = crate-obtainable)":"(crate cards only)"}</span><br>`+show.map(r=>
+  $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">${useAll?"(any skin; [crate] = crate-obtainable)":"(crate cards only)"}</span>`+
+    `<div class="note" style="margin:2px 0 6px">Kept varied on purpose: lower-% teams use different cards, so you have options if you don't own the top ones.</div>`+show.map(r=>
     `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}${isCrateTeam(r)?' <span class="dim">[crate]</span>':''}
      <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},null)'>use</button>
      <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button>`).join("<br>");
