@@ -1324,10 +1324,12 @@ function suppAltBtn(id,idx){
   const t=CARDS[id]&&CARDS[id].stext; if(!t)return "";
   const n=(SUPP_ALTS[t]||[]).length-1;
   if(n<1)return "";
-  return ` <button class="altbtn" onclick="toggleSuppAlts(${idx})" title="other cards with this exact support effect - swap for one you own">${n} alt${n>1?"s":""}</button><div class="saltbox" id="salts_${idx}" style="display:none"></div>`;
+  // toggle the box via the button's sibling, not an id: the same slot is rendered
+  // in both the Team tab and the Cards mini-panel, so ids would collide.
+  return ` <button class="altbtn" onclick="toggleSuppAlts(this,${idx})" title="other cards with this exact support effect - swap for one you own">${n} alt${n>1?"s":""}</button><div class="saltbox" style="display:none"></div>`;
 }
-window.toggleSuppAlts=idx=>{
-  const box=$("salts_"+idx); if(!box)return;
+window.toggleSuppAlts=(btn,idx)=>{
+  const box=btn.nextElementSibling; if(!box)return;
   if(box.style.display!=="none"){box.style.display="none";return;}
   const id=state.supp[idx], t=CARDS[id]&&CARDS[id].stext;
   const alts=(SUPP_ALTS[t]||[]).filter(a=>a!==id).sort((a,b)=>(CARDS[b].crate?1:0)-(CARDS[a].crate?1:0));
