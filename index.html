@@ -1758,6 +1758,21 @@ function runJobs(jobs,ed,n,onprog,opts){
     }
   });
 }
+// Group a wr-desc-sorted team list by shared 2-card core. Each group = a common pair plus the
+// teams that differ only in the 3rd card, so near-duplicate teams collapse into one row with
+// alternatives instead of being filtered out or shown as many near-clones.
+function groupByPair(list,maxGroups,altsPer){
+  const groups=[]; let rem=list.slice();
+  while(rem.length && groups.length<maxGroups){
+    const t=rem[0].team, cand=[[t[0],t[1]],[t[0],t[2]],[t[1],t[2]]];
+    let best=null;
+    for(const p of cand){const mem=rem.filter(r=>r.team.includes(p[0])&&r.team.includes(p[1]));if(!best||mem.length>best.mem.length)best={p,mem};}
+    groups.push({pair:best.p,members:best.mem.slice(0,altsPer)});
+    const ms=new Set(best.mem); rem=rem.filter(r=>!ms.has(r));
+  }
+  return groups;
+}
+window.toggleSearchAlts=gi=>{const b=$("srchalts_"+gi);if(!b)return;b.style.display=b.style.display==="none"?"":"none";};
 window.autoSearch=async(force)=>{
   // Story chapters are fixed enemies with a precomputed best team - show it instantly instead of a 30-60s recompute.
   const rec=DATA.recommended&&DATA.recommended.story;
@@ -1792,34 +1807,43 @@ window.autoSearch=async(force)=>{
   const t0=performance.now();
   const coarse=await runJobs(jobs,ed,coarseN,(d,t)=>{$("search_prog").textContent=`coarse pass: ${d}/${t}`;});
   coarse.sort((a,b)=>b.wr-a.wr);
-  const seen=new Set(),val=[],usedCard={};
+  // de-dupe exact trios (keep the best supporter package per trio), decent teams only
+  const trioSeen=new Set(), uniqC=[];
   for(const r of coarse){
-    const key=r.team.join(",");
-    if(seen.has(key))continue;
-    // variety: cap how many shortlisted teams lean on any one card, so you don't get
-    // 8 near-clones of the top trio and players who lack that card still get options
-    if(r.team.some(id=>(usedCard[id]||0)>=3))continue;
-    seen.add(key);val.push({team:r.team,supp:r.supp,sk:r.sk});
-    r.team.forEach(id=>usedCard[id]=(usedCard[id]||0)+1);
-    if(val.length>=24)break;
+    if(r.wr<=0)break;
+    const k=r.team.slice().sort((a,b)=>a-b).join(",");
+    if(trioSeen.has(k))continue;
+    trioSeen.add(k); uniqC.push({team:r.team,supp:r.supp,sk:r.sk,wr:r.wr});
+    if(uniqC.length>=400)break;
   }
-  if(useAll){   // guarantee the best crate-only team is validated + shown
-    const bc=coarse.find(isCrateTeam);
-    if(bc && !val.some(v=>v.team.join()===bc.team.join()&&(v.supp||[]).join()===(bc.supp||[]).join()))
-      val.push({team:bc.team,supp:bc.supp,sk:bc.sk});
-  }
-  $("search_prog").textContent="validating at 300 battles...";
+  // pick candidates by DISTINCT CORE, not by filtering teams out: group the coarse trios by
+  // their shared 2-card core, validate the top cores and each core's best few 3rd-card options
+  const val=[], valSeen=new Set();
+  const pushVal=r=>{const k=r.team.slice().sort((a,b)=>a-b).join(",");if(valSeen.has(k))return;valSeen.add(k);val.push({team:r.team,supp:r.supp,sk:r.sk});};
+  for(const g of groupByPair(uniqC,12,6))for(const r of g.members)pushVal(r);
+  if(useAll){const bc=coarse.find(isCrateTeam);if(bc)pushVal(bc);}   // ensure a crate-obtainable team is validated
+  $("search_prog").textContent=`validating ${val.length} teams at 300 battles...`;
   const fin=await runJobs(val,ed,300,null);
   fin.sort((a,b)=>b.wr-a.wr);
   const secs=((performance.now()-t0)/1000).toFixed(0);
   $("search_prog").textContent=`done in ${secs}s (${jobs.length} team-configs)`;
-  let show=fin.slice(0,16);
-  if(useAll && !show.some(isCrateTeam)){const bc=fin.find(isCrateTeam);if(bc)show=[...show,bc];}
+  const nmC=id=>CARDS[id]?CARDS[id].name.replace("Linguine","L."):("#"+id);
+  const thirdOf=(t,p)=>t.find(id=>id!==p[0]&&id!==p[1]);
+  const groups=groupByPair(fin,12,24);
   $("searchout").innerHTML=`<b>Best teams vs ${enemyLabel()}</b> <span class="dim">${useAll?"(any skin; [crate] = crate-obtainable)":"(crate cards only)"}</span>`+
-    `<div class="note" style="margin:2px 0 6px">Kept varied on purpose: lower-% teams use different cards, so you have options if you don't own the top ones.</div>`+show.map(r=>
-    `${(r.wr*100).toFixed(1)}% - ${r.team.map(id=>CARDS[id].name.replace("Linguine","L.")).join(" + ")}${isCrateTeam(r)?' <span class="dim">[crate]</span>':''}
-     <button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},null)'>use</button>
-     <button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button>`).join("<br>");
+    `<div class="note" style="margin:2px 0 6px">Teams sharing 2 cards are grouped: the % is the group's best, and "other 3rd cards" lists the interchangeable options with their own win rates.</div>`+
+    groups.map((g,gi)=>{
+      const top=g.members[0], p=g.pair, rest=g.members.slice(1);
+      const head=`${(top.wr*100).toFixed(1)}% - ${nmC(p[0])} + ${nmC(p[1])} + ${nmC(thirdOf(top.team,p))}${isCrateTeam(top)?' <span class="dim">[crate]</span>':''} `+
+        `<button onclick='loadRec(${JSON.stringify(top.team)},${JSON.stringify(top.supp)},null)'>use</button> `+
+        `<button onclick='loadFoe(${JSON.stringify(top.team)},${JSON.stringify(top.supp)})'>as enemy</button>`;
+      const alt=rest.length?` <button class="altbtn" onclick="toggleSearchAlts(${gi})">${rest.length} other 3rd card${rest.length>1?"s":""}</button>`+
+        `<div class="saltbox" id="srchalts_${gi}" style="display:none">`+rest.map(r=>
+          `<div class="mt_row"><span>${(r.wr*100).toFixed(1)}% &middot; +${nmC(thirdOf(r.team,p))}</span>`+
+          `<button onclick='loadRec(${JSON.stringify(r.team)},${JSON.stringify(r.supp)},null)'>use</button>`+
+          `<button onclick='loadFoe(${JSON.stringify(r.team)},${JSON.stringify(r.supp)})'>as enemy</button></div>`).join("")+`</div>`:"";
+      return `<div style="margin:5px 0">${head}${alt}</div>`;
+    }).join("");
   }catch(e){if(e!=="cancelled")throw e;}
   finally{btn.disabled=false;$("cancelbtn").style.display="none";}
 };
