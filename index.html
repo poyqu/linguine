@@ -1538,7 +1538,7 @@ window.runSims=async()=>{
   const ci=(1.96*Math.sqrt(wins/N*(1-wins/N)/N)*100).toFixed(1);
   let html=`<div class="big">${wr}% <span class="dim">±${ci}</span></div>
     <div class="dim">vs ${enemyLabel()} · ${N} battles</div>
-    <div>${wins}/${N} wins${wins?` , avg win on turn ${(turnsSum/wins).toFixed(1)}`:""} <span class="dim">(${(N/(ms/1000)).toFixed(0)} battles/s)</span></div>`;
+    <div>${wins}/${N} wins${wins?`, avg win on turn ${(turnsSum/wins).toFixed(1)}`:""} <span class="dim">(${(N/(ms/1000)).toFixed(0)} battles/s)</span></div>`;
   const fdk=Object.entries(firstDeath).sort((a,b)=>b[1]-a[1]);
   if(fdk.length)html+=`<div class="dim">losses - dead leaders (first listed): ${fdk.map(([k,v])=>`${k} ×${v}`).join(", ")}</div>`;
   $("results").innerHTML=html;
@@ -1671,7 +1671,7 @@ function buildHelp(){
   const stName={on_fire:"On Fire",poisoned:"Poisoned",bleeding:"Bleeding",doomed:"Doomed",blessed:"Blessed",
     ice_burn:"Ice Burn",stunned:"Stunned",paralyzed:"Paralyzed",weak:"Weak",slow:"Slow",frozen:"Frozen",
     strengthened:"Strengthened",lucky:"Lucky",purified:"Purified",dizzy:"Dizzy",tired:"Tired",cursed:"Cursed",
-    stinky:"Stinky",burnout:"Burnout"};
+    stinky:"Stinky",burnout:"Burnout",chaos:"Chaos"};
   const fl=(f)=>{const o=[];
     if(f.blocks_attack)o.push("cannot attack");
     if(f.blocks_block)o.push("cannot dodge or block");
@@ -1681,6 +1681,7 @@ function buildHelp(){
     if(f.blocks_other)o.push("blocks all other statuses");
     if(f.recoil)o.push("attacker takes 1/3 of damage dealt as recoil");
     if(f.dizzy)o.push("50% chance each attack does nothing");
+    if(f.targets_all)o.push("its attacks hit all leaders, not just enemies (never itself)");
     return o.join(", ");};
   const dl=(deltas)=>deltas.map(d=>{const p=[];
     for(const k in d)p.push(`${d[k]>0?"+":""}${d[k]} ${k==="health"?"HP":k.toUpperCase().slice(0,3)}`);
