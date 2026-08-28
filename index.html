@@ -256,6 +256,12 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
   <div class="cols">
     <div class="panel">
       <h2>Your team</h2>
+      <div class="runrow" style="margin:2px 0 10px">
+        <input id="quickadd" list="cardlist" placeholder="type a card name..." style="width:190px" onkeydown="if(event.key==='Enter')quickAdd('L')">
+        <button onclick="quickAdd('L')">+ leader</button>
+        <button onclick="quickAdd('S')">+ supporter</button>
+        <span class="note">or browse the Cards tab</span>
+      </div>
       <div class="slots" id="lslots"></div>
       <h2 style="margin-top:12px">Supporter deck (0-4)</h2>
       <div class="slots" id="sslots"></div>
@@ -1229,6 +1235,13 @@ window.addSupp=id=>{
   if(state.supp.length>=4)return flash("4 supporters max");
   state.supp.push(id);save();renderTeam();
   flash(`${CARDS[id].name} added as SUPPORTER (${state.supp.length}/4)`);
+};
+// quick-add a card to YOUR team by typing its name (uses the shared cardlist datalist)
+window.quickAdd=kind=>{
+  const inp=$("quickadd"),id=cardIdFromInput(inp.value);
+  if(!CARDS[id])return flash("type a card name and pick it from the list");
+  (kind==="S"?addSupp:addLeader)(id);
+  inp.value="";if($("tab_cards").style.display!=="none")renderCards();
 };
 let flashT=null;
 function flash(msg){const el=$("flash");el.textContent=msg;el.style.opacity=1;
