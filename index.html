@@ -305,10 +305,10 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
           <label><input type="checkbox" id="e_seedsupp" checked> seeded CPU supporters</label>
         </span>
         <span id="e_customrow" style="display:none">
-          <div class="note" style="margin:2px 0 4px">Type a card name (a list appears as you type), then a level 1-13.</div>
-          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
-          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
-          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
+          <div class="note" style="margin:2px 0 4px">A <b>PvP simulation</b>: both sides scale like a player team (level 1-10). Type a card name (a list appears as you type), then a level.</div>
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="10" value="10" title="level">
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="10" value="10" title="level">
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="10" value="10" title="level">
           <button onclick="applyCustom()">set</button>
           <datalist id="cardlist"></datalist>
         </span>
@@ -1481,8 +1481,8 @@ function renderEnemy(){
   $("e_customrow").style.display=state.emode==="custom"?"":"none";
   const{opps,supp}=enemyTrio();
   $("e_trio").innerHTML=opps.map(o=>{
-    const c=ALLC[o.id];if(!c)return"";
-    const base=Object.assign({},c);const lv=applyEnemyLevel(base,o.lvl);
+    const c=(state.emode==="custom"?(CARDS[o.id]||ALLC[o.id]):ALLC[o.id]);if(!c)return"";
+    const lv=scaleEnemyCard(o.id,o.lvl);
     return`<div class="slot enemy">
       <div class="sl_head"><b>${c.name}</b> <span class="dim">L${o.lvl}${c.boss?" BOSS":""}</span></div>
       <div class="sl_row">${elemBadge(c)} <span class="mono">${lv.hp}/${lv.atk}/${lv.def}/${lv.spd}</span> <span class="dim">${STYLES[c.style]}</span></div>
@@ -1499,7 +1499,7 @@ function renderEnemy(){
     ` <button onclick="applyESupp()">apply</button></div>`;
   if(state.emode==="custom"){
     $("e_customrow").querySelectorAll("input.cst").forEach((inp,i)=>{inp.value=state.custom[i]?nameTag(state.custom[i].id):"";});
-    $("e_customrow").querySelectorAll("input.clv").forEach((inp,i)=>{inp.value=state.custom[i]?state.custom[i].lvl:13;});
+    $("e_customrow").querySelectorAll("input.clv").forEach((inp,i)=>{inp.value=state.custom[i]?Math.min(10,state.custom[i].lvl):10;});
   }
 }
 
@@ -1514,14 +1514,19 @@ function buildPlayerDeck(){
   for(const id of state.supp)d.push(Object.assign({},CARDS[id]));
   return d;
 }
+// A custom trio is a PvP simulation: scale it exactly like a player team (levels 1-10),
+// NOT like a story enemy (whose per-level bonuses are far larger). Chapter enemies keep story scaling.
+function scaleEnemyCard(id,lvl){
+  if(state.emode==="custom"){
+    const base=CARDS[id]||ALLC[id];
+    return applyPlayerLevel(Object.assign({},base),Math.max(1,Math.min(10,lvl||10)));
+  }
+  return applyEnemyLevel(Object.assign({},ALLC[id]),lvl);
+}
 function buildEnemyDeck(){
   const{opps,supp}=enemyTrio();
   const d=[];
-  for(const o of opps){
-    const base=ALLC[o.id];
-    const c=applyEnemyLevel(Object.assign({},base),o.lvl);
-    d.push(c);
-  }
+  for(const o of opps)d.push(scaleEnemyCard(o.id,o.lvl));
   for(const id of supp)d.push(Object.assign({},ALLC[id]));
   return d;
 }
@@ -1619,7 +1624,7 @@ function cardIdFromInput(str){
 }
 window.applyCustom=()=>{
   const ids=[...$("e_customrow").querySelectorAll("input.cst")].map(x=>cardIdFromInput(x.value));
-  const lvs=[...$("e_customrow").querySelectorAll("input.clv")].map(x=>Math.max(1,Math.min(13,+x.value||1)));
+  const lvs=[...$("e_customrow").querySelectorAll("input.clv")].map(x=>Math.max(1,Math.min(10,+x.value||10)));
   state.custom=ids.map((id,i)=>({id,lvl:lvs[i]})).filter(x=>ALLC[x.id]);
   save();renderEnemy();
 };
