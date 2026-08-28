@@ -49,6 +49,7 @@ STA={
  "cursed":(2,[{},{}],{"recoil":1.0/3.0}),
  "stinky":(2,[{"defense":-5,"speed":-20},{"defense":-5,"speed":-20,"attack":5}],{}),
  "burnout":(3,[{"speed":-50},{"speed":-100},{"speed":-300}],{}),
+ "chaos":(4,[{},{},{},{}],{"targets_all":True}),   # attacker targets ALL leaders (not self)
 }
 MAXHP=999; MAXATK=199
 
@@ -101,6 +102,9 @@ def apply_player_level(card, lvl=10):
     c["hp"]=min(MAXHP,card["hp"]+bonus["hp"]); c["atk"]=min(MAXATK,card["atk"]+bonus["atk"])
     c["spd"]=card["spd"]+bonus["spd"]; c["def"]=min(50,card["def"]+bonus["def"])
     c["level"]=lvl
+    # skin_manager.get_cumulative_stats unlocks ability2 at level 2 (NOT 10); story_hub.
+    # _apply_level_bonuses then keeps abilities[0] always and the rest only once unlocked
+    if lvl < 2: c["abilities"]=list(card.get("abilities",[]))[:1]
     return c
 
 def apply_enemy_level(card, lvl):
@@ -122,6 +126,7 @@ class Sim:
         s.rng=random.Random(seed); s.turn=0; s.teams=[[],[]]; s.depth=0; s.pending=[]
         s.chain=0                      # _chain_depth (max 5) for nested trigger fires
         s.drawn=[0,0]; s.drawn_last=[0,0]   # supporters drawn this/last turn per side
+        s._stat_gain_by_supporter=False     # true only while a supporter card's own ability runs
     def enemy_side(s,side): return 1-side
     def alive(s,side): return [l for l in s.teams[side] if l.alive]
     def all_leaders(s): return [l for l in s.teams[0]+s.teams[1] if l.alive]
@@ -188,7 +193,7 @@ class Sim:
         if amt>0:
             if stat=="attack": s.fire(l,"on_boost",{"stat":stat,"amount":amt})
             s.fire(l,"on_stat_gain",{"stat":stat,"amount":amt})
-            s.broadcast("on_any_stat_gain",{"gainer":l,"stat":stat,"amount":amt})
+            s.broadcast("on_any_stat_gain",{"gainer":l,"stat":stat,"amount":amt,"by_supporter":s._stat_gain_by_supporter})
         if l.hp<=0: s.checkdeath()
     # ---- targeting for effects ----
     def sel(s, self_l, key, ctx):
@@ -409,8 +414,21 @@ class Sim:
             t=s.sel(self_l,p.get("target",""),ctx);
             if t: s.mod(t,p["stat"],p.get("amount",0)*(1 if eff.startswith("gain") else -1))
             return
+        if eff=="conditional":            # faithful to game: multi_effect passes only params, so
+            c=p.get("condition","")       # a conditional nested in multi_effect no-ops (game dev bug, matched)
+            if c and not s.cond(self_l,c,p.get("condition_params",{}),ctx): return
+            ie=p.get("effect","")
+            if ie: s.run_effect(self_l,ie,p.get("params",{}),ctx)
+            return
+        if eff=="inflict_random_status_each":
+            pool=p.get("pool") or ["poisoned","bleeding","cursed","slow","dizzy","weak","stunned","on_fire","stinky","paralyzed"]
+            if not pool: return
+            sc=p.get("scope","ally")
+            pl=s.alive(s.enemy_side(self_l.side)) if sc=="enemy" else (s.all_leaders() if sc=="all" else s.alive(self_l.side))
+            for l in pl: s.inflict(l,s.rng.choice(pool),self_l)
+            return
         if eff=="gain_stat_all_allies":
-            for l in s.alive(self_l.side): s.mod(l,p["stat"],p.get("amount",0))
+            for l in s._ally_pool(self_l,p): s.mod(l,p["stat"],p.get("amount",0))
             return
         if eff=="gain_stat_all_enemies":
             for l in s.alive(s.enemy_side(self_l.side)): s.mod(l,p["stat"],p.get("amount",0))
@@ -421,7 +439,7 @@ class Sim:
                 if (not tags) or any(name_has_tag(l.name,t) for t in tags): s.mod(l,p["stat"],p.get("amount",0))
             return
         if eff=="lose_stat_all_allies":
-            for l in s.alive(self_l.side): s.mod(l,p["stat"],-p.get("amount",0))
+            for l in s._ally_pool(self_l,p): s.mod(l,p["stat"],-p.get("amount",0))
             return
         if eff=="gain_stat_allies_with_status":
             sid=p.get("status_id") or p.get("has_status","")
@@ -505,7 +523,7 @@ class Sim:
             for l in s.alive(s.enemy_side(self_l.side)): s.inflict(l,p.get("status_id"),self_l)
             return
         if eff=="inflict_status_all_allies":
-            for l in s.alive(self_l.side): s.inflict(l,p.get("status_id"),self_l)
+            for l in s._ally_pool(self_l,p): s.inflict(l,p.get("status_id"),self_l)
             return
         if eff=="inflict_status_all":
             for l in s.all_leaders(): s.inflict(l,p.get("status_id"),self_l)
@@ -529,7 +547,14 @@ class Sim:
             for l in s.alive(s.enemy_side(self_l.side)): s.mod(l,p["stat"],-p.get("amount",0))
             return
         if eff=="gain_stat_per_leader_with_tag":
-            tag=p.get("tag",""); tot=sum(p.get("amount",0) for l in s.all_leaders() if name_has_tag(l.name,tag))
+            tags=p.get("tags") or ([p["tag"]] if p.get("tag") else [])
+            scope=p.get("scope","all")
+            pool=s.alive(self_l.side) if scope=="ally" else s.alive(s.enemy_side(self_l.side)) if scope=="enemy" else s.all_leaders()
+            amt=p.get("amount",0); tot=sum(amt for l in pool if any(name_has_tag(l.name,str(t)) for t in tags))
+            if tot>0: s.mod(self_l,p["stat"],tot)
+            return
+        if eff=="gain_stat_per_ally_alive":
+            tot=p.get("amount",0)*len(s.alive(self_l.side))
             if tot>0: s.mod(self_l,p["stat"],tot)
             return
         if eff in("gain_stat_filtered","lose_stat_filtered"):
@@ -644,7 +669,10 @@ class Sim:
         s.drawn[owner.side]+=1
         sab=card.get("supporter")
         if sab:
+            _prev_bs=s._stat_gain_by_supporter
+            s._stat_gain_by_supporter=True   # stat gains inside a supporter's ability are "by supporter"
             s.run_effect(owner,sab.get("effect",""),sab.get("params",{}),{"card":card})
+            s._stat_gain_by_supporter=_prev_bs
         disc.append(card)
         if s.depth<24:
             s.depth+=1
@@ -756,8 +784,13 @@ class Sim:
             s.fire(tgt,"on_damaged",{"attacker":atk,"damage":actual})
             s.fire(tgt,"on_survive",{"attacker":atk})
         if atk.hp<=0: s.checkdeath()
+    def _ally_pool(s, self_l, p):     # allies, optionally excluding the caster (exclude_self param)
+        pool=s.alive(self_l.side)
+        return [a for a in pool if a is not self_l] if p.get("exclude_self") else pool
     def pick_target(s, atk):
         enemies=s.alive(s.enemy_side(atk.side))
+        if any(STA[x][2].get("targets_all") for x in atk.st):   # chaos: attack all leaders except self
+            enemies=[l for l in s.alive(atk.side) if l is not atk]+enemies
         if not enemies: return None
         style=atk.d.get("style",1)
         for a in atk.abil:
