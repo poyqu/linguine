@@ -1629,7 +1629,7 @@ function buildUpdates(){
       `<b>New mechanics now simulated.</b> A <span class="stt">[Chaos]</span> status (the afflicted attacks <i>all</i> leaders, not just enemies), plus new "conditional" and "random status" effects. Earlier these were silently ignored, which made some enemies look weaker than they are.`,
       `<b>No single team clears the whole story anymore.</b> The best one-team option now clears about 13-16 of 21. Build <b>per-chapter</b> from the table instead: F1 to F19 all clear with Normal + seasonal crate teams.`,
       `<b>F20 and F21 currently have no reliable clear</b> on any team - the nerfs removed the tools that beat them. The table shows the strongest option anyway (about 84% on F20, 50% on F21).`,
-      `<b>Trust note.</b> A new coverage check now verifies the simulator implements every mechanic the game uses, so a future patch can't silently make the win rates lie.`,
+      `<b>Trust note.</b> A new coverage check verifies the simulator implements every mechanic the game uses, so a patch that <i>adds</i> a new mechanic (like this one did) now fails loudly instead of being silently ignored. It cannot catch everything - a patch that retunes existing cards or formulas still needs a manual re-sync before the win rates are trustworthy again.`,
     ]],
     ["2026-08-21",[
       `<b>The game's combat rework is now simulated.</b> The engine was re-synced to the latest patch, every card re-extracted, and all recommendations recomputed. Highlights below.`,
