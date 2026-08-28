@@ -299,9 +299,10 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
           <label><input type="checkbox" id="e_seedsupp" checked> seeded CPU supporters</label>
         </span>
         <span id="e_customrow" style="display:none">
-          <input class="cst" list="cardlist" placeholder="id" style="width:70px"><input class="clv" type="number" min="1" max="13" value="13">
-          <input class="cst" list="cardlist" placeholder="id" style="width:70px"><input class="clv" type="number" min="1" max="13" value="13">
-          <input class="cst" list="cardlist" placeholder="id" style="width:70px"><input class="clv" type="number" min="1" max="13" value="13">
+          <div class="note" style="margin:2px 0 4px">Type a card name (a list appears as you type), then a level 1-13.</div>
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
+          <input class="cst" list="cardlist" placeholder="type a name" style="width:170px"><input class="clv" type="number" min="1" max="13" value="13" title="level">
           <button onclick="applyCustom()">set</button>
           <datalist id="cardlist"></datalist>
         </span>
@@ -1454,7 +1455,7 @@ function enemyTrio(){
   return{opps:state.custom.filter(x=>ALLC[x.id]),supp:(state.eSuppOv||{})["custom"]||[]};
 }
 window.applyESupp=()=>{
-  const ids=[...document.querySelectorAll("#e_suppedit input.esid")].map(x=>+x.value.trim()).filter(id=>ALLC[id]);
+  const ids=[...document.querySelectorAll("#e_suppedit input.esid")].map(x=>cardIdFromInput(x.value)).filter(id=>ALLC[id]);
   const key=state.emode==="chapter"?(state.chapter+state.diff):"custom";
   state.eSuppOv=state.eSuppOv||{};
   if(ids.length)state.eSuppOv[key]=ids;else delete state.eSuppOv[key];
@@ -1480,11 +1481,11 @@ function renderEnemy(){
   $("e_supp").innerHTML=(supp.length?
     (`CPU supporters (${isOv?"OBSERVED, override active":"computed guess - correct me if the game shows others"}): `+
      supp.map(id=>`${ALLC[id].name}${ALLC[id].stext?" (▸"+ALLC[id].stext+")":""}`).join(" | ")):"CPU supporters: none")+
-    `<div id="e_suppedit" style="margin-top:5px">set observed: `+
-    [0,1,2,3].map(i=>`<input class="esid" list="cardlist" style="width:64px" placeholder="id" value="${supp[i]||""}">`).join(" ")+
+    `<div id="e_suppedit" style="margin-top:5px">set supporters (type a name): `+
+    [0,1,2,3].map(i=>`<input class="esid" list="cardlist" style="width:150px" placeholder="type a name" value="${supp[i]?nameTag(supp[i]).replace(/"/g,"&quot;"):""}">`).join(" ")+
     ` <button onclick="applyESupp()">apply</button></div>`;
   if(state.emode==="custom"){
-    $("e_customrow").querySelectorAll("input.cst").forEach((inp,i)=>{inp.value=state.custom[i]?`${state.custom[i].id}`:"";});
+    $("e_customrow").querySelectorAll("input.cst").forEach((inp,i)=>{inp.value=state.custom[i]?nameTag(state.custom[i].id):"";});
     $("e_customrow").querySelectorAll("input.clv").forEach((inp,i)=>{inp.value=state.custom[i]?state.custom[i].lvl:13;});
   }
 }
@@ -1591,8 +1592,20 @@ $("e_mode").addEventListener("change",e=>{state.emode=e.target.value;save();rend
 $("e_chapter").addEventListener("change",e=>{state.chapter=e.target.value;save();renderEnemy();});
 $("e_diff").addEventListener("change",e=>{state.diff=e.target.value;save();renderEnemy();});
 $("e_seedsupp").addEventListener("change",e=>{state.eSupp=e.target.checked;save();renderEnemy();});
+// resolve a custom-enemy input to a card id: accepts "Name #id", a raw id, or a (prefix) name
+function nameTag(id){return ALLC[id]?`${ALLC[id].name}${ALLC[id].boss?" [BOSS]":""} #${id}`:String(id);}
+function cardIdFromInput(str){
+  str=(str||"").trim(); if(!str)return NaN;
+  const m=str.match(/#(\d+)\s*$/); if(m&&ALLC[+m[1]])return +m[1];
+  if(/^\d+$/.test(str)&&ALLC[+str])return +str;
+  const low=str.toLowerCase();
+  const exact=Object.values(ALLC).find(c=>c.name.toLowerCase()===low);
+  if(exact)return exact.id;
+  const pre=Object.values(ALLC).find(c=>c.name.toLowerCase().startsWith(low));
+  return pre?pre.id:NaN;
+}
 window.applyCustom=()=>{
-  const ids=[...$("e_customrow").querySelectorAll("input.cst")].map(x=>+x.value.trim());
+  const ids=[...$("e_customrow").querySelectorAll("input.cst")].map(x=>cardIdFromInput(x.value));
   const lvs=[...$("e_customrow").querySelectorAll("input.clv")].map(x=>Math.max(1,Math.min(13,+x.value||1)));
   state.custom=ids.map((id,i)=>({id,lvl:lvs[i]})).filter(x=>ALLC[x.id]);
   save();renderEnemy();
@@ -2123,8 +2136,8 @@ window.submitBuild=()=>{
   msg.innerHTML=`A GitHub tab opened with your submission pre-filled - press <b>Submit new issue</b> there to finish. It shows up here once it passes verification.`;
   flash("finish your submission on the GitHub tab");
 };
-// datalist for custom enemies
-$("cardlist").innerHTML=Object.values(ALLC).map(c=>`<option value="${c.id}">${c.name}${c.boss?" [BOSS]":""}</option>`).join("");
+// datalist for custom enemies: value is a readable "Name #id" so you pick by NAME, not by number
+$("cardlist").innerHTML=Object.values(ALLC).map(c=>`<option value="${nameTag(c.id).replace(/"/g,"&quot;")}"></option>`).join("");
 $("e_mode").value=state.emode;$("e_diff").value=state.diff;$("e_seedsupp").checked=state.eSupp;
 renderCards();renderTeam();renderEnemy();renderSaved();showTab("battle");renderBuilds();loadBuilds();
 $("f_dir").textContent=state.sortRev?"▲":"▼";
