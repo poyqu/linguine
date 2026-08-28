@@ -527,8 +527,10 @@
 "stat": "health",
 "amount": 5
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "hat"
+},
 "once_game": false,
 "once_turn": false
 }
@@ -732,23 +734,20 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "multi_effect",
+"effect": "draw_supporter_or_penalty",
 "params": {
-"effects": [
-{
-"effect": "draw_supporter",
-"params": {
-"count": 2
-}
-},
-{
+"count": 2,
+"tags": [
+"cyan",
+"hat"
+],
+"penalty": {
 "effect": "lose_stat",
 "params": {
 "stat": "health",
 "amount": 30
 }
 }
-]
 },
 "condition": "",
 "cond_params": {},
@@ -764,6 +763,13 @@
 "effect": "draw_supporter",
 "params": {
 "count": 1
+}
+},
+{
+"effect": "gain_stat_all_allies",
+"params": {
+"stat": "attack",
+"amount": 10
 }
 },
 {
@@ -998,7 +1004,7 @@
 "style": 9,
 "abilities": [
 {
-"trigger": "turn_start",
+"trigger": "on_opp_supporter_drawn",
 "effect": "multi_effect",
 "params": {
 "effects": [
@@ -1024,8 +1030,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "hat"
+},
 "once_game": false,
 "once_turn": false
 },
@@ -2350,14 +2358,23 @@
 "params": {
 "effects": [
 {
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
 "stat": "attack",
-"amount": 5
+"amount": 5,
+"tags": [
+"hat"
+],
+"scope": "all"
 }
 },
 {
-"effect": "inflict_status",
+"effect": "conditional",
+"condition": "leaders_with_tag_at_least",
+"condition_params": {
+"tag": "hat",
+"value": 3
+},
 "params": {
 "status_id": "blessed",
 "target": "self"
@@ -2372,9 +2389,17 @@
 },
 {
 "trigger": "turn_start",
+"effect": "draw_supporter_tag_chain",
+"params": {
+"tags": [
+"hat"
+],
+"then": {
 "effect": "draw_supporter",
 "params": {
 "count": 1
+}
+}
 },
 "condition": "",
 "cond_params": {},
@@ -2511,23 +2536,19 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "multi_effect",
+"effect": "draw_supporter_tag_chain",
 "params": {
-"effects": [
-{
-"effect": "draw_supporter",
-"params": {
-"count": 1
-}
-},
-{
+"tags": [
+"blue",
+"cap"
+],
+"then": {
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
 "amount": 2
 }
 }
-]
 },
 "condition": "",
 "cond_params": {},
@@ -3844,7 +3865,7 @@
 "style": 3,
 "abilities": [
 {
-"trigger": "turn_start",
+"trigger": "on_supporter_drawn",
 "effect": "multi_effect",
 "params": {
 "effects": [
@@ -3870,8 +3891,13 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_any_tag",
+"cond_params": {
+"tags": [
+"purple",
+"glasses"
+]
+},
 "once_game": false,
 "once_turn": false
 },
@@ -4145,7 +4171,7 @@
 "params": {
 "amount": 5
 },
-"condition": "",
+"condition": "self_no_statuses",
 "cond_params": {},
 "once_game": false,
 "once_turn": false
@@ -4684,43 +4710,30 @@
 "style": 4,
 "abilities": [
 {
-"trigger": "turn_start",
-"effect": "multi_effect",
+"trigger": "on_attack",
+"effect": "inflict_status_allies_with_tag",
 "params": {
-"effects": [
-{
-"effect": "inflict_status_filtered",
-"params": {
-"side": "ally",
-"status_id": "lucky",
-"filter": {
-"tag": "gold"
-}
-}
-},
-{
-"effect": "inflict_status_filtered",
-"params": {
-"side": "ally",
 "status_id": "strengthened",
-"filter": {
-"tag": "gold"
-}
-}
-}
+"tags": [
+"gold"
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "self_has_status",
+"cond_params": {
+"status_id": "lucky"
+},
 "once_game": false,
 "once_turn": false
 },
 {
 "trigger": "on_supporter_drawn",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "speed",
-"amount": 40
+"amount": 40,
+"tags": [
+"diamond"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -4764,8 +4777,10 @@
 },
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "gold",
+"scope": "ally",
 "stat": "speed",
 "amount": 25
 },
@@ -4797,10 +4812,14 @@
 "abilities": [
 {
 "trigger": "on_status_applied",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "attack",
-"amount": 5
+"amount": 5,
+"tags": [
+"diamond",
+"crown"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -5210,8 +5229,9 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "diamond",
 "stat": "attack",
 "amount": 2
 },
@@ -5246,7 +5266,7 @@
 "stat": "attack",
 "value": 37
 },
-"once_game": false,
+"once_game": true,
 "once_turn": false
 }
 ],
@@ -5440,7 +5460,7 @@
 "style": 9,
 "abilities": [
 {
-"trigger": "turn_start",
+"trigger": "on_any_supporter_drawn",
 "effect": "multi_effect",
 "params": {
 "effects": [
@@ -5459,8 +5479,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "pink"
+},
 "once_game": true,
 "once_turn": false
 },
@@ -6219,7 +6241,7 @@
 "once_turn": false
 },
 {
-"trigger": "turn_start",
+"trigger": "on_supporter_drawn",
 "effect": "multi_effect",
 "params": {
 "effects": [
@@ -6238,8 +6260,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "scarf"
+},
 "once_game": false,
 "once_turn": false
 }
@@ -6268,8 +6292,12 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tags": [
+"orange",
+"scarf"
+],
 "stat": "health",
 "amount": 20
 },
@@ -6474,10 +6502,10 @@
 "118": {
 "id": 118,
 "name": "Linguine The Red-Nosed Reindeer",
-"hp": 201,
+"hp": 180,
 "spd": 682,
 "def": 24,
-"atk": 48,
+"atk": 38,
 "style": 8,
 "abilities": [
 {
@@ -7136,8 +7164,10 @@
 "stat": "health",
 "amount": 100
 },
-"condition": "",
-"cond_params": {},
+"condition": "ally_has_tag",
+"cond_params": {
+"tag": "fat and stupid"
+},
 "once_game": true,
 "once_turn": false
 },
@@ -7331,8 +7361,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "party hat"
+},
 "once_game": false,
 "once_turn": false
 }
@@ -8015,8 +8047,10 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "pink party hat",
+"scope": "ally",
 "stat": "health",
 "amount": 20
 },
@@ -8029,8 +8063,10 @@
 },
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "gold party hat",
+"scope": "ally",
 "stat": "health",
 "amount": 25
 },
@@ -8464,24 +8500,16 @@
 },
 {
 "trigger": "turn_start",
-"effect": "multi_effect",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
-"effects": [
-{
-"effect": "gain_stat",
-"params": {
+"tags": [
+"gold",
+"white",
+"hat"
+],
+"scope": "enemy",
 "stat": "health",
 "amount": 30
-}
-},
-{
-"effect": "gain_stat",
-"params": {
-"stat": "health",
-"amount": 30
-}
-}
-]
 },
 "condition": "",
 "cond_params": {},
@@ -9444,8 +9472,10 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "skateboard",
+"scope": "ally",
 "stat": "speed",
 "amount": 100
 },
@@ -9505,8 +9535,10 @@
 },
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_per_leader_with_tag",
 "params": {
+"tag": "green",
+"scope": "ally",
 "stat": "defense",
 "amount": 2
 },
@@ -9569,7 +9601,7 @@
 ]
 },
 "once_game": false,
-"once_turn": false
+"once_turn": true
 },
 {
 "trigger": "on_any_supporter_drawn",
@@ -13597,8 +13629,10 @@
 "stat": "attack",
 "amount": 5
 },
-"condition": "",
-"cond_params": {},
+"condition": "ally_has_tag",
+"cond_params": {
+"tag": "sketched"
+},
 "once_game": false,
 "once_turn": false
 },
@@ -13695,8 +13729,23 @@
 "status_id": "purified",
 "target": "self"
 },
-"condition": "",
-"cond_params": {},
+"condition": "all_of",
+"cond_params": {
+"conds": [
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "sketched"
+}
+},
+{
+"condition": "turn_equals",
+"params": {
+"value": 3
+}
+}
+]
+},
 "once_game": false,
 "once_turn": false
 },
@@ -13740,8 +13789,10 @@
 "stat": "attack",
 "amount": 10
 },
-"condition": "",
-"cond_params": {},
+"condition": "ally_has_tag",
+"cond_params": {
+"tag": "sketched"
+},
 "once_game": false,
 "once_turn": false
 },
@@ -14110,10 +14161,13 @@
 },
 {
 "trigger": "on_survive",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 5
+"amount": 5,
+"tags": [
+"cola"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -14342,10 +14396,13 @@
 },
 {
 "trigger": "on_death",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 20
+"amount": 20,
+"tags": [
+"cola"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -15714,8 +15771,13 @@
 "stat": "health",
 "amount": 8
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_any_tag",
+"cond_params": {
+"tags": [
+"blue",
+"headband"
+]
+},
 "once_game": false,
 "once_turn": false
 }
@@ -16818,7 +16880,7 @@
 "id": 321,
 "name": "Linguine (Blue Lightning)",
 "hp": 156,
-"spd": 749,
+"spd": 640,
 "def": 21,
 "atk": 16,
 "style": 2,
@@ -16880,13 +16942,29 @@
 "once_turn": false
 },
 {
-"trigger": "turn_start",
+"trigger": "on_any_attack",
 "effect": "draw_supporter",
 "params": {
 "count": 2
 },
-"condition": "",
-"cond_params": {},
+"condition": "all_of",
+"cond_params": {
+"conds": [
+{
+"condition": "ctx_is_ally",
+"params": {
+"key": "attacker"
+}
+},
+{
+"condition": "ctx_has_tag",
+"params": {
+"key": "attacker",
+"tag": "lightning"
+}
+}
+]
+},
 "once_game": true,
 "once_turn": false
 }
@@ -18950,10 +19028,14 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_all_allies_with_tag",
 "params": {
 "stat": "defense",
-"amount": 3
+"amount": 3,
+"tags": [
+"gold",
+"etched"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -19585,7 +19667,7 @@
 "377": {
 "id": 377,
 "name": "Linguine (chad)",
-"hp": 257,
+"hp": 160,
 "spd": 478,
 "def": 22,
 "atk": 21,
@@ -19628,7 +19710,7 @@
 {
 "effect": "inflict_status",
 "params": {
-"status_id": "stunned",
+"status_id": "bleeding",
 "target": "random_enemy"
 }
 },
@@ -19658,7 +19740,7 @@
 ]
 },
 "once_game": false,
-"once_turn": false
+"once_turn": true
 }
 ],
 "element": 4,
@@ -19671,7 +19753,7 @@
 }
 },
 "stext_desc": "The health of the Highest-Attack Enemy Leader is decreased by 4.",
-"supporter2_desc": "All of your leaders with <Chad> in their name are inflicted with [Strengthened] and gain 6 attack.",
+"supporter2_desc": "All of your leaders with <Chad> in their name are inflicted with [Strengthened] and gain 3 attack.",
 "supporter2_active": false
 },
 "378": {
@@ -19795,8 +19877,13 @@
 "params": {
 "amount": 15
 },
-"condition": "",
-"cond_params": {},
+"condition": "target_has_any_tag",
+"cond_params": {
+"tags": [
+"eyes",
+"eye"
+]
+},
 "once_game": false,
 "once_turn": false
 },
@@ -20245,13 +20332,18 @@
 },
 {
 "trigger": "on_supporter_drawn",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 4
+"amount": 4,
+"tags": [
+"retro"
+]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "retro"
+},
 "once_game": false,
 "once_turn": false
 }
@@ -20393,8 +20485,10 @@
 "stat": "attack",
 "amount": 4
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_tag",
+"cond_params": {
+"tag": "pixel"
+},
 "once_game": false,
 "once_turn": false
 }
@@ -20771,8 +20865,13 @@
 "stat": "health",
 "amount": 8
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_card_has_any_tag",
+"cond_params": {
+"tags": [
+"blue",
+"socks"
+]
+},
 "once_game": false,
 "once_turn": false
 }
@@ -21409,7 +21508,7 @@
 },
 {
 "trigger": "on_attacked",
-"effect": "gain_stat",
+"effect": "gain_stat_per_ally_alive",
 "params": {
 "stat": "health",
 "amount": 4
@@ -21619,8 +21718,10 @@
 {
 "effect": "inflict_status_allies_with_tag",
 "params": {
-"tag": "galaxy",
-"status_id": "lucky"
+"status_id": "lucky",
+"tags": [
+"galaxy"
+]
 }
 },
 {
@@ -21754,10 +21855,14 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 4
+"amount": 4,
+"tags": [
+"galaxy",
+"crown"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -21816,15 +21921,11 @@
 {
 "effect": "inflict_status_allies_with_tag",
 "params": {
-"tag": "galaxy",
-"status_id": "lucky"
-}
-},
-{
-"effect": "inflict_status_allies_with_tag",
-"params": {
-"tag": "gold",
-"status_id": "lucky"
+"status_id": "lucky",
+"tags": [
+"galaxy",
+"gold"
+]
 }
 }
 ]
@@ -21860,7 +21961,7 @@
 },
 "425": {
 "id": 425,
-"name": "Linguine (Linguine Craft)",
+"name": "Linguine (Block Style)",
 "hp": 228,
 "spd": 475,
 "def": 17,
@@ -22600,8 +22701,11 @@
 "params": {
 "status_id": "lucky"
 },
-"condition": "",
-"cond_params": {},
+"condition": "leaders_with_tag_at_least",
+"cond_params": {
+"tag": "eyes",
+"value": 3
+},
 "once_game": true,
 "once_turn": false
 }
@@ -22853,10 +22957,10 @@
 "443": {
 "id": 443,
 "name": "Linguine (Heatmap)",
-"hp": 191,
+"hp": 165,
 "spd": 587,
 "def": 9,
-"atk": 37,
+"atk": 30,
 "style": 9,
 "abilities": [
 {
@@ -23554,10 +23658,13 @@
 },
 {
 "trigger": "on_kill",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 15
+"amount": 15,
+"tags": [
+"straw hat"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -24103,8 +24210,11 @@
 "params": {
 "status_id": "lucky"
 },
-"condition": "",
-"cond_params": {},
+"condition": "leaders_with_tag_at_least",
+"cond_params": {
+"tag": "sparkle eyes",
+"value": 3
+},
 "once_game": true,
 "once_turn": false
 }
@@ -24212,10 +24322,13 @@
 },
 {
 "trigger": "on_kill",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 10
+"amount": 10,
+"tags": [
+"sparkle eyes"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -24285,10 +24398,10 @@
 "467": {
 "id": 467,
 "name": "Linguine (Comic Book)",
-"hp": 173,
+"hp": 155,
 "spd": 652,
 "def": 25,
-"atk": 38,
+"atk": 32,
 "style": 7,
 "abilities": [
 {
@@ -24396,10 +24509,14 @@
 },
 {
 "trigger": "on_kill",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 20
+"amount": 20,
+"tags": [
+"galaxy",
+"sparkle"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -24760,10 +24877,13 @@
 },
 {
 "trigger": "on_kill",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 10
+"amount": 10,
+"tags": [
+"fur"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -26110,10 +26230,13 @@
 },
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 3
+"amount": 3,
+"tags": [
+"guineblade"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -29361,7 +29484,7 @@
 "hp": 177,
 "spd": 527,
 "def": 16,
-"atk": 34,
+"atk": 29,
 "style": 2,
 "abilities": [
 {
@@ -29388,7 +29511,11 @@
 }
 },
 {
-"effect": "gain_stat",
+"effect": "conditional",
+"condition": "ally_has_tag",
+"condition_params": {
+"tag": "pirate"
+},
 "params": {
 "stat": "attack",
 "amount": 2
@@ -29548,10 +29675,13 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 4
+"amount": 4,
+"tags": [
+"pirate"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -29825,8 +29955,13 @@
 "params": {
 "count": 1
 },
-"condition": "",
-"cond_params": {},
+"condition": "ally_has_any_tag",
+"cond_params": {
+"tags": [
+"forgotten",
+"guineblade"
+]
+},
 "once_game": false,
 "once_turn": false
 }
@@ -29946,8 +30081,13 @@
 "stat": "attack",
 "amount": 2
 },
-"condition": "",
-"cond_params": {},
+"condition": "ally_has_any_tag",
+"cond_params": {
+"tags": [
+"forgotten",
+"guineblade"
+]
+},
 "once_game": false,
 "once_turn": false
 }
@@ -30108,10 +30248,14 @@
 },
 {
 "trigger": "on_kill",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 8
+"amount": 8,
+"tags": [
+"ancient",
+"guineblade"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -30719,8 +30863,10 @@
 "params": {
 "amount": 15
 },
-"condition": "",
-"cond_params": {},
+"condition": "target_has_tag",
+"cond_params": {
+"tag": "eyes"
+},
 "once_game": false,
 "once_turn": false
 },
@@ -32843,10 +32989,14 @@
 },
 {
 "trigger": "on_survive",
-"effect": "gain_stat",
+"effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 6
+"amount": 6,
+"tags": [
+"guardian",
+"heaven"
+]
 },
 "condition": "",
 "cond_params": {},
@@ -32919,10 +33069,10 @@
 "619": {
 "id": 619,
 "name": "Linguine (Static)",
-"hp": 175,
+"hp": 125,
 "spd": 522,
 "def": 14,
-"atk": 30,
+"atk": 25,
 "style": 1,
 "abilities": [
 {
@@ -33466,7 +33616,7 @@
 "hp": 176,
 "spd": 568,
 "def": 16,
-"atk": 35,
+"atk": 30,
 "style": 3,
 "abilities": [
 {
@@ -33510,7 +33660,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 10
+"amount": 5
 }
 }
 ]
@@ -33618,7 +33768,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 4
+"amount": 2
 },
 "condition": "",
 "cond_params": {},
@@ -34478,7 +34628,7 @@
 "effect": "gain_stat_all_allies",
 "params": {
 "stat": "attack",
-"amount": 3
+"amount": 1
 },
 "condition": "",
 "cond_params": {},
@@ -34834,7 +34984,7 @@
 "effect": "lose_stat_all_enemies",
 "params": {
 "stat": "defense",
-"amount": 3
+"amount": 2
 },
 "condition": "",
 "cond_params": {},
@@ -34846,7 +34996,7 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 4,
+"amount": 2,
 "target": "highest_atk_ally"
 }
 },
@@ -35449,7 +35599,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 3
+"amount": 2
 },
 "condition": "ctx_status_equals",
 "cond_params": {
@@ -35463,12 +35613,275 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 3,
+"amount": 2,
 "target": "highest_atk_ally"
 }
 },
 "element": 0,
 "apex": true,
+"stext_desc": ""
+},
+"686": {
+"id": 686,
+"name": "Linguine (DEV)",
+"hp": 686,
+"spd": 939,
+"def": 43,
+"atk": 98,
+"style": 4,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "multi_effect",
+"params": {
+"effects": [
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "poisoned",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "on_fire",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "stunned",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "doomed",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "dizzy",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "weak",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "slow",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "paralyzed",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "ice_burn",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "frozen",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "stinky",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "chaos",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "cursed",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "bleeding",
+"target": "target"
+}
+}
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false
+},
+{
+"trigger": "turn_start",
+"effect": "lose_stat_all_allies",
+"params": {
+"stat": "health",
+"amount": 500,
+"exclude_self": true
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false
+},
+{
+"trigger": "passive_immunity",
+"effect": "",
+"params": {
+"status_id": "all"
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false
+}
+],
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "health",
+"amount": 10,
+"target": "lowest_hp_overall"
+}
+},
+"element": 0,
+"stext_desc": ""
+},
+"687": {
+"id": 687,
+"name": "Linguine but he has a ruler",
+"hp": 185,
+"spd": 519,
+"def": 20,
+"atk": 3,
+"style": 4,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "chaos",
+"target": "target"
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false
+},
+{
+"trigger": "turn_start",
+"effect": "inflict_status",
+"params": {
+"status_id": "blessed",
+"target": "highest_hp_ally"
+},
+"condition": "self_hp_below",
+"cond_params": {
+"value": 101
+},
+"once_game": true,
+"once_turn": false
+}
+],
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "health",
+"amount": 4,
+"target": "highest_hp_ally"
+}
+},
+"element": 1,
+"stext_desc": ""
+},
+"688": {
+"id": 688,
+"name": "Linguine but he has two rulers",
+"hp": 190,
+"spd": 480,
+"def": 26,
+"atk": 6,
+"style": 5,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "multi_effect",
+"params": {
+"effects": [
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "chaos",
+"target": "target"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "bleeding",
+"target": "target"
+}
+}
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false
+},
+{
+"trigger": "turn_start",
+"effect": "inflict_status",
+"params": {
+"status_id": "strengthened",
+"target": "highest_hp_ally"
+},
+"condition": "self_hp_below",
+"cond_params": {
+"value": 51
+},
+"once_game": true,
+"once_turn": false
+}
+],
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "defense",
+"amount": 4,
+"target": "highest_hp_ally"
+}
+},
+"element": 2,
 "stext_desc": ""
 }
 },
@@ -35595,9 +36008,22 @@
 }
 ]
 },
-"condition": "ctx_is_enemy",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "ctx_is_enemy",
+"params": {
 "key": "gainer"
+}
+},
+{
+"condition": "ctx_flag",
+"params": {
+"key": "by_supporter"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false
