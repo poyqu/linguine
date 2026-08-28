@@ -1494,8 +1494,8 @@ function renderEnemy(){
   $("e_supp").innerHTML=(supp.length?
     (`CPU supporters (${isOv?"OBSERVED, override active":"computed guess - correct me if the game shows others"}): `+
      supp.map(id=>`${ALLC[id].name}${ALLC[id].stext?" (▸"+ALLC[id].stext+")":""}`).join(" | ")):"CPU supporters: none")+
-    `<div id="e_suppedit" style="margin-top:5px">set supporters (type a name): `+
-    [0,1,2,3].map(i=>`<input class="esid" list="cardlist" style="width:150px" placeholder="type a name" value="${supp[i]?nameTag(supp[i]).replace(/"/g,"&quot;"):""}">`).join(" ")+
+    `<div id="e_suppedit" style="margin-top:5px">Enemy supporter deck - type a card name into each slot (up to 4), then apply:<br>`+
+    [0,1,2,3].map(i=>`<input class="esid" list="cardlist" style="width:150px;margin-top:4px" placeholder="empty slot ${i+1}" value="${supp[i]?nameTag(supp[i]).replace(/"/g,"&quot;"):""}">`).join(" ")+
     ` <button onclick="applyESupp()">apply</button></div>`;
   if(state.emode==="custom"){
     $("e_customrow").querySelectorAll("input.cst").forEach((inp,i)=>{inp.value=state.custom[i]?nameTag(state.custom[i].id):"";});
