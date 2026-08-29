@@ -35773,7 +35773,8 @@
 "target": "lowest_hp_overall"
 }
 },
-"element": 0,
+"element": 3,
+"apex": true,
 "stext_desc": ""
 },
 "687": {
@@ -35821,6 +35822,7 @@
 }
 },
 "element": 1,
+"apex": false,
 "stext_desc": ""
 },
 "688": {
@@ -35882,6 +35884,7 @@
 }
 },
 "element": 2,
+"apex": false,
 "stext_desc": ""
 }
 },
