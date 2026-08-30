@@ -67,7 +67,7 @@ class L:
         for sid in s.st:
             f=STA.get(sid,(0,[],{}))[2]
             if "force_defense" in f: fd=max(fd,f["force_defense"])
-        return fd if fd>=0 else s.dfn
+        return min(50, fd if fd>=0 else s.dfn)   # game effective_defense() caps at DEFENSE_HARD_CAP=50
     def eff_spd(s):
         ov=-1
         for sid in s.st:
@@ -131,7 +131,7 @@ class Sim:
     def alive(s,side): return [l for l in s.teams[side] if l.alive]
     def all_leaders(s): return [l for l in s.teams[0]+s.teams[1] if l.alive]
     # ---- status ----
-    def inflict(s, tgt, sid, src=None):
+    def inflict(s, tgt, sid, src=None, notify=True):
         if tgt is None or not tgt.alive: return False
         if sid not in STA: return False
         if sid!="purified" and tgt.immune(sid): return False
@@ -145,7 +145,7 @@ class Sim:
         if sid in tgt.st:           # re-application: turns_elapsed=0 -> full duration again, NO trigger
             tgt.st[sid]=[STA[sid][0]*mult,0]; return False
         tgt.st[sid]=[STA[sid][0]*mult,0]
-        if s.depth<24:              # fresh application fires reaction + broadcast
+        if notify and s.depth<24:   # fresh application fires reaction + broadcast (game: _apply_status_notify)
             s.depth+=1
             s.fire(tgt,"on_status_applied",{"affected":tgt,"status_id":sid})
             for l in s.all_leaders(): s.fire(l,"on_any_status_applied",{"affected":tgt,"status_id":sid})
@@ -176,7 +176,13 @@ class Sim:
             deltas=STA[sid][1]
             d=deltas[idx] if idx < len(deltas) else {}
             for k,v in d.items():
-                if k=="health": l.hp = min(l.mhp,l.hp+v) if v>0 else l.hp+v
+                if k=="health":
+                    hv=v
+                    for a in l.abil:   # passive_status_heal: convert this status's tick damage into a heal (game battle_sim.gd:63-72)
+                        if a.get("trigger")=="passive_status_heal" and a.get("params",{}).get("status_id")==sid:
+                            hv=a.get("params",{}).get("amount",0)
+                    if hv>0: l.hp=min(l.mhp,l.hp+hv)
+                    else: l.hp+=hv; l.dmg_turn+=-hv   # tick damage counts toward damage-this-turn (game take_damage)
                 elif k=="attack": l.atk=max(0,min(MAXATK,l.atk+v))
                 elif k=="defense": l.dfn=max(0,l.dfn+v)
                 elif k=="speed": l.spd=max(0,l.spd+v)
@@ -200,43 +206,41 @@ class Sim:
         if key in ctx and hasattr(ctx[key],"alive"): return ctx[key]
         if key=="self": return self_l
         allies=s.alive(self_l.side); enemies=s.alive(s.enemy_side(self_l.side))
-        d={"random_ally":allies,"random_enemy":enemies}
+        d={"random_ally":allies,"random_enemy":enemies,"random_any":allies+enemies,"random_leader":allies+enemies}
         if key in d:
             pool=d[key]; return s.rng.choice(pool) if pool else None
         SUP={"fastest":("spd",True),"slowest":("spd",False),"highest_hp":("hp",True),"lowest_hp":("hp",False),
              "highest_def":("dfn",True),"lowest_def":("dfn",False),"highest_atk":("atk",True),"lowest_atk":("atk",False)}
-        for suf,(pool,isenemy) in (("_ally",0),("_enemy",1)) if False else []:
-            pass
         for stem,(attr,hi) in SUP.items():
             for suf,pool in (("_ally",allies),("_enemy",enemies),("_overall",allies+enemies)):
                 if key==stem+suf:
-                    if not pool: return None
                     keyf=lambda l:(l.eff_spd() if attr=="spd" else l.eff_def() if attr=="dfn" else getattr(l,attr))
-                    return (max if hi else min)(pool,key=keyf)
+                    return s._ext(pool,keyf,hi)
         return None
     # ---- conditions ----
     def cond(s, self_l, cname, cp, ctx):
         if not cname: return True
         if cname=="self_hp_at_or_below": return self_l.hp<=cp.get("value",0)
         if cname=="self_hp_above": return self_l.hp>cp.get("value",0)
-        if cname=="self_stat_at_least":
-            v={"health":self_l.hp,"attack":self_l.atk,"defense":self_l.eff_def(),"speed":self_l.eff_spd()}[cp["stat"]]; return v>=cp.get("value",0)
+        if cname=="self_stat_at_least":   # game reads RAW defense/speed here, NOT effective (battle_sim.gd:994-996)
+            v={"health":self_l.hp,"attack":self_l.atk,"defense":self_l.dfn,"speed":self_l.spd}[cp["stat"]]; return v>=int(cp.get("value",0))
         if cname=="self_stat_at_most":
-            v={"health":self_l.hp,"attack":self_l.atk,"defense":self_l.eff_def(),"speed":self_l.eff_spd()}[cp["stat"]]; return v<=cp.get("value",0)
-        if cname=="turn_equals": return s.turn==cp.get("value")
+            v={"health":self_l.hp,"attack":self_l.atk,"defense":self_l.dfn,"speed":self_l.spd}[cp["stat"]]; return v<=int(cp.get("value",0))
+        if cname=="turn_equals": return s.turn==int(cp.get("value",1))
         if cname=="turn_in_set": return s.turn in cp.get("values",[])
         if cname=="self_has_status": return cp.get("status_id") in self_l.st
         if cname=="self_no_statuses": return len(self_l.st)==0
-        if cname=="target_has_status":
-            t=ctx.get("target"); return t is not None and cp.get("status_id") in t.st
+        if cname=="target_has_status":   # game default target "victim" via _select_target (battle_sim.gd:982-986)
+            t=s.sel(self_l,cp.get("target","victim"),ctx); return t is not None and cp.get("status_id") in t.st
         if cname in("ally_has_tag","any_leader_has_tag"):
             tag=cp.get("tag","")
-            pool=s.alive(self_l.side) if cname=="ally_has_tag" else s.all_leaders()
+            # ally_has_tag EXCLUDES self (game: `if ally != self_l`); any_leader_has_tag includes all
+            pool=[l for l in s.alive(self_l.side) if l is not self_l] if cname=="ally_has_tag" else s.all_leaders()
             return any(name_has_tag(l.name,tag) for l in pool)
-        if cname=="ally_has_any_tag":
-            return any(any(name_has_tag(l.name,t) for t in cp.get("tags",[])) for l in s.alive(self_l.side))
-        if cname=="enemies_count_at_least": return len(s.alive(s.enemy_side(self_l.side)))>=cp.get("value",0)
-        if cname=="allies_count_at_least": return len(s.alive(self_l.side))>=cp.get("value",0)
+        if cname=="ally_has_any_tag":   # also excludes self (game: `if a != self_l`)
+            return any(any(name_has_tag(l.name,t) for t in cp.get("tags",[])) for l in s.alive(self_l.side) if l is not self_l)
+        if cname=="enemies_count_at_least": return len(s.alive(s.enemy_side(self_l.side)))>=int(cp.get("value",1))
+        if cname=="allies_count_at_least": return len(s.alive(self_l.side))>=int(cp.get("value",1))
         if cname=="self_is_fastest":
             return self_l.eff_spd()>=max(l.eff_spd() for l in s.all_leaders())
         if cname=="self_is_slowest":
@@ -244,12 +248,12 @@ class Sim:
         if cname=="target_hp_above_self":
             t=ctx.get("target"); return t is not None and t.hp>self_l.hp
         if cname=="allies_with_hp_above_at_least":
-            n=sum(1 for l in s.alive(self_l.side) if l.hp>cp.get("value",0)); return n>=cp.get("count",0)
+            n=sum(1 for l in s.alive(self_l.side) if l.hp>cp.get("value",0)); return n>=int(cp.get("count",1))
         if cname=="self_damage_this_turn_above": return self_l.dmg_turn>cp.get("value",0)
         if cname=="ctx_status_equals": return ctx.get("status_id")==cp.get("status_id")
         if cname=="ctx_status_in": return ctx.get("status_id") in cp.get("status_ids",[])
-        if cname=="ctx_is_enemy":
-            t=ctx.get(cp.get("key","")); return t is not None and t.side!=self_l.side
+        if cname=="ctx_is_enemy":   # game default key "attacker" (battle_sim.gd:1311)
+            t=ctx.get(cp.get("key","attacker")); return t is not None and hasattr(t,"alive") and t.side!=self_l.side
         if cname=="ctx_flag": return bool(ctx.get(cp.get("key","")))
         if cname in("drawn_card_has_tag","ctx_card_has_any_tag"):
             card=ctx.get("card");
@@ -406,12 +410,12 @@ class Sim:
     def run_effect(s, self_l, eff, p, ctx):
         if not eff: return
         if eff=="multi_effect":
-            for e in p.get("effects",[]): s.run_effect(self_l,e["effect"],e.get("params",{}),ctx)
+            for e in p.get("effects",[]): s.run_effect(self_l,e.get("effect",""),e.get("params",{}),ctx)
             return
         if eff=="gain_stat": s.mod(self_l,p["stat"],p.get("amount",0)); return
         if eff=="lose_stat": s.mod(self_l,p["stat"],-p.get("amount",0)); return
         if eff in("gain_stat_target","lose_stat_target"):
-            t=s.sel(self_l,p.get("target",""),ctx);
+            t=s.sel(self_l,p.get("target","self"),ctx);   # game default target "self" (battle_sim.gd:642)
             if t: s.mod(t,p["stat"],p.get("amount",0)*(1 if eff.startswith("gain") else -1))
             return
         if eff=="conditional":            # faithful to game: multi_effect passes only params, so
@@ -444,18 +448,19 @@ class Sim:
         if eff=="gain_stat_allies_with_status":
             sid=p.get("status_id") or p.get("has_status","")
             for l in s.alive(self_l.side):
-                if (not sid) or sid in l.st: s.mod(l,p["stat"],p.get("amount",0))
+                if sid in l.st: s.mod(l,p["stat"],p.get("amount",0))   # game has_status(sid): empty matches NONE
             return
         if eff=="damage_target":
             t=s.sel(self_l,p.get("target","self"),ctx)
             if t is not None:
-                t.hp-=min(t.hp,max(0,p.get("amount",0)))
+                a2=min(t.hp,max(0,p.get("amount",0))); t.hp-=a2; t.dmg_turn+=a2
                 s.checkdeath(self_l)
             return
         if eff=="damage_all_enemies":
             amt=p.get("amount",0)
             if amt>0:
-                for l in s.alive(s.enemy_side(self_l.side)): l.hp-=min(l.hp,amt)
+                for l in s.alive(s.enemy_side(self_l.side)):
+                    a2=min(l.hp,amt); l.hp-=a2; l.dmg_turn+=a2
                 s.checkdeath(self_l)
             return
         if eff=="extra_attack":
@@ -472,7 +477,9 @@ class Sim:
             s.checkdeath(); return
         if eff=="set_stat":
             v=p.get("value",0); stt=p.get("stat","")
-            if stt=="health": self_l.hp=min(self_l.mhp,v)
+            if stt=="health":
+                self_l.hp=max(0,min(self_l.mhp,v))          # game: max(0,min(value,max_hp)) then _check_death
+                if self_l.hp<=0: s.checkdeath(None)
             elif stt=="attack": self_l.atk=max(0,min(MAXATK,v))
             elif stt=="defense": self_l.dfn=max(0,v)
             elif stt=="speed": self_l.spd=max(0,v)
@@ -559,20 +566,22 @@ class Sim:
             return
         if eff in("gain_stat_filtered","lose_stat_filtered"):
             sign=1 if eff.startswith("gain") else -1
-            for l in s._filtered(self_l,p.get("side","ally"),p.get("filter",{})):
+            side=p.get("side","ally" if sign>0 else "enemy")   # game: gain default "ally", lose default "enemy"
+            for l in s._filtered(self_l,side,p.get("filter",{})):
                 s.mod(l,p["stat"],sign*p.get("amount",0))
             return
         if eff=="damage_filtered":
             amt=p.get("amount",0)
             if amt>0:
-                for l in s._filtered(self_l,p.get("side","enemy"),p.get("filter",{})): l.hp-=amt
+                for l in s._filtered(self_l,p.get("side","enemy"),p.get("filter",{})):
+                    a2=min(l.hp,amt); l.hp-=a2; l.dmg_turn+=a2
                 s.checkdeath(self_l)
             return
         if eff=="gain_stat_per_leader_with_status":
             sid=p.get("status_id","")
             side=p.get("side","all")
             pool=s.alive(self_l.side) if side=="ally" else s.alive(s.enemy_side(self_l.side)) if side=="enemy" else s.all_leaders()
-            n=sum(1 for l in pool if (sid and sid in l.st) or (not sid and l.st))
+            n=sum(1 for l in pool if sid in l.st)   # game has_status(sid): empty matches NONE
             if n>0: s.mod(self_l,p["stat"],p.get("amount",0)*n)
             return
         if eff=="draw2_hat_chain":
@@ -633,7 +642,7 @@ class Sim:
             tags=p.get("tags",[]) or ([p["tag"]] if p.get("tag") else [])
             sid=p.get("status_id","")
             if card is not None and sid and ((not tags) or any(name_has_tag(card["name"],t) for t in tags)):
-                for al in s.alive(self_l.side): s.inflict(al,sid,self_l)
+                for al in s.alive(self_l.side): s.inflict(al,sid,self_l,notify=False)  # game applies via apply_status (no triggers)
             return
         if eff=="draw_supporter_or_penalty":
             cnt=p.get("count",1); tags=p.get("tags",[]); pen=p.get("penalty",{}); had=(not tags)
@@ -657,6 +666,13 @@ class Sim:
             if "has_status" in filt and filt["has_status"] not in l.st: continue
             if "hp_min" in filt and l.hp<filt["hp_min"]: continue
             if "hp_max" in filt and l.hp>filt["hp_max"]: continue
+            if "speed_eq" in filt and l.eff_spd()!=int(filt["speed_eq"]): continue   # game _filter_match uses effective_speed
+            if "speed_min" in filt and l.eff_spd()<int(filt["speed_min"]): continue
+            if "speed_max" in filt and l.eff_spd()>int(filt["speed_max"]): continue
+            if "def_min" in filt and l.eff_def()<int(filt["def_min"]): continue       # effective_defense
+            if "def_max" in filt and l.eff_def()>int(filt["def_max"]): continue
+            if "atk_min" in filt and l.atk<int(filt["atk_min"]): continue             # raw attack
+            if "atk_max" in filt and l.atk>int(filt["atk_max"]): continue
             out.append(l)
         return out
     def _draw_single(s, owner):
@@ -725,7 +741,7 @@ class Sim:
             return
         dmg=atk.atk
         em=elem_mult(atk.elem,tgt.elem,tgt.apex)
-        if abs(em-1.0)>1e-9: dmg=max(0,int(round(dmg*em)))
+        if abs(em-1.0)>1e-9: dmg=max(0,math.floor(dmg*em+0.5))   # game round() is half-away-from-zero, not banker's
         crit=0.1*(2 if atk.flag("doubles_crit") else 1)
         if s.rng.random()<crit:
             dmg+=5; s.fire(atk,"on_crit",{"target":tgt})
@@ -750,23 +766,24 @@ class Sim:
                 p=a.get("params",{})
                 if "stat" in p: s.mod(tgt,p["stat"],p.get("amount",0))
                 break
+        if blocked: dmg//=2                 # game halves BEFORE firing on_attack (battle_sim.gd:266-270)
         s.fire(atk,"on_attack",{"target":tgt,"damage":0 if dodged else dmg})
         if dodged:
             s.fire(atk,"on_blocked_or_dodged",{"target":tgt})
             s.fire(tgt,"on_attacked",{"attacker":atk,"dodged":True,"blocked":False,"damage":0,"dodged_flag":True})
             return
-        if blocked: dmg//=2; s.fire(atk,"on_blocked_or_dodged",{"target":tgt})
+        if blocked: s.fire(atk,"on_blocked_or_dodged",{"target":tgt})
         if not atk.alive or not tgt.alive: return
         pre=tgt.hp
         actual=min(pre,dmg)
         tgt.hp-=dmg; tgt.dmg_turn+=actual
         # element recoil: Blobgob(2) attacking Monblonkin(5) recoils 0.3*base_atk
         if atk.elem==2 and tgt.elem==5:
-            atk.hp-=int(round(atk.atk*0.3))
+            rc=math.floor(atk.atk*0.3+0.5); atk.hp-=rc; atk.dmg_turn+=rc
         # curse recoil on attacker (fraction of actual damage dealt)
         for sid in atk.st:
             fr=STA[sid][2].get("recoil")
-            if fr: atk.hp-=int(actual*fr)
+            if fr: rc=int(actual*fr); atk.hp-=rc; atk.dmg_turn+=rc
         survived = tgt.hp>0
         # on_miracle survive_at_1
         if tgt.hp<=0:
@@ -787,6 +804,11 @@ class Sim:
     def _ally_pool(s, self_l, p):     # allies, optionally excluding the caster (exclude_self param)
         pool=s.alive(self_l.side)
         return [a for a in pool if a is not self_l] if p.get("exclude_self") else pool
+    def _ext(s, pool, keyf, hi):   # game _extremum: random pick among all leaders tied at the best value
+        if not pool: return None
+        best=(max if hi else min)(keyf(l) for l in pool)
+        ties=[l for l in pool if keyf(l)==best]
+        return ties[0] if len(ties)==1 else s.rng.choice(ties)
     def pick_target(s, atk):
         enemies=s.alive(s.enemy_side(atk.side))
         if any(STA[x][2].get("targets_all") for x in atk.st):   # chaos: attack all leaders except self
@@ -799,7 +821,7 @@ class Sim:
         keyf={2:lambda l:l.eff_spd(),3:lambda l:l.eff_spd(),4:lambda l:l.hp,5:lambda l:l.hp,
               6:lambda l:l.eff_def(),7:lambda l:l.eff_def(),8:lambda l:l.atk,9:lambda l:l.atk}[style]
         hi= style in(2,4,7,8)
-        return (max if hi else min)(enemies,key=keyf)
+        return s._ext(enemies,keyf,hi)
     def run_turn(s):
         # pending
         for pe in s.pending:
@@ -808,20 +830,20 @@ class Sim:
         for l in s.all_leaders(): l.dmg_turn=0; l.ot_turn=set()
         for l in list(s.all_leaders()): s.tick_statuses(l)
         s.checkdeath()
-        order=sorted(s.all_leaders(),key=lambda l:-l.eff_spd())
+        order=sorted(s.all_leaders(),key=lambda l:(-l.eff_spd(),s.rng.random()))  # game breaks speed ties randomly (per-sort salt)
         for l in order:
             if l.alive: s.fire(l,"turn_start",{})
-        order=sorted(s.all_leaders(),key=lambda l:-l.eff_spd())
+        order=sorted(s.all_leaders(),key=lambda l:(-l.eff_spd(),s.rng.random()))  # game breaks speed ties randomly (per-sort salt)
         for atk in order:
             if not atk.alive: continue
             if atk.flag("blocks_attack"): continue
             tgt=s.pick_target(atk)
             if tgt is None: continue
             s.resolve(atk,tgt)          # dizzy-miss handled inside (fires miss triggers)
-            if s.over(): return
+            # game does NOT abort mid-attack-phase: it finishes the queue, then turn_end + eot reverts
             if atk.alive and "tired" not in atk.st:      # _mark_attacked: silent, no triggers
                 atk.st["tired"]=[STA["tired"][0],0]
-        order=sorted(s.all_leaders(),key=lambda l:-l.eff_spd())
+        order=sorted(s.all_leaders(),key=lambda l:(-l.eff_spd(),s.rng.random()))  # game breaks speed ties randomly (per-sort salt)
         for l in order:
             if l.alive: s.fire(l,"turn_end",{})
         for l in s.teams[0]+s.teams[1]:                  # end-of-turn stat reverts
