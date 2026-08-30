@@ -1692,6 +1692,12 @@ window.toggleUpdates=()=>{
 };
 function buildUpdates(){
   const groups=[
+    ["2026-08-30",[
+      `<b>Big accuracy pass, and a much wider search.</b> Every mechanic in the simulator was re-checked line by line against the real game. A batch of subtle differences was found and fixed, so the numbers now track in-game results much more closely. Several recommendations changed as a result.`,
+      `<b>Why some teams dropped.</b> The biggest fix: defense is capped at 50 in the real game, but the simulator was letting it climb higher, which made wall/tank teams look tougher than they actually are. Those teams are now rated honestly (lower). A few other fixes (attack rounding, who strikes first on a speed tie, a self-referential tag buff that only works with a matching partner) nudged many teams up or down.`,
+      `<b>Every chapter re-searched over a much bigger pool.</b> The old team finder only looked at a narrow set of cards, so it missed strong answers, most glaringly on the late chapters. With the wider pool, <b>F17 goes from a supposed 29% to a real 100%</b> (a Lightning stun-lock that stops the enemies from ever attacking), and F19 and F20 jump to ~92-100% too. Every chapter now clears at 98-100% except <b>F21</b> (~54%, the genuinely hardest fight).`,
+      `<b>Bigger in-app search.</b> The team finder now searches a broader card pool by default (the "quick" depth still runs fast on a phone). Expect more, and more varied, results.`,
+    ]],
     ["2026-08-27",[
       `<b>Second combat patch, and it hits hard.</b> The engine was re-synced again and every recommendation recomputed. The short version: the old carry cards got nerfed and there is no longer a one-team clear.`,
       `<b>chad was gutted.</b> His signature "when an ally gains attack" trigger used to <b>stun</b> a random enemy on <b>every</b> attack gain; it now only inflicts <b>bleed</b> and fires <b>once per turn</b> (and his HP was cut). The stun-lock was what carried the hard chapters, so chad teams no longer hold up. Supporters TV and Flame Crown were also trimmed to +2 attack in the prior patch.`,
