@@ -123,7 +123,7 @@ def enemy_card(cid, lvl):
 UNIMPL=set()
 class Sim:
     def __init__(s, seed):
-        s.rng=random.Random(seed); s.turn=0; s.teams=[[],[]]; s.depth=0; s.pending=[]
+        s.rng=random.Random(seed); s.shuf=[random.Random(seed^0x9E3779B9),random.Random(seed^0x85EBCA6B)]; s.turn=0; s.teams=[[],[]]; s.depth=0; s.pending=[]
         s.chain=0                      # _chain_depth (max 5) for nested trigger fires
         s.drawn=[0,0]; s.drawn_last=[0,0]   # supporters drawn this/last turn per side
         s._stat_gain_by_supporter=False     # true only while a supporter card's own ability runs
@@ -679,7 +679,7 @@ class Sim:
         deck=s.decks[owner.side]; disc=s.disc[owner.side]
         if not deck:
             if not disc: return None
-            s.rng.shuffle(disc); deck.extend(disc); disc.clear()
+            s.shuf[owner.side].shuffle(disc); deck.extend(disc); disc.clear()
         if not deck: return None
         card=deck.pop(0)
         s.drawn[owner.side]+=1
@@ -866,7 +866,7 @@ class Sim:
             deckB=list(deckB)+[LEADERS[i] for i in s.rng.sample(pool,4)]
         s.decks=[ [dict(x) for x in deckA[3:7]], [dict(x) for x in deckB[3:7]] ]
         s.disc=[[],[]]
-        for side in (0,1): s.rng.shuffle(s.decks[side])
+        for side in (0,1): s.shuf[side].shuffle(s.decks[side])
         if verbose:
             for l in s.teams[0]: print(f"  P {l.name[:26]:<27} hp{l.hp} atk{l.atk} def{l.dfn} spd{l.spd} elem{l.elem}")
             for l in s.teams[1]: print(f"  E {l.name[:26]:<27} hp{l.hp} atk{l.atk} def{l.dfn} spd{l.spd} elem{l.elem}")

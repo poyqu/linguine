@@ -319,6 +319,7 @@ th{position:sticky;top:53px;background:var(--panel);color:var(--dim);font-weight
       <div class="runrow">
         <label>battles <input id="n_sims" type="number" value="300" min="10" max="5000"></label>
         <button id="runbtn" class="btn-primary" onclick="runSims()">Run</button>
+        <label title="Off: each Run draws fresh random battles, so the number wobbles a little between runs (an honest estimate). On: reproducible, uses the seed below."><input id="fixed_seed" type="checkbox"> fixed seed</label>
         <label>seed <input id="n_seed" type="number" value="1"></label>
         <button onclick="watchBattle()">Watch one battle</button>
         <button onclick="optimize()">Best trio from favorites</button>
@@ -432,10 +433,11 @@ class RL{ // runtime leader
 }
 class Sim{
   constructor(seed,log){this.rng=mulberry32(seed);this.turn=0;this.teams=[[],[]];this.depth=0;this.pending=[];this.log=log||null;
-    this.chainD=0;this.drawn=[0,0];this.drawnLast=[0,0];}
+    this.chainD=0;this.drawn=[0,0];this.drawnLast=[0,0];
+    this.shuf=[mulberry32((seed^0x9E3779B9)>>>0),mulberry32((seed^0x85EBCA6B)>>>0)];}  // per-side deck shuffle, decoupled from battle RNG
   L(msg){if(this.log)this.log.push(msg);}
   choice(arr){return arr[Math.floor(this.rng()*arr.length)];}
-  shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(this.rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+  shuffle(arr,rng){rng=rng||this.rng;for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
   enemySide(s){return 1-s;}
   alive(s){return this.teams[s].filter(l=>l.alive);}
   allL(){return this.teams[0].concat(this.teams[1]).filter(l=>l.alive);}
@@ -925,7 +927,7 @@ class Sim{
     const deck=this.decks[owner.side],disc=this.disc[owner.side];
     if(!deck.length){
       if(!disc.length)return null;
-      this.shuffle(disc);deck.push(...disc);disc.length=0;
+      this.shuffle(disc,this.shuf[owner.side]);deck.push(...disc);disc.length=0;
     }
     if(!deck.length)return null;
     const card=deck.shift();
@@ -1113,7 +1115,7 @@ class Sim{
     deckB.slice(0,3).forEach((c,i)=>this.teams[1].push(new RL(c,1,i)));
     this.decks=[deckA.slice(3,7).map(x=>Object.assign({},x)),deckB.slice(3,7).map(x=>Object.assign({},x))];
     this.disc=[[],[]];
-    this.shuffle(this.decks[0]);this.shuffle(this.decks[1]);
+    this.shuffle(this.decks[0],this.shuf[0]);this.shuffle(this.decks[1],this.shuf[1]);
     while(this.turn<30&&!this.over()){
       this.turn++;
       this.drawnLast=this.drawn.slice();this.drawn=[0,0];
@@ -1578,8 +1580,12 @@ window.runSims=async()=>{
   try{
   let wins=0,turnsSum=0,firstDeath={};
   const t0=performance.now();
+  // default: fresh random battles each Run (honest estimate that wobbles within the +-CI).
+  // fixed-seed toggle: reproducible, uses the seed field.
+  const fixed=$("fixed_seed")&&$("fixed_seed").checked;
+  const base=fixed?((+$("n_seed").value||1)*13+5):(1+Math.floor(Math.random()*2000000000));
   for(let s=0;s<N;s++){
-    const sim=new Sim(s*13+5,null);
+    const sim=new Sim((s*13+base)>>>0,null);
     const w=sim.run(pd.map(x=>Object.assign({},x)),ed.map(x=>Object.assign({},x)));
     if(w===0){wins++;turnsSum+=sim.turn;}
     else{
