@@ -15,10 +15,10 @@ It's a single, self-contained web page that replicates the game's battle logic s
 The page has five tabs.
 
 ### Team & Battle
-- Build a team of **3 leaders + up to 4 supporters** and pick an enemy: a story chapter (EXTREME or normal) or a **custom trio**.
+- Build a team of **3 leaders + up to 4 supporters** (levels 1 to 20) and pick an enemy: a story chapter from Season 1 or Season 2 (EXTREME or normal) or a **custom trio**.
 - **Run** simulates hundreds of battles and reports the win rate, average kill turn, and a loss autopsy. **Watch one battle** replays a single fight turn by turn.
 - **Search best team vs this enemy** brute-forces strong teams against the current enemy. Options let you choose the card pool (crate only / all skins), search depth (a **quick** mode that runs on phones), and battles per team.
-- **Story win rates** grades your team across all 21 EXTREME chapters. **PvP vs meta teams** fights your team head to head against a field of meta decks (needs a full 3 leaders + 4 supporters).
+- **Story win rates** grades your team across all 21 Season 1 EXTREME chapters. **PvP vs meta teams** fights your team head to head against a field of meta decks (needs a full 3 leaders + 4 supporters).
 - **Team codes**: paste a code from the game's *Copy Team ID* button to load a team, or export your current team as a shareable code (see below).
 - Save teams locally, and load any listed team into your team or **as the enemy** to fight it.
 
@@ -26,7 +26,7 @@ The page has five tabs.
 Browse every card with filters for element, ability trigger/effect, status, support ability, obtainability source, rarity, and Apex. Sort by any stat, mark favorites for the optimizer, and read exact abilities with in-game-style status colors.
 
 ### Recommended
-The best **crate-obtainable** team for each of the 21 EXTREME chapters. One team (chad + Leuitenant + Static + TV) clears most of the mode; a few bosses get their own crate teams.
+The best **crate-obtainable** team for each of the 21 Season 1 EXTREME chapters, plus the teams that clear the most of the story on their own. Season 2 chapters are playable in the sandbox but show *not calculated yet* here for now.
 
 ### Builds
 A community board of player-submitted teams (see [Community Builds](#community-builds)).
@@ -51,7 +51,7 @@ Find it under **Team & Battle → Team code**.
 
 The **Builds** tab is a shared board of teams other players discovered, credited to whoever submitted each one first. It has two categories:
 
-- **Story** builds rank by win rate across the 21 EXTREME chapters. They can't use story-reward skins (those are locked behind the very progress they'd help with), but DLC and event cards are fine.
+- **Story** builds rank by win rate across the 21 Season 1 EXTREME chapters. They can't use story-reward skins (those are locked behind the very progress they'd help with), but DLC and event cards are fine.
 - **PvP** builds allow any skin and fight each other in a round-robin **league** that re-runs on every new entry, so standings shift as the pool grows. PvP builds need exactly 4 supporters.
 
 ### Submitting a build
