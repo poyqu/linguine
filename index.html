@@ -417,10 +417,11 @@ function enemyLevelBonus(lvl,season=1){   // story_hub._enemy_level_bonus -> [hp
   if(season>=2&&lvl>=8){const n=lvl-8;return[50+17*n,70+15*n,10+n,15+4*n];}   // S2_BASE_LEVEL=8, S2_BASE + n*S2_STEP
   const k=lvl-1;return[18*k,8*k,2*k,4*k];
 }
+// battle deck (story_hub._build_cpu_deck) always uses the S1 per-level curve; the S2 curve is preview-only
 function applyEnemyLevel(card,lvl,season=1){
   const c=Object.assign({},card);
   if(lvl>1){
-    const[h,sp,d,a]=enemyLevelBonus(lvl,season);
+    const[h,sp,d,a]=enemyLevelBonus(lvl,1);
     c.hp=Math.min(MAXHP,card.hp+h);c.spd=card.spd+sp;
     c.def=Math.min(50,card.def+d);c.atk=Math.min(MAXATK,card.atk+a);
   }
@@ -1585,8 +1586,8 @@ class Sim{
   over(){return!this.alive(0).length||!this.alive(1).length;}
   run(deckA,deckB){
     this.teams=[[],[]];
-    deckA.slice(0,3).forEach((c,i)=>this.teams[0].push(new RL(c,0,i)));
-    deckB.slice(0,3).forEach((c,i)=>this.teams[1].push(new RL(c,1,i)));
+    deckA.slice(0,3).forEach((c,i)=>{if(c)this.teams[0].push(new RL(c,0,i));});   // null slot = empty (battle_sim skips it)
+    deckB.slice(0,3).forEach((c,i)=>{if(c)this.teams[1].push(new RL(c,1,i));});
     this.decks=[deckA.slice(3,7).map(x=>Object.assign({},x)),deckB.slice(3,7).map(x=>Object.assign({},x))];
     this.disc=[[],[]];
     this.shuffle(this.decks[0],this.shuf[0]);this.shuffle(this.decks[1],this.shuf[1]);
@@ -1808,6 +1809,7 @@ window.evalAllChapters=async()=>{
       const opps=diff==="hard"?ch.hard:ch.normal;
       if(!opps||!opps.length)continue;
       const ed=opps.map(([id,lvl])=>applyEnemyLevel(Object.assign({},ALLC[id]),lvl,ch.season||1));
+      while(ed.length<3)ed.push(null);   // single-boss normal fights: keep supporters out of the leader slots
       const csupp=diff==="hard"?ch.csupp:ch.csupp_normal;
       for(const sid of csupp)ed.push(Object.assign({},ALLC[sid]));
       fights.push({ch:ch.id,diff,ed});
@@ -2045,6 +2047,7 @@ function buildEnemyDeck(){
   const{opps,supp}=enemyTrio();
   const d=[];
   for(const o of opps)d.push(scaleEnemyCard(o.id,o.lvl,o.season));
+  while(d.length<3)d.push(null);   // normal fights are a single boss: empty leader slots stay empty (battle_sim skips null)
   for(const id of supp)d.push(Object.assign({},ALLC[id]));
   return d;
 }
@@ -2063,7 +2066,7 @@ window.runSims=async()=>{
   const base=fixed?((+$("n_seed").value||1)*13+5):(1+Math.floor(Math.random()*2000000000));
   for(let s=0;s<N;s++){
     const sim=new Sim((s*13+base)>>>0,null);
-    const w=sim.run(pd.map(x=>Object.assign({},x)),ed.map(x=>Object.assign({},x)));
+    const w=sim.run(pd.map(x=>x&&Object.assign({},x)),ed.map(x=>x&&Object.assign({},x)));
     if(w===0){wins++;turnsSum+=sim.turn;}
     else{
       let fd="none",ft=99;
@@ -2096,7 +2099,7 @@ window.watchBattle=()=>{
   const log=[];
   const sim=new Sim(seed*13+5,log);
   const pd=buildPlayerDeck(),ed=buildEnemyDeck();
-  const w=sim.run(pd.map(x=>Object.assign({},x)),ed.map(x=>Object.assign({},x)));
+  const w=sim.run(pd.map(x=>x&&Object.assign({},x)),ed.map(x=>x&&Object.assign({},x)));
   log.push(w===0?"=== YOU WIN ===":"=== YOU LOSE ===");
   $("blog").textContent=log.join("\n");
 };
@@ -2114,7 +2117,7 @@ window.optimize=async()=>{
     const pd=trio.map(id=>applyPlayerLevel(CARDS[id],state.levels[id]||10))
       .concat(supp.filter(c=>!trio.includes(c.id)));   // no card as both leader and supporter
     let w=0;
-    for(let s=0;s<N;s++)if(new Sim(s*13+5,null).run(pd.map(x=>Object.assign({},x)),ed.map(x=>Object.assign({},x)))===0)w++;
+    for(let s=0;s<N;s++)if(new Sim(s*13+5,null).run(pd.map(x=>x&&Object.assign({},x)),ed.map(x=>x&&Object.assign({},x)))===0)w++;
     res.push([w/N,trio]);
     if(ci%5===4){$("optout").innerHTML=`searching... ${ci+1}/${combos.length}`;await new Promise(r=>setTimeout(r));}
   }
@@ -2177,7 +2180,9 @@ window.toggleUpdates=()=>{
 function buildUpdates(){
   const groups=[
     ["2026-10-01",[
-      `<b>Season 2 is here, and it is in the sandbox.</b> All 291 new cards are in the Cards tab, and the 21 new Season 2 chapters (S2E1 to S2E22) are in the chapter list, so you can build a team and simulate any of them right now. Season 2 enemies use their own, much steeper level curve (up to level 25), and the sandbox models it.`,
+      `<b>Fix: Season 2 enemy stats.</b> The game shows Season 2 opponents with a special level curve in the preview, but the actual fight scales them the same way as Season 1 (more HP, attack and defense, less speed). The sandbox used the preview numbers, so Season 2 fights looked easier than they are. It now uses the fight numbers (checked against an in-battle screenshot: the S2E6 Jacks have 410, 429 and 487 HP).`,
+      `<b>Fix: Normal difficulty fights.</b> Every Normal story fight (both seasons) is a single boss with two empty slots. The sandbox put the enemy's supporters into those empty slots as extra fighters. Empty slots now stay empty, like in the game. EXTREME fights always have three enemies and were not affected, so the recommended teams are unchanged.`,
+      `<b>Season 2 is here, and it is in the sandbox.</b> All 291 new cards are in the Cards tab, and the 21 new Season 2 chapters (S2E1 to S2E22) are in the chapter list, so you can build a team and simulate any of them right now.`,
       `<b>Season 2 recommendations: not calculated yet.</b> The game just came out, so those chapters show a placeholder for now instead of a "best team". They will be filled in later.`,
       `<b>Levels go to 20.</b> Levels 11 to 20 come from feeding fish to a skin. Every level box in the sandbox now goes to 20 (story caps you at 15 in Season 1 and 20 in Season 2). Recommended teams are still rated at level 10, which is what most players have on day 1.`,
       `<b>Battle engine re-synced with the update.</b> The game reworked a lot of combat under the hood: statuses now expire at the end of the turn, Stunned/Paralyzed/Tired only last the turn they land on, and re-applying a status just refreshes it. Attacks also resolve in a new order with new steps (fizzles, weak hits, bodyguards, damage sharing, hit-everyone attacks). There are new statuses too (Confused, Very Confused, Infected, Jackified, Horrified, Chaos Blinded, Soul Bound, Soul Protected) plus 17 new effects. All of it is simulated, and the coverage check confirms the simulator implements every mechanic the game uses.`,
@@ -2275,7 +2280,7 @@ function buildHelp(){
   <h2>Levels</h2>
   <div>Your cards, cumulative by L10: +25 HP, +8 ATK, +25 SPD, +11 DEF; by L20: +97 HP, +23 ATK, +100 SPD, +26 DEF (DEF caps at 50).
   Levels 11-20 come from feeding fish to a skin. The second ability unlocks at L2. Story caps your level at 15 in Season 1 and 20 in Season 2.<br>
-  Season 1 story enemies per level above 1: +18 HP, +8 SPD, +2 DEF, +4 ATK. Season 2 enemies from level 8 up: +50 HP, +70 SPD, +10 DEF, +15 ATK at L8, then +17 HP, +15 SPD, +1 DEF, +4 ATK per level. Caps: 999 HP / 199 ATK / 50 DEF.</div>
+  Story enemies per level above 1 (both seasons): +18 HP, +8 SPD, +2 DEF, +4 ATK. (The game's opponent preview shows Season 2 enemies with a different curve, but the fight itself uses this one.) Caps: 999 HP / 199 ATK / 50 DEF.</div>
   <h2>Supporters</h2>
   <div>Only the ▸ line ever fires, and only when the card is DRAWN from your supporter deck (leader abilities are dead there).
   Decks reshuffle when empty - a 1-card deck repeats the same ability every draw. Story: 0-4 optional. Ranked: exactly 4 required.
@@ -2343,7 +2348,7 @@ function makeWorkers(){
           let w=0,l=0,d=0;
           for(let s=0;s<m.n;s++){
             const S=new Sim(s*13+5,null);
-            S.run(you.map(x=>Object.assign({},x)),opp.map(x=>Object.assign({},x)));
+            S.run(you.map(x=>x&&Object.assign({},x)),opp.map(x=>x&&Object.assign({},x)));
             const a0=S.alive(0).length,a1=S.alive(1).length;
             if(a1===0&&a0>0)w++;else if(a0===0&&a1>0)l++;else d++;
           }
@@ -2354,7 +2359,7 @@ function makeWorkers(){
         const pd=pdeck(job.team,job.supp,m.elemO);
         for(let s=0;s<m.n;s++){
           const S=new Sim(s*13+5,null);
-          if(S.run(pd.map(x=>Object.assign({},x)),m.ed.map(x=>Object.assign({},x)))===0)w++;
+          if(S.run(pd.map(x=>x&&Object.assign({},x)),m.ed.map(x=>x&&Object.assign({},x)))===0)w++;
         }
         out.push({team:job.team,supp:job.supp,sk:job.sk,wr:w/m.n});
       }
@@ -2451,7 +2456,7 @@ window.autoSearch=async(force)=>{
   }
   const btn=$("searchbtn");btn.disabled=true;$("cancelbtn").style.display="";
   try{
-  const ed=buildEnemyDeck().map(x=>Object.assign({},x));
+  const ed=buildEnemyDeck().map(x=>x&&Object.assign({},x));
   const isCustom=state.emode==="custom";
   const poolOpt=($("search_pool")||{}).value||"auto";
   const useAll = poolOpt==="all" || (poolOpt==="auto" && isCustom);
