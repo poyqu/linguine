@@ -3775,15 +3775,6 @@ function pageFishing(args){
 function fStart(){
   const H=FI.hook;
   return`<div class="stack">
-  <div class="card"><h2>One catch, step by step</h2>
-    <div class="steps" style="margin:14px 0 4px">
-      <div class="step"><div><b>Cast</b><span>A bar slides back and forth. Stop it in the green zone. A good cast already counts toward the fish's quality and makes the bite come sooner.</span></div></div>
-      <div class="step"><div><b>Wait for the bite</b><span>The wait is ${H[0]} seconds at difficulty 1 down to ${H[9]} seconds at difficulty 10, minus your rod's Time Acceleration, minus your score so far. It never goes below 0.5 seconds.</span></div></div>
-      <div class="step"><div><b>Catch: minigames</b><span>Press Catch, then play the minigames. How many depends on the spot: difficulty 1 to 8 always has 1, difficulty 9 has 2 about 30% of the time, difficulty 10 has 2 or 3.</span></div></div>
-      <div class="step"><div><b>The fish</b><span>The species is rolled first (harder spots give rarer fish), then its quality and 7 traits. Your minigame score then upgrades it: every ${FI.upgrade_cost} points is one upgrade.</span></div></div>
-      <div class="step"><div><b>Keep or sell</b><span><b>Keep</b> it to feed your cards: the fish's NP levels a card from 11 to 20. <b>Sell</b> it for FL, the fishing money for gear crates, Ocean crates and backpack space.</span></div></div>
-    </div>
-    <p class="small muted">You can't lose a fish. A bad minigame only makes the fish worth less; the species and its NP are decided before you play.</p></div>
   <div class="card"><h2>Quick wins</h2>
     <ul class="muted" style="line-height:1.7;padding-left:20px;margin:10px 0 0">
       <li><b style="color:var(--text)">Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away. It's not in the game settings: open your <b style="color:var(--text)">Backpack</b> (from the fishing menu, or while fishing) and press the <b style="color:var(--text)">Warnings: ON</b> button at the top, next to Shop, so it says OFF.</li>
@@ -3793,6 +3784,15 @@ function fStart(){
       <li><b style="color:var(--text)">Selling? Fish difficulty 10.</b> More minigames mean more upgrades, so each fish sells for several times more.</li>
       <li><b style="color:var(--text)">Get a Time Acceleration IV or higher rod.</b> It cuts the bite wait to the minimum. <a href="#/fishing/rods">Rods</a></li>
     </ul></div>
+  <div class="card"><h2>One catch, step by step</h2>
+    <div class="steps" style="margin:14px 0 4px">
+      <div class="step"><div><b>Cast</b><span>A bar slides back and forth. Stop it in the green zone. A good cast already counts toward the fish's quality and makes the bite come sooner.</span></div></div>
+      <div class="step"><div><b>Wait for the bite</b><span>The wait is ${H[0]} seconds at difficulty 1 down to ${H[9]} seconds at difficulty 10, minus your rod's Time Acceleration, minus your score so far. It never goes below 0.5 seconds.</span></div></div>
+      <div class="step"><div><b>Catch: minigames</b><span>Press Catch, then play the minigames. How many depends on the spot: difficulty 1 to 8 always has 1, difficulty 9 has 2 about 30% of the time, difficulty 10 has 2 or 3.</span></div></div>
+      <div class="step"><div><b>The fish</b><span>The species is rolled first (harder spots give rarer fish), then its quality and 7 traits. Your minigame score then upgrades it: every ${FI.upgrade_cost} points is one upgrade.</span></div></div>
+      <div class="step"><div><b>Keep or sell</b><span><b>Keep</b> it to feed your cards: the fish's NP levels a card from 11 to 20. <b>Sell</b> it for FL, the fishing money for gear crates, Ocean crates and backpack space.</span></div></div>
+    </div>
+    <p class="small muted">You can't lose a fish. A bad minigame only makes the fish worth less; the species and its NP are decided before you play.</p></div>
   <div class="card"><h2>Spot difficulty at a glance</h2>
     <div class="tblwrap"><table class="tbl"><thead><tr><th>Difficulty</th><th>Base bite wait</th><th>Minigames per catch</th>${RAR_KEYS.map(k=>`<th>${RAR_NAME[k]}</th>`).join("")}</tr></thead><tbody>
     ${FI.pull.map((w,i)=>{const t=w.reduce((a,b)=>a+b,0);return`<tr><td><b>${i+1}</b></td><td>${H[i]} s</td><td>${gamesText(i+1)}</td>${w.map(x=>`<td>${Math.round(x/t*100)}%</td>`).join("")}</tr>`;}).join("")}
