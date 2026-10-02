@@ -143,9 +143,12 @@ def _enemy_level_bonus(lvl, season=1):   # story_hub._enemy_level_bonus
     k=lvl-1; return 18*k, 8*k, 2*k, 4*k
 
 def apply_enemy_level(card, lvl, season=1):
+    # The REAL battle deck (story_hub._build_cpu_deck) always scales +18hp/+8spd/+2def/+4atk per level, in every
+    # season. The S2 curve in _enemy_level_bonus only feeds the opponent PREVIEW panel (_get_opp_def_at_level),
+    # so the preview and the fight disagree in Season 2. Verified vs an in-battle screenshot (S2E6 Jacks 410/429/487 hp).
     c=dict(card)
     if lvl>1:
-        h,sp,d,a=_enemy_level_bonus(lvl,season)
+        h,sp,d,a=_enemy_level_bonus(lvl,1)
         c["hp"]=min(MAXHP,card["hp"]+h); c["spd"]=card["spd"]+sp
         c["def"]=min(50,card["def"]+d); c["atk"]=min(MAXATK,card["atk"]+a)
     c["level"]=lvl
@@ -1245,10 +1248,12 @@ class Sim:
     def run(s, deckA, deckB, verbose=False):
         s.verbose=verbose
         s.teams=[[],[]]
-        for i,c in enumerate(deckA[:3]): s.teams[0].append(L(c,0,i))
-        for i,c in enumerate(deckB[:3]): s.teams[1].append(L(c,1,i))
+        for i,c in enumerate(deckA[:3]):
+            if c is not None: s.teams[0].append(L(c,0,i))   # empty leader slot (null) is skipped, like battle_sim
+        for i,c in enumerate(deckB[:3]):
+            if c is not None: s.teams[1].append(L(c,1,i))
         if len(deckB)<4:  # CPU gets 4 seeded supporters in-game; approximate by sampling the pool
-            eids={c.get("id") for c in deckB[:3]}
+            eids={c.get("id") for c in deckB[:3] if c is not None}
             pool=[i for i in ENEMY_SUPP_POOL if i not in eids]
             deckB=list(deckB)+[LEADERS[i] for i in s.rng.sample(pool,4)]
         s.decks=[ [dict(x) for x in deckA[3:7]], [dict(x) for x in deckB[3:7]] ]
