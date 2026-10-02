@@ -2150,8 +2150,11 @@ async function runJobsNow(jobs,shared,onprog,mode){
 function wc(){const w=workers();return w?w.length:1;}
 
 // ---------- deck builders ----------
-function playerDeck(t){
-  const d=t.leaders.map(id=>id==null||!CARDS[id]?null:applyPlayerLevel(CARDS[id],t.levels[id]||10));   // empty slot stays empty
+// the story caps your card levels per season (story_hub SEASON_LEVEL_CAPS: Season 1 = 15, Season 2 = 20)
+const SEASON_CAP={1:15,2:20};
+const capOf=chId=>SEASON_CAP[(CHM[chId]&&CHM[chId].season)||1]||20;
+function playerDeck(t,cap=20){
+  const d=t.leaders.map(id=>id==null||!CARDS[id]?null:applyPlayerLevel(CARDS[id],Math.min(cap,t.levels[id]||10)));   // empty slot stays empty
   while(d.length<3)d.push(null);
   for(const id of t.supp)d.push(Object.assign({},CARDS[id]));
   return d;
@@ -2185,6 +2188,7 @@ async function simulate(pd,ed,n,onprog,mode){
 const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["guide","Guide","book"]];
 function renderNav(cur){
   if(cur==="builds")cur="teams";   // community builds live under Teams
+  if(cur==="report")cur="team";
   const h=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" title="${l}" aria-label="${l}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
   $("#nav").innerHTML=h;
   $("#tabbar").innerHTML=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
@@ -2207,7 +2211,8 @@ function route(){
   const parts=h.split("/").map(decodeURIComponent);
   const p=parts[0]||"";
   cancelWork();closeAll();
-  const fn={"":pageHome,story:pageStory,team:pageTeam,cards:pageCards,teams:pageTeams,builds:pageBuilds,guide:pageGuide,mycards:pageMyCards}[p]||pageHome;
+  const fn={"":pageHome,story:pageStory,team:pageTeam,cards:pageCards,teams:pageTeams,builds:pageBuilds,guide:pageGuide,mycards:pageMyCards,
+    report:typeof pageReport==="function"?pageReport:pageHome}[p]||pageHome;   // pageReport lives in site_report.js
   PAGE=p;renderNav(p);renderTeamPill();
   SIM_BUSY=false;TOOL_BUSY=false;
   fn(parts.slice(1));
@@ -2471,6 +2476,8 @@ function pageHome(){
       <div class="small faint">${nCards} cards · ${nS1+nS2} story chapters across ${SEASONS.length} seasons</div>
     </div>
   </div>
+  ${OWN.size>=3?(()=>{const hasLv=Object.keys(S.ownLv||{}).length>0;const per=SEASONS.map(sn=>{const L=(CH_BY_SEASON[sn]||[]).filter(c=>c.hard.length&&REC[c.id]);const n=L.filter(c=>{const m=myTeamFor(c.id,"hard");return m&&m.ok!==false;}).length;return`Season ${sn}: <b>${n} of ${L.length}</b>`;});
+    return`<div class="callout ${hasLv?"good":""}" style="margin-top:14px">With your ${OWN.size} cards${hasLv?" and their levels":""}, you own a recommended winning team for these EXTREME chapters: ${per.join(" · ")}. <a href="#/story">See which</a>.${hasLv?"":` <a href="#/cards/import">Import your levels</a> to check them too.`}</div>`;})():""}
   ${S.migrated&&!S.ui.migratedSeen?`<div class="callout" style="margin-top:14px">Your team and saved teams from the old version of the site were carried over. <a href="#/team">Open the simulator</a>.</div>`:""}
   </div>`;
   if(S.migrated&&!S.ui.migratedSeen){S.ui.migratedSeen=true;save();}
@@ -2516,6 +2523,15 @@ function recTeams(chId,diff="hard"){
   if(!r.team)return[];
   return[{team:r.team,supp:r.supp||[],wr:r.winrate,min:r.min_level,lead:null,alts:[]}];
 }
+function myTeamFor(chId,diff="hard"){   // best recommended team (or 3rd-card swap) you own; ok = your levels reach its minimum
+  if(OWN.size<3)return null;
+  const flat=[];rankTeams(recTeams(chId,diff),chId).forEach(t=>{flat.push(t);(t.alts||[]).forEach(a=>flat.push({team:a.team,supp:a.supp,wr:a.wr,min:a.min_level}));});
+  const hasLv=Object.keys(S.ownLv||{}).length>0;
+  const lvOk=t=>{if(!hasLv||t.min==null)return null;const L=t.team.map(id=>S.ownLv[id]);return L.every(Boolean)&&Math.min(...L)>=t.min;};
+  const owned=flat.filter(t=>(t.wr||0)>=.9&&t.team.every(id=>OWN.has(id)));
+  const p=owned.find(t=>lvOk(t))||owned[0];
+  return p?{team:p,ok:lvOk(p)}:null;
+}
 function bestRecTeam(chId,diff="hard"){const t=rankTeams(recTeams(chId,diff),chId);return t[0]||null;}   // the team the chapter page shows first
 function bestRec(chId,diff="hard"){const t=bestRecTeam(chId,diff);return t?t.wr:null;}
 function difficultyTag(r){
@@ -2546,6 +2562,7 @@ function pageStory(args){
       <div class="foes">${(ch.hard.length?ch.hard:ch.normal).map(([id])=>av(id,"sm",true)).join("")}</div>
       ${bh?line("Best team, EXTREME",bh):`<div class="foot"><span class="faint">No recommendation yet</span></div>`}
       ${bn?`<div style="margin-top:-4px">${line("Best team, Normal",bn)}</div>`:""}
+      ${(()=>{const m=myTeamFor(ch.id,"hard");return m?`<div class="foot" style="margin-top:0"><span class="tag ${m.ok===false?"mid":"good"}" title="Based on the recommended teams for this chapter and the cards${Object.keys(S.ownLv||{}).length?" and levels":""} you marked">${m.ok===false?"Your recommended team needs higher levels":m.ok?"Ready with your cards":"You own a winning team"}</span></div>`:"";})()}
       ${mine!=null?`<div class="foot" style="margin-top:0"><span class="faint">Your team on EXTREME</span>${pill(mine)}</div>`:""}
     </a>`;}).join("")}</div>
   ${s===1&&WIDE.length?wideCard():""}
@@ -2731,7 +2748,7 @@ function wireSearch(ch,diff){
   pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));});
   $("#sr_go").addEventListener("click",()=>{
     const p=pool.querySelector(".on").dataset.p;
-    const lvl=+$("#sr_lvl").value;
+    const lvl=Math.min(capOf(ch.id),+$("#sr_lvl").value);
     teamSearch({ed:chapterDeck(ch.id,diff),pool:p,lvl,out:$("#sr_out"),btn:$("#sr_go"),ctx:{ch:ch.id,diff}});
   });
 }
@@ -2932,7 +2949,7 @@ async function runSim(){
   if(S.opp.kind==="pvp"&&S.opp.pvp.leaders.filter(x=>x!=null).length<1){toast("Give the opponent at least one leader.");return;}
   if(SIM_BUSY)return;
   SIM_BUSY=true;renderRunPanel();
-  const pd=playerDeck(t),ed=oppDeck(),n=S.simN,mode=S.opp.kind==="pvp"?"pvp":"story";
+  const pd=playerDeck(t,S.opp.kind==="chapter"?capOf(S.opp.ch):20),ed=oppDeck(),n=S.simN,mode=S.opp.kind==="pvp"?"pvp":"story";
   const label=oppLabel(),stamp=sigLv(t)+JSON.stringify(S.opp);   // results belong to these inputs
   try{
     const r=await simulate(pd,ed,n,f=>{const p=$("#run_prog i");if(p)p.style.width=Math.round(f*100)+"%";},mode);
@@ -2976,7 +2993,7 @@ function renderResult(r,mode,label,stamp,pd,ed){
 let WATCH_N=0;
 ACT.watch=async el=>{
   const want=el&&el.dataset?el.dataset.want:"";
-  const D=LAST_DECKS||{pd:playerDeck(S.team),ed:oppDeck(),pvp:S.opp.kind==="pvp"};
+  const D=LAST_DECKS||{pd:playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20),ed:oppDeck(),pvp:S.opp.kind==="pvp"};
   const pd=D.pd,ed=D.ed,pvp=D.pvp;
   const wo=$("#watch_out");if(wo&&want)wo.innerHTML=`<div class="divider"></div><div class="small muted row tight"><span class="spin"></span>Looking for a ${want}...</div>`;
   let log,sim,r,tries=0,base=S.fixedSeed&&!want&&!WATCH_N?((+S.seed||1)*7919+5):(1+Math.floor(Math.random()*2e9));WATCH_N++;
@@ -3022,13 +3039,15 @@ function renderTools(){
   el.innerHTML=`
     <button class="path" data-act="evalAll" style="text-align:left"><span class="ic">${ic("grid")}</span><h3>Check every chapter</h3><p>Run your team, at your levels, against every story fight and see where it wins.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>
     <button class="path" data-act="findBest" style="text-align:left"><span class="ic">${ic("search")}</span><h3>Find a better team</h3><p>Search for the best team against the opponent you picked above.</p><span class="go">Search ${ic("arrow",'width="16" height="16"')}</span></button>
+    ${typeof ACT.shareReport==="function"?`<button class="path" data-act="shareReport" style="text-align:left"><span class="ic">${ic("copy")}</span><h3>Share a report</h3><p>A page with your team's win rate on every chapter, to send to friends or post.</p><span class="go">Make report ${ic("arrow",'width="16" height="16"')}</span></button>`:""}
     <button class="path" data-act="pvpCheck" style="text-align:left"><span class="ic">${ic("trophy")}</span><h3>PvP check</h3><p>Fight ${META_TEAMS.length} popular ranked teams (at level 10) and find your worst matchups. Needs 4 supporters.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>`;
 }
 ACT.evalAll=async el=>{
   const t=S.team;if(t.leaders.filter(x=>x!=null).length<3){toast("Add 3 leaders first.");return;}
   let season=S.ui.evalSeason||S.ui.season||1;
-  const pd=playerDeck(t),stamp=sigLv(t);
+  const stamp=sigLv(t);
   async function run(){
+    const pd=playerDeck(t,SEASON_CAP[season]||20);
     const {out,live}=toolStart(el);
     const chs=CH_BY_SEASON[season]||[];
     const jobs=[];
@@ -3046,7 +3065,7 @@ ACT.evalAll=async el=>{
       const lowNote=season>=2&&topLv<16?`<div class="callout warn" style="margin-top:10px">Season 2 enemies are level 9 to 25 and the recommended Season 2 teams are rated with cards at level 20, so a team at level ${topLv} looks much weaker here. Set your real levels above.</div>`:"";
       const hard=chs.map(c=>R[c.id]&&R[c.id].hard).filter(x=>x!=null);
       const cleared=hard.filter(x=>Math.round(x*100)>=95).length;
-      const lvls=[...new Set(t.leaders.map(id=>t.levels[id]||10))];
+      const lvls=[...new Set(t.leaders.map(id=>Math.min(SEASON_CAP[season]||20,t.levels[id]||10)))];
       const cell=(ch,d)=>{const v=R[ch.id]&&R[ch.id][d];return`<div class="hc" data-act="openFight" data-ch="${ch.id}" data-d="${d}" title="${esc(ch.title)}"><span class="faint">${chName(ch).replace("Chapter","Ch.")}</span><b class="w_${winInfo(v).cls}">${v==null?"-":pct(v)}</b></div>`;};
       out.innerHTML=`<div class="card fadein"><div class="card_head"><div><h3>Your team across Season ${season}</h3>
         <div class="card_sub">${cleared} of ${hard.length} EXTREME chapters won at least 95% of the time, with your cards at level ${lvls.join("/")}. 150 battles per fight, so treat small differences as noise. Tap a fight to simulate it.</div></div>
@@ -3072,8 +3091,8 @@ ACT.findBest=el=>{
     <button class="btn primary" id="fb_go">${ic("search")}Search</button></div><div id="fb_out" style="margin-top:12px"></div></div>`;
   const pool=$("#fb_pool");
   pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));});
-  $("#fb_go").onclick=()=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:pool.querySelector(".on").dataset.p,lvl:+$("#fb_lvl").value,out:$("#fb_out"),btn:$("#fb_go"),
-    ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team):null});};
+  $("#fb_go").onclick=()=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:pool.querySelector(".on").dataset.p,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,+$("#fb_lvl").value),out:$("#fb_out"),btn:$("#fb_go"),
+    ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});};
   showOut(out);
 };
 const META_TEAMS=[
@@ -3482,7 +3501,7 @@ function renderBuildList(view){
         ?`<div class="wm_top"><span class="wm_pct w_${winInfo(sc).cls}">${pct(sc)}</span><span class="small faint">of league games won</span></div>${b.rec?`<div class="small faint" style="margin-top:3px">${b.rec[0]} wins · ${b.rec[1]} losses · ${b.rec[2]} draws</div>`:""}`
         :`<div class="wm_top"><span class="wm_pct w_${winInfo(sc).cls}">${pct(sc)}</span><span class="small faint">${sk==="s1"?"Season 1 EXTREME":sk==="s2"?"Season 2 EXTREME":"average EXTREME win"}</span></div><div class="small faint" style="margin-top:3px">Season 1 ${pct(b.eff_s1)} (Lv 15) · Season 2 ${pct(b.eff_s2)} (Lv 20)</div>`}</div>
       <div class="acts"><button class="btn sm" data-act="useTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[],lvl:pvp?10:sk==="s1"?15:20,auto:pvp?"pvp":"eval",season:pvp?undefined:sk==="s1"?1:sk==="s2"?2:undefined})}" title="${pvp?"Load it and run the PvP check":"Load it and check it on every chapter"}">${ic("play")}Try</button>
-        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button></div>
+        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button>${typeof ACT.reportTeam==="function"?`<button class="btn sm ghost" data-act="reportTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Report</button>`:""}</div>
       <div class="supps" style="width:100%">${b.by==="auto"?"found by the site's own search":`by <b style="color:var(--text)">${esc(b.by||"?")}</b>`}${b.date?` · ${esc(b.date)}`:""} · ${(b.supp||[]).length?`Supporters: ${b.supp.map(id=>cchip(id)).join("")}`:"No supporters"}<span class="spacer"></span>${teamEaseTags(b.leaders.concat(b.supp||[]))}</div>
     </div>`;}).join("");
 }
@@ -3560,6 +3579,127 @@ function ovRow(r,i,view){
       <div class="heat" style="margin-top:8px">${chs.map(c=>`<a class="hc" href="#/story/${c.id}" title="${esc(c.title)}"><span class="faint">${seasons.length>1?`S${c.season||1} `:""}${chName(c).replace("Chapter","Ch.")}</span><b class="w_${winInfo(r.per[c.id]).cls}">${pct(r.per[c.id])}</b></a>`).join("")}</div></details>
     ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.slice(0,8).map(c=>`<a href="#/story/${c.id}">${seasons.length>1?`S${c.season||1} `:""}${chName(c)}</a> ${pill(r.per[c.id])}`).join(" ")}${weak.length>8?` and ${weak.length-8} more`:""}</div>`:""}
   </div>`;
+}
+
+// =====================================================================================
+// TEAM REPORT: #/report/<game team code> -> every chapter (Normal + EXTREME, both seasons) + PvP, shareable
+// Fixed seeds, so every viewer's browser computes the same numbers. Nothing is stored online.
+// =====================================================================================
+const REPORT_N=150;
+ACT.shareReport=()=>{
+  if(S.team.leaders.filter(x=>x!=null).length<3)return toast("Add 3 leaders first.");
+  go("#/report/"+buildCode(S.team));
+};
+ACT.reportTeam=el=>{const j=J(el);if(!j)return;
+  const t={leaders:j.team.slice(0,3),supp:(j.supp||[]).filter(id=>!j.team.includes(id)).slice(0,4),levels:{}};
+  for(const id of t.leaders)t.levels[id]=j.lvl||20;
+  go("#/report/"+buildCode(t));};
+let REPORT=null;
+async function pageReport(args){
+  const d=parseCode(args[0]||"");
+  if(!d){$("#view").innerHTML=`<div class="fadein">${emptyState("swords","That report link is broken","The team code in the link is incomplete. Ask for the link again, or make your own report from the simulator.",`<a class="btn" href="#/team">Open simulator</a>`)}</div>`;return;}
+  const t={leaders:d.leaders,supp:d.supp,levels:Object.keys(d.levels).length?d.levels:Object.fromEntries(d.leaders.map(id=>[id,10]))};
+  const lvTxt=id=>`Lv ${t.levels[id]||10}`;
+  const link=location.origin+location.pathname+"#/report/"+buildCode(t);
+  $("#view").innerHTML=`<div class="fadein">
+    <div class="page_head"><div><h1>Team report</h1><p>How this team does in every story fight, Normal and EXTREME, in both seasons${t.supp.length===4?", plus a check against popular ranked teams":""}. Each fight is simulated ${REPORT_N} times with fixed dice, so anyone who opens this link sees the same numbers.</p></div></div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="row" style="gap:10px">${t.leaders.map(id=>cchip(id,{own:true,sub:lvTxt(id)})).join("")}</div>
+      <div class="supps" style="margin-top:10px">${t.supp.length?`Supporters: ${t.supp.map(id=>cchip(id)).join("")}${teamDraws(t.leaders)?"":` <span class="small faint">(no leader draws cards, so supporters never come into play)</span>`}`:"No supporters"}</div>
+      <div class="row tight" style="margin-top:12px">
+        <button class="btn sm" id="rp_link">${ic("copy")}Copy link</button>
+        <button class="btn sm" id="rp_png" disabled>${ic("download")}Download image</button>
+        <button class="btn sm" id="rp_txt" disabled>${ic("copy")}Copy text</button>
+        <button class="btn sm ghost" data-act="useTeam" data-j="${jattr({team:t.leaders,supp:t.supp,lvl:10,auto:"none"})}">${ic("swords")}Open in simulator</button>
+      </div></div>
+    <div id="rp_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Simulating every fight...</div><div class="progress" style="margin-top:8px"><i id="rp_pr"></i></div></div></div></div>`;
+  // levels from the code win over imported levels for this team
+  $("#rp_link").onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>toast("Link copied."),()=>toast(link));};
+  const pd=playerDeck(t),jobs=[];   // PvP: full levels; story fights: the season's level cap
+  for(const sn of SEASONS){const spd=playerDeck(t,SEASON_CAP[sn]||20);
+    for(const ch of CH_BY_SEASON[sn]||[])for(const df of["normal","hard"]){if(df==="hard"&&!ch.hard.length)continue;jobs.push({k:ch.id+"|"+df,pd:spd,ed:chapterDeck(ch.id,df),seed:4242,n:REPORT_N});}}
+  const my=GEN;
+  try{
+    const res=await runJobs(jobs,{pd},(a,n)=>{const p=$("#rp_pr");if(p)p.style.width=(a/n*80)+"%";});
+    if(GEN!==my||!$("#rp_body"))return;
+    const R={};for(const r of res){const[c,df]=String(r.k).split("|");(R[c]=R[c]||{})[df]=r.w/r.n;}
+    let pvp=null;
+    if(t.supp.length===4){
+      const pj=META_TEAMS.map((m,i)=>({k:i,eids:m.t,esupp:pad4(m.s,m.t),elvl:10,seed:99,n:200}));
+      const pr=await runJobs(pj,{pd},(a,n)=>{const p=$("#rp_pr");if(p)p.style.width=(80+a/n*20)+"%";},"pvp");
+      if(GEN!==my||!$("#rp_body"))return;
+      const rows=pr.map(r=>({m:META_TEAMS[r.k],net:(r.w-r.l)/r.n,w:r.w/r.n})).sort((a,b)=>a.net-b.net);
+      pvp={fav:rows.filter(r=>r.net>=.1).length,lose:rows.filter(r=>r.net<=-.1).length,n:rows.length,worst:rows.slice(0,3)};
+    }
+    REPORT={t,R,pvp,link,date:new Date()};
+    renderReport();
+  }catch(e){if(e!=="cancelled"&&$("#rp_body"))$("#rp_body").innerHTML=`<div class="callout warn">The report stopped: ${esc(e&&e.message||e)}</div>`;}
+}
+function reportStats(){
+  const{R}=REPORT,out={};
+  for(const sn of SEASONS){const L=CH_BY_SEASON[sn]||[];const o={};
+    for(const df of["hard","normal"]){const v=L.filter(c=>R[c.id]&&R[c.id][df]!=null).map(c=>R[c.id][df]);
+      o[df]={clears:v.filter(x=>Math.round(x*100)>=95).length,n:v.length,mean:v.length?v.reduce((a,b)=>a+b,0)/v.length:0};}
+    out[sn]=o;}
+  const all=[];for(const sn of SEASONS)for(const c of CH_BY_SEASON[sn]||[])if(R[c.id]&&R[c.id].hard!=null)all.push({c,v:R[c.id].hard});
+  out.weak=all.slice().sort((a,b)=>a.v-b.v).filter(x=>x.v<.95).slice(0,5);
+  return out;
+}
+function renderReport(){
+  const{t,R,pvp,date}=REPORT,st=reportStats();
+  const sum=sn=>{const o=st[sn];return`<div class="card"><h3>Season ${sn}</h3>
+    <div class="factgrid" style="margin-top:8px">
+      <div class="fact"><div class="k">EXTREME won 95%+</div><div class="v">${o.hard.clears} of ${o.hard.n}</div><div class="small faint">average ${pct(o.hard.mean)}</div></div>
+      <div class="fact"><div class="k">Normal won 95%+</div><div class="v">${o.normal.clears} of ${o.normal.n}</div><div class="small faint">average ${pct(o.normal.mean)}</div></div></div>
+    <div class="heat" style="margin-top:12px">${(CH_BY_SEASON[sn]||[]).map(c=>{const r=R[c.id]||{};return`<a class="hc" href="#/story/${c.id}" title="${esc(c.title)}"><span class="faint">${chName(c).replace("Chapter","Ch.")}</span>
+      <span class="row tight" style="gap:6px"><span class="small faint">N</span><b class="w_${winInfo(r.normal).cls}" style="display:inline">${r.normal==null?"-":pct(r.normal)}</b></span>
+      <span class="row tight" style="gap:6px"><span class="small faint">E</span><b class="w_${winInfo(r.hard).cls}" style="display:inline">${r.hard==null?"-":pct(r.hard)}</b></span></a>`;}).join("")}</div></div>`;};
+  $("#rp_body").innerHTML=`<div class="stack">
+    <div class="grid g2">${SEASONS.map(sum).join("")}</div>
+    ${st.weak.length?`<div class="card"><h3>Toughest fights</h3><div class="supps" style="margin-top:8px">${st.weak.map(x=>`<a href="#/story/${x.c.id}">Season ${x.c.season||1} ${chName(x.c)} EXTREME</a> ${pill(x.v)}`).join(" ")}</div></div>`
+      :`<div class="callout good">This team wins every EXTREME fight at least 95% of the time.</div>`}
+    ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against ${pvp.n} popular ranked teams (level 10).
+      Worst: ${pvp.worst.map(r=>`${esc(r.m.n)} (${pct(r.w)} wins)`).join(", ")}.</p></div>`:""}
+    <p class="small faint">Generated ${date.toLocaleDateString()} on Linguine Sandbox. N = Normal, E = EXTREME. Like the game, Season 1 fights cap card levels at 15. Simulated estimates, the real game's dice differ.</p></div>`;
+  $("#rp_png").disabled=false;$("#rp_txt").disabled=false;
+  $("#rp_txt").onclick=()=>{const x=reportText();if(navigator.clipboard)navigator.clipboard.writeText(x).then(()=>toast("Summary copied. Paste it anywhere."),()=>toast("Couldn't copy."));};
+  $("#rp_png").onclick=()=>reportPng();
+}
+function reportText(){
+  const{t,pvp,link}=REPORT,st=reportStats();
+  const nm=id=>`${shortName(CARDS[id])} (Lv ${t.levels[id]||10})`;
+  const lines=[`Linguine Sandbox team report`,`Team: ${t.leaders.map(nm).join(" + ")}${t.supp.length?` | Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:""}`];
+  for(const sn of SEASONS){const o=st[sn];lines.push(`Season ${sn}: EXTREME ${o.hard.clears}/${o.hard.n} won 95%+ (avg ${pct(o.hard.mean)}), Normal ${o.normal.clears}/${o.normal.n} (avg ${pct(o.normal.mean)})`);}
+  if(st.weak.length)lines.push(`Toughest: ${st.weak.slice(0,3).map(x=>`S${x.c.season||1} Ch ${chNum(x.c)} EXTREME ${pct(x.v)}`).join(", ")}`);
+  if(pvp)lines.push(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable, ${pvp.n-pvp.fav-pvp.lose} even, ${pvp.lose} losing`);
+  lines.push(link);
+  return lines.join("\n");
+}
+function reportPng(){
+  const{t,R,pvp}=REPORT,st=reportStats(),cw=1100,pad=36,cell=46,gap=6;
+  const col={good:"#5fd38a",ok:"#9ccf5a",mid:"#f0b847",bad:"#f0705f"};
+  const rowsH=SEASONS.length*(cell*2+gap+66);
+  const c=document.createElement("canvas");c.width=cw;c.height=200+rowsH+(pvp?44:0);
+  const g=c.getContext("2d"),F=w=>`${w} 16px Nunito, system-ui, sans-serif`;
+  g.fillStyle="#13141a";g.fillRect(0,0,c.width,c.height);
+  g.fillStyle="#f4c35b";g.font="900 30px Nunito, system-ui, sans-serif";g.fillText("Team report",pad,58);
+  g.fillStyle="#838a9c";g.font=F(700);g.fillText("Linguine Sandbox · cat.poyqu.me",pad+210,58);
+  g.fillStyle="#e9ebf2";g.font="800 20px Nunito, system-ui, sans-serif";
+  g.fillText(t.leaders.map(id=>`${shortName(CARDS[id])} (Lv ${t.levels[id]||10})`).join("  +  "),pad,100);
+  g.fillStyle="#b4b9c7";g.font=F(600);g.fillText(t.supp.length?`Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:"No supporters",pad,128);
+  let y=170;
+  for(const sn of SEASONS){const o=st[sn],L=CH_BY_SEASON[sn]||[];
+    g.fillStyle="#e9ebf2";g.font="900 20px Nunito, system-ui, sans-serif";g.fillText(`Season ${sn}`,pad,y);
+    g.fillStyle="#b4b9c7";g.font=F(700);g.fillText(`EXTREME ${o.hard.clears}/${o.hard.n} won 95%+ (avg ${pct(o.hard.mean)})   ·   Normal ${o.normal.clears}/${o.normal.n} (avg ${pct(o.normal.mean)})${sn===1&&t.leaders.some(id=>(t.levels[id]||10)>15)?"   ·   levels capped at 15":""}`,pad+120,y);
+    y+=18;const w=Math.floor((cw-pad*2-(L.length-1)*gap)/L.length);
+    [["normal","N"],["hard","E"]].forEach(([df,lab],ri)=>{L.forEach((ch,i)=>{const v=(R[ch.id]||{})[df],x=pad+i*(w+gap),yy=y+ri*(cell+gap);
+      g.fillStyle=v==null?"#272a36":col[winInfo(v).cls];g.globalAlpha=v==null?1:.9;g.fillRect(x,yy,w,cell);g.globalAlpha=1;
+      g.fillStyle="#13141a";g.font="800 13px Nunito, system-ui, sans-serif";g.textAlign="center";
+      if(v!=null)g.fillText(pct(v),x+w/2,yy+cell/2+5);g.font="700 10px Nunito, system-ui, sans-serif";g.fillText(`${lab}${i+1}`,x+w/2,yy+12);g.textAlign="left";});});
+    y+=cell*2+gap+50;}
+  if(pvp){g.fillStyle="#e9ebf2";g.font="800 18px Nunito, system-ui, sans-serif";g.fillText(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable · ${pvp.n-pvp.fav-pvp.lose} even · ${pvp.lose} losing`,pad,y);y+=30;}
+  g.fillStyle="#838a9c";g.font=F(600);g.fillText(`N = Normal, E = EXTREME, chapter numbers as in the game. Simulated estimates, ${REPORT_N} battles per fight.`,pad,c.height-24);
+  const a=document.createElement("a");a.download="team-report.png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove();
 }
 
 // =====================================================================================
@@ -3675,6 +3815,7 @@ const gLevels=()=>`<h2>Levels</h2>
   <div class="tblwrap" style="margin:12px 0"><table class="tbl"><thead><tr><th>Total gain</th><th>Health</th><th>Attack</th><th>Speed</th><th>Defense</th></tr></thead><tbody>
     <tr><td>By level 10</td><td>+25</td><td>+8</td><td>+25</td><td>+11</td></tr>
     <tr><td>By level 20</td><td>+97</td><td>+23</td><td>+100</td><td>+26</td></tr></tbody></table></div>
+  <p class="muted">The simulator applies the same cap: a level 20 card fights a Season 1 chapter as level 15.</p>
   <p class="muted">Story enemies gain +18 health, +4 attack, +8 speed and +2 defense for every level above 1, in both seasons. Defense stops at 50 for everyone.</p>`;
 const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:8px">The site plays the same battle hundreds of times with fresh dice rolls (dodges, crits, random targets) and counts how often you win. "78%" means your team won 78 out of every 100 simulated battles.</p>
@@ -3690,7 +3831,9 @@ const SITE_UPDATES=[["2026-10-02 · Your cards, levels and better teams",[
   `<b>Levels everywhere:</b> each recommended team shows the lowest level it needs, and the story list shows it for EXTREME and Normal. With imported levels, chapter pages say whether your cards are high enough.`,
   `<b>Builds now cover both seasons.</b> The story score is the average over every chapter of both seasons, with a Season 1 and Season 2 number for each build.`,
   `<b>Simulator on phones:</b> "Check every chapter", the team search and the PvP check now open right under the button you tapped, scroll into view, and can be stopped.`,
-  `Cards from the Ocean and Gold crates and from the other paid DLCs no longer show as "Not obtainable".`]],
+  `Cards from the Ocean and Gold crates and from the other paid DLCs no longer show as "Not obtainable".`,
+  `<b>Team reports:</b> "Share a report" in the simulator (or "Report" on a build) makes a page with the team's win rate in every chapter, Normal and EXTREME, both seasons, plus a PvP check. Share it as a link, an image or a text summary.`,
+  `<b>Fix: Season 1 level cap.</b> Like the game, the simulator now caps card levels at 15 in Season 1 story fights. Before, a level 20 team was simulated at full strength there.`]],
   ["2026-10-01 · New look",[
   `<b>The site has been rebuilt to be much easier to use.</b> Start from the home page: pick a chapter, test your own team, or browse cards.`,
   `<b>Chapter pages</b> show who you're fighting in plain words and the teams that beat them. If you're missing a card, each team lists the cards that work in its place.`,
@@ -3710,7 +3853,7 @@ function gUpdates(){
 // =====================================================================================
 applyTheme();
 if(window.matchMedia)matchMedia("(prefers-color-scheme: light)").addEventListener("change",()=>{if(!S.theme)applyTheme();});
-route();
+setTimeout(route,0);   // after any script appended to this one (site_report.js) has defined its pages
 
 </script>
 </body>
