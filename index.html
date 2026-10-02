@@ -348,6 +348,11 @@ a.hc{color:var(--text);text-decoration:none}
 .mbody{padding:16px 18px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .mbody code{white-space:normal;word-break:break-all;overflow-wrap:anywhere}
 .mbody li .row{display:flex!important;flex-wrap:wrap}
+.toolrow{display:flex;align-items:center;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.toolrow:first-of-type{border-top:0}
+.toolrow .btn{min-width:200px;justify-content:flex-start}
+@media(max-width:700px){.toolrow{flex-direction:column;align-items:stretch;gap:6px}.toolrow .btn{min-width:0;justify-content:center}}
+#tools > #tool_out{margin:4px 0 12px}
 .bulkbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .btn.on{background:var(--accsoft);border-color:var(--acc);color:var(--text)}
 @media(pointer:coarse){.btn.xs{padding:7px 12px;min-height:34px}.chip.click{min-height:34px}}
@@ -2844,7 +2849,7 @@ function pageTeam(){
     </div>
   </div>
   <div id="result_panel" style="margin-top:18px"></div>
-  <div class="grid g3" style="margin-top:18px" id="tools"></div>
+  <div style="margin-top:18px" id="tools"></div>
   <div id="tool_out" style="margin-top:14px"></div>
   <details class="adv" style="margin-top:18px" id="advanced"><summary>Advanced: saved teams, team codes, battle settings</summary><div class="in" id="adv_in"></div></details>
   </div>`;
@@ -2981,7 +2986,7 @@ function renderResult(r,mode,label,stamp,pd,ed){
       <div style="flex:1;min-width:220px"><div class="verdict w_${w.cls}">${w.word}</div>
         <div class="muted">Your team won <b style="color:var(--text)">${r.w}</b> of <b style="color:var(--text)">${r.n}</b> battles against ${esc(label||oppLabel())}.</div>
         <div class="wm_bar" style="margin-top:10px;height:10px"><i class="b_${w.cls}" style="width:${Math.max(1,r.w/r.n*100)}%"></i></div></div>
-      <div class="row tight"><button class="btn" data-act="watch">${ic("eye")}Watch a battle</button><button class="btn ghost" data-act="runSim">${ic("refresh")}Run again</button></div>
+      <div class="row tight"><button class="btn" data-act="watch">${ic("eye")}Watch a battle</button><button class="btn ghost" data-act="runSim">${ic("refresh")}Run again</button><button class="btn ghost" data-act="shareReport" title="A page with this team's win rate in every chapter">${ic("copy")}Share</button></div>
     </div>
     <div class="factgrid">
       ${r.w?`<div class="fact"><div class="k">Wins take</div><div class="v">${(r.tw/r.w).toFixed(1)} turns</div></div>`:""}
@@ -3032,20 +3037,23 @@ let TOOL_RUN=0,TOOL_BUSY=false;
 function toolStart(el){   // one tool output at a time: a new tool cancels the old run; on phones it sits right under the tapped tool
   if(TOOL_BUSY)cancelWork();
   const out=$("#tool_out"),my=++TOOL_RUN;
-  if(el&&el.isConnected&&matchMedia("(max-width:700px)").matches)el.after(out);else{const t=$("#tools");if(t)t.after(out);}
+  const anchor=el&&el.closest?(el.closest(".toolrow")||el):el;
+  if(anchor&&anchor.isConnected&&matchMedia("(max-width:700px)").matches)anchor.after(out);else{const t=$("#tools");if(t)t.after(out);}
   out.dataset.run=my;
   return{out,live:()=>out.isConnected&&+out.dataset.run===my};
 }
 const showOut=el=>requestAnimationFrame(()=>{if(el&&el.isConnected)el.scrollIntoView({behavior:"smooth",block:"start"});});
 const stopBtn=()=>`<button class="btn xs ghost" data-act="stopWork" style="margin-left:auto">${ic("x")}Stop</button>`;
 ACT.stopWork=()=>{cancelWork();TOOL_BUSY=false;const o=$("#tool_out");if(o)o.innerHTML=`<div class="small faint">Stopped.</div>`;};
-function renderTools(){
+function renderTools(){   // real buttons, one row each: the cards used to read like information, not actions
   const el=$("#tools");if(!el)return;
-  el.innerHTML=`
-    <button class="path" data-act="evalAll" style="text-align:left"><span class="ic">${ic("grid")}</span><h3>Check every chapter</h3><p>Run your team, at your levels, against every story fight and see where it wins.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>
-    <button class="path" data-act="findBest" style="text-align:left"><span class="ic">${ic("search")}</span><h3>Find a better team</h3><p>Search for the best team against the opponent you picked above.</p><span class="go">Search ${ic("arrow",'width="16" height="16"')}</span></button>
-    ${typeof ACT.shareReport==="function"?`<button class="path" data-act="shareReport" style="text-align:left"><span class="ic">${ic("copy")}</span><h3>Share your team</h3><p>A page with your team's win rate in every chapter, to send to friends or post.</p><span class="go">Share ${ic("arrow",'width="16" height="16"')}</span></button>`:""}
-    <button class="path" data-act="pvpCheck" style="text-align:left"><span class="ic">${ic("trophy")}</span><h3>PvP check</h3><p>Fight ${META_TEAMS.length} popular ranked teams (at level 10) and find your worst matchups. Needs 4 supporters.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>`;
+  const row=(act,icon,label,desc)=>`<div class="toolrow"><button class="btn" data-act="${act}">${ic(icon)}${label}</button><span class="small muted">${desc}</span></div>`;
+  el.innerHTML=`<div class="card"><div class="card_head"><div><h3>More with this team</h3></div></div>
+    ${row("evalAll","grid","Check every chapter","Run your team, at your levels, against every story fight and see where it wins.")}
+    ${row("findBest","search","Find a better team","Search for the best team against the opponent you picked above.")}
+    ${row("shareReport","copy","Share","A page with your team's win rate in every chapter, to send to friends or post.")}
+    ${row("pvpCheck","trophy","PvP check",`Fight ${META_TEAMS.length} popular ranked teams (level 10) and find your worst matchups. Needs 4 supporters.`)}
+  </div>`;
 }
 ACT.evalAll=async el=>{
   const t=S.team;if(t.leaders.filter(x=>x!=null).length<3){toast("Add 3 leaders first.");return;}
