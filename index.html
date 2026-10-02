@@ -3786,7 +3786,7 @@ function fStart(){
     <p class="small muted">You can't lose a fish. A bad minigame only makes the fish worth less; the species and its NP are decided before you play.</p></div>
   <div class="card"><h2>Quick wins</h2>
     <ul class="muted" style="line-height:1.7;padding-left:20px;margin:10px 0 0">
-      <li><b style="color:var(--text)">Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away.</li>
+      <li><b style="color:var(--text)">Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away. It's not in the game settings: open your <b style="color:var(--text)">Backpack</b> (from the fishing menu, or while fishing) and press the <b style="color:var(--text)">Warnings: ON</b> button at the top, next to Shop, so it says OFF.</li>
       <li><b style="color:var(--text)">Letters: mash L, I, N, G, U, E.</b> Only those six letters ever appear and wrong keys are ignored, so hitting all six over and over gets every letter at the earliest moment (GREAT).</li>
       <li><b style="color:var(--text)">Tiles: never spam.</b> Pressing a lane while its tile is still far from the line counts as a Bad hit, which costs about as much as 1.7 GREATs.</li>
       <li><b style="color:var(--text)">Feeding? Fish difficulty 8.</b> One minigame per catch makes catches much faster, and with a Time Acceleration rod you get the most NP per hour. <a href="#/fishing/spots">Best spots</a></li>
@@ -3895,7 +3895,7 @@ function fGames(){
     <div class="card"><h3>Quick Letter Type</h3><p class="muted">4 to 9 letters. The letters are always one of <b style="color:var(--text)">L, I, N, G, U, E</b>, and wrong keys are ignored. Mash all six letters nonstop and every letter lands in its GREAT window (0.95 seconds on easy spots, 0.4 on the hardest). Sometimes it spells LINGUINE.</p></div>
   </div>
   <div class="card"><h3>Setup tips</h3><ul class="muted" style="line-height:1.7;padding-left:20px;margin:8px 0 0">
-    <li>Turn <b style="color:var(--text)">game warnings off</b>: each minigame announcement otherwise adds ${FI.warn_time} seconds.</li>
+    <li>Turn <b style="color:var(--text)">game warnings off</b> (Backpack, top bar, the "Warnings" button): each minigame announcement otherwise adds ${FI.warn_time} seconds.</li>
     <li>Rods with <b style="color:var(--text)">Summoning</b> make your best minigame show up more often; <b style="color:var(--text)">Hater</b> rods make your worst one rare.</li>
     <li><b style="color:var(--text)">Slowdown</b> rods make one minigame easier but also shorter, which means fewer GREATs and fewer upgrades.</li>
   </ul></div></div>`;
@@ -4059,6 +4059,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-03 · Fishing guide",[
+  `<b>Where the Warnings switch is.</b> It's not in the game settings but in the Backpack's top bar; the Fishing tips now say so.`,
   `<b>Find any spot on the map.</b> Tap a spot's name on Fishing › Best spots to see the way there on the in-game fishing map (island, region, spot), plus its difficulty, the fishing level it needs, its water, local fish and the other spots nearby.`,
   `<b>New Fishing tab.</b> How a catch works step by step, the best spots for feeding (NP) and for selling (FL), a sortable list of all 84 spots with their local fish, how fish value and quality work, which rod to use and what it costs to get one, tips for every minigame, fishing XP and level rewards, and every fish with its price and NP. All numbers come straight from the game's files.`]],
   ["2026-10-02 · Data fix: supporter abilities",[
