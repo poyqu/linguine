@@ -2192,7 +2192,7 @@ async function simulate(pd,ed,n,onprog,mode){
 const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["guide","Guide","book"]];
 function renderNav(cur){
   if(cur==="builds")cur="teams";   // community builds live under Teams
-  if(cur==="report")cur="team";
+  if(cur==="report"||cur==="share")cur="team";
   const h=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" title="${l}" aria-label="${l}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
   $("#nav").innerHTML=h;
   $("#tabbar").innerHTML=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
@@ -2216,7 +2216,7 @@ function route(){
   const p=parts[0]||"";
   cancelWork();closeAll();
   const fn={"":pageHome,story:pageStory,team:pageTeam,cards:pageCards,teams:pageTeams,builds:pageBuilds,guide:pageGuide,mycards:pageMyCards,
-    report:typeof pageReport==="function"?pageReport:pageHome}[p]||pageHome;   // pageReport lives in site_report.js
+    share:pageReport,report:pageReport}[p]||pageHome;   // #/share/<code>; #/report/ kept so old links still open
   PAGE=p;renderNav(p);renderTeamPill();
   SIM_BUSY=false;TOOL_BUSY=false;
   fn(parts.slice(1));
@@ -3044,7 +3044,7 @@ function renderTools(){
   el.innerHTML=`
     <button class="path" data-act="evalAll" style="text-align:left"><span class="ic">${ic("grid")}</span><h3>Check every chapter</h3><p>Run your team, at your levels, against every story fight and see where it wins.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>
     <button class="path" data-act="findBest" style="text-align:left"><span class="ic">${ic("search")}</span><h3>Find a better team</h3><p>Search for the best team against the opponent you picked above.</p><span class="go">Search ${ic("arrow",'width="16" height="16"')}</span></button>
-    ${typeof ACT.shareReport==="function"?`<button class="path" data-act="shareReport" style="text-align:left"><span class="ic">${ic("copy")}</span><h3>Share a report</h3><p>A page with your team's win rate on every chapter, to send to friends or post.</p><span class="go">Make report ${ic("arrow",'width="16" height="16"')}</span></button>`:""}
+    ${typeof ACT.shareReport==="function"?`<button class="path" data-act="shareReport" style="text-align:left"><span class="ic">${ic("copy")}</span><h3>Share your team</h3><p>A page with your team's win rate in every chapter, to send to friends or post.</p><span class="go">Share ${ic("arrow",'width="16" height="16"')}</span></button>`:""}
     <button class="path" data-act="pvpCheck" style="text-align:left"><span class="ic">${ic("trophy")}</span><h3>PvP check</h3><p>Fight ${META_TEAMS.length} popular ranked teams (at level 10) and find your worst matchups. Needs 4 supporters.</p><span class="go">Run check ${ic("arrow",'width="16" height="16"')}</span></button>`;
 }
 ACT.evalAll=async el=>{
@@ -3506,7 +3506,7 @@ function renderBuildList(view){
         ?`<div class="wm_top"><span class="wm_pct w_${winInfo(sc).cls}">${pct(sc)}</span><span class="small faint">of league games won</span></div>${b.rec?`<div class="small faint" style="margin-top:3px">${b.rec[0]} wins · ${b.rec[1]} losses · ${b.rec[2]} draws</div>`:""}`
         :`<div class="wm_top"><span class="wm_pct w_${winInfo(sc).cls}">${pct(sc)}</span><span class="small faint">${sk==="s1"?"Season 1 EXTREME":sk==="s2"?"Season 2 EXTREME":"average EXTREME win"}</span></div><div class="small faint" style="margin-top:3px">Season 1 ${pct(b.eff_s1)} (Lv 15) · Season 2 ${pct(b.eff_s2)} (Lv 20)</div>`}</div>
       <div class="acts"><button class="btn sm" data-act="useTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[],lvl:pvp?10:sk==="s1"?15:20,auto:pvp?"pvp":"eval",season:pvp?undefined:sk==="s1"?1:sk==="s2"?2:undefined})}" title="${pvp?"Load it and run the PvP check":"Load it and check it on every chapter"}">${ic("play")}Try</button>
-        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button>${typeof ACT.reportTeam==="function"?`<button class="btn sm ghost" data-act="reportTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Report</button>`:""}</div>
+        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button>${typeof ACT.reportTeam==="function"?`<button class="btn sm ghost" data-act="reportTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">${ic("copy")}Share</button>`:""}</div>
       <div class="supps" style="width:100%">${b.by==="auto"?"found by the site's own search":`by <b style="color:var(--text)">${esc(b.by||"?")}</b>`}${b.date?` · ${esc(b.date)}`:""} · ${(b.supp||[]).length?`Supporters: ${b.supp.map(id=>cchip(id)).join("")}`:"No supporters"}<span class="spacer"></span>${teamEaseTags(b.leaders.concat(b.supp||[]))}</div>
     </div>`;}).join("");
 }
@@ -3593,21 +3593,21 @@ function ovRow(r,i,view){
 const REPORT_N=150;
 ACT.shareReport=()=>{
   if(S.team.leaders.filter(x=>x!=null).length<3)return toast("Add 3 leaders first.");
-  go("#/report/"+buildCode(S.team));
+  go("#/share/"+buildCode(S.team));
 };
 ACT.reportTeam=el=>{const j=J(el);if(!j)return;
   const t={leaders:j.team.slice(0,3),supp:(j.supp||[]).filter(id=>!j.team.includes(id)).slice(0,4),levels:{}};
   for(const id of t.leaders)t.levels[id]=j.lvl||20;
-  go("#/report/"+buildCode(t));};
+  go("#/share/"+buildCode(t));};
 let REPORT=null;
 async function pageReport(args){
   const d=parseCode(args[0]||"");
-  if(!d){$("#view").innerHTML=`<div class="fadein">${emptyState("swords","That report link is broken","The team code in the link is incomplete. Ask for the link again, or make your own report from the simulator.",`<a class="btn" href="#/team">Open simulator</a>`)}</div>`;return;}
+  if(!d){$("#view").innerHTML=`<div class="fadein">${emptyState("swords","That link is broken","The team code in the link is incomplete. Ask for the link again, or share your own team from the simulator.",`<a class="btn" href="#/team">Open simulator</a>`)}</div>`;return;}
   const t={leaders:d.leaders,supp:d.supp,levels:Object.keys(d.levels).length?d.levels:Object.fromEntries(d.leaders.map(id=>[id,10]))};
   const lvTxt=id=>`Lv ${t.levels[id]||10}`;
-  const link=location.origin+location.pathname+"#/report/"+buildCode(t);
+  const link=location.origin+location.pathname+"#/share/"+buildCode(t);
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Team report</h1><p>How this team does in every story fight, Normal and EXTREME, in both seasons${t.supp.length===4?", plus a check against popular ranked teams":""}. Each fight is simulated ${REPORT_N} times with fixed dice, so anyone who opens this link sees the same numbers.</p></div></div>
+    <div class="page_head"><div><h1>Team stats</h1><p>How this team does in every story fight, Normal and EXTREME, in both seasons${t.supp.length===4?", plus a check against popular ranked teams":""}. Each fight is simulated ${REPORT_N} times with fixed dice, so anyone who opens this link sees the same numbers.</p></div></div>
     <div class="card" style="margin-bottom:14px">
       <div class="row" style="gap:10px">${t.leaders.map(id=>cchip(id,{own:true,sub:lvTxt(id)})).join("")}</div>
       <div class="supps" style="margin-top:10px">${t.supp.length?`Supporters: ${t.supp.map(id=>cchip(id)).join("")}${teamDraws(t.leaders)?"":` <span class="small faint">(no leader draws cards, so supporters never come into play)</span>`}`:"No supporters"}</div>
@@ -3638,7 +3638,7 @@ async function pageReport(args){
     }
     REPORT={t,R,pvp,link,date:new Date()};
     renderReport();
-  }catch(e){if(e!=="cancelled"&&$("#rp_body"))$("#rp_body").innerHTML=`<div class="callout warn">The report stopped: ${esc(e&&e.message||e)}</div>`;}
+  }catch(e){if(e!=="cancelled"&&$("#rp_body"))$("#rp_body").innerHTML=`<div class="callout warn">The check stopped: ${esc(e&&e.message||e)}</div>`;}
 }
 function reportStats(){
   const{R}=REPORT,out={};
@@ -3673,7 +3673,7 @@ function renderReport(){
 function reportText(){
   const{t,pvp,link}=REPORT,st=reportStats();
   const nm=id=>`${shortName(CARDS[id])} (Lv ${t.levels[id]||10})`;
-  const lines=[`Linguine Sandbox team report`,`Team: ${t.leaders.map(nm).join(" + ")}${t.supp.length?` | Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:""}`];
+  const lines=[`Linguine Sandbox team stats`,`Team: ${t.leaders.map(nm).join(" + ")}${t.supp.length?` | Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:""}`];
   for(const sn of SEASONS){const o=st[sn];lines.push(`Season ${sn}: EXTREME ${o.hard.clears}/${o.hard.n} won 95%+ (avg ${pct(o.hard.mean)}), Normal ${o.normal.clears}/${o.normal.n} (avg ${pct(o.normal.mean)})`);}
   if(st.weak.length)lines.push(`Toughest: ${st.weak.slice(0,3).map(x=>`S${x.c.season||1} Ch ${chNum(x.c)} EXTREME ${pct(x.v)}`).join(", ")}`);
   if(pvp)lines.push(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable, ${pvp.n-pvp.fav-pvp.lose} even, ${pvp.lose} losing`);
@@ -3687,7 +3687,7 @@ function reportPng(){
   const c=document.createElement("canvas");c.width=cw;c.height=200+rowsH+(pvp?44:0);
   const g=c.getContext("2d"),F=w=>`${w} 16px Nunito, system-ui, sans-serif`;
   g.fillStyle="#13141a";g.fillRect(0,0,c.width,c.height);
-  g.fillStyle="#f4c35b";g.font="900 30px Nunito, system-ui, sans-serif";g.fillText("Team report",pad,58);
+  g.fillStyle="#f4c35b";g.font="900 30px Nunito, system-ui, sans-serif";g.fillText("Team stats",pad,58);
   g.fillStyle="#838a9c";g.font=F(700);g.fillText("Linguine Sandbox · cat.poyqu.me",pad+210,58);
   g.fillStyle="#e9ebf2";g.font="800 20px Nunito, system-ui, sans-serif";
   g.fillText(t.leaders.map(id=>`${shortName(CARDS[id])} (Lv ${t.levels[id]||10})`).join("  +  "),pad,100);
@@ -3704,7 +3704,7 @@ function reportPng(){
     y+=cell*2+gap+50;}
   if(pvp){g.fillStyle="#e9ebf2";g.font="800 18px Nunito, system-ui, sans-serif";g.fillText(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable · ${pvp.n-pvp.fav-pvp.lose} even · ${pvp.lose} losing`,pad,y);y+=30;}
   g.fillStyle="#838a9c";g.font=F(600);g.fillText(`N = Normal, E = EXTREME, chapter numbers as in the game. Simulated estimates, ${REPORT_N} battles per fight.`,pad,c.height-24);
-  const a=document.createElement("a");a.download="team-report.png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove();
+  const a=document.createElement("a");a.download="team-stats.png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove();
 }
 
 // =====================================================================================
@@ -3842,7 +3842,7 @@ const SITE_UPDATES=[["2026-10-02 · Data fix: supporter abilities",[
   `<b>Builds now cover both seasons.</b> The story score is the average over every chapter of both seasons, with a Season 1 and Season 2 number for each build.`,
   `<b>Simulator on phones:</b> "Check every chapter", the team search and the PvP check now open right under the button you tapped, scroll into view, and can be stopped.`,
   `Cards from the Ocean and Gold crates and from the other paid DLCs no longer show as "Not obtainable".`,
-  `<b>Team reports:</b> "Share a report" in the simulator (or "Report" on a build) makes a page with the team's win rate in every chapter, Normal and EXTREME, both seasons, plus a PvP check. Share it as a link, an image or a text summary.`,
+  `<b>Share your team:</b> "Share your team" in the simulator (or "Share" on a build) makes a page with the team's win rate in every chapter, Normal and EXTREME, both seasons, plus a PvP check. Share it as a link, an image or a text summary.`,
   `<b>Fix: Season 1 level cap.</b> Like the game, the simulator now caps card levels at 15 in Season 1 story fights. Before, a level 20 team was simulated at full strength there.`]],
   ["2026-10-01 · New look",[
   `<b>The site has been rebuilt to be much easier to use.</b> Start from the home page: pick a chapter, test your own team, or browse cards.`,
