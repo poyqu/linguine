@@ -37048,7 +37048,7 @@
 "spd": 939,
 "def": 43,
 "atk": 152,
-"style": 1,
+"style": 10,
 "abilities": [
 {
 "trigger": "on_attack",
@@ -37390,11 +37390,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
+"amount": 25,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your fastest Leader is increased by 25."
 },
 "690": {
 "id": 690,
@@ -37439,12 +37439,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Health Leader is increased by 25."
 },
 "691": {
 "id": 691,
@@ -37484,14 +37484,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "692": {
 "id": 692,
@@ -37536,12 +37536,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "693": {
 "id": 693,
@@ -37588,12 +37588,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
+"stat": "defense",
+"amount": 5,
 "target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Highest-Attack Enemy Leader is decreased by 5."
 },
 "694": {
 "id": 694,
@@ -37638,14 +37638,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 6."
 },
 "695": {
 "id": 695,
@@ -37709,12 +37709,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 6."
 },
 "696": {
 "id": 696,
@@ -37763,11 +37763,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 4,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 4."
 },
 "697": {
 "id": 697,
@@ -37875,14 +37875,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 3."
 },
 "699": {
 "id": 699,
@@ -37928,14 +37928,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 25,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 25."
 },
 "700": {
 "id": 700,
@@ -37980,12 +37980,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 6."
 },
 "701": {
 "id": 701,
@@ -38035,11 +38035,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 5,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 5."
 },
 "702": {
 "id": 702,
@@ -38124,12 +38124,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 6."
 },
 "703": {
 "id": 703,
@@ -38194,14 +38194,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Slowest Leader is increased by 5."
 },
 "704": {
 "id": 704,
@@ -38247,12 +38247,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
+"stat": "attack",
+"amount": 2,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your fastest Leader is increased by 2."
 },
 "705": {
 "id": 705,
@@ -38322,12 +38322,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Attack Leader is increased by 10."
 },
 "706": {
 "id": 706,
@@ -38369,14 +38369,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
 },
 "707": {
 "id": 707,
@@ -38443,12 +38443,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Slowest Leader is increased by 4."
 },
 "708": {
 "id": 708,
@@ -38498,14 +38498,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 4."
 },
 "709": {
 "id": 709,
@@ -38549,12 +38549,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 5."
 },
 "710": {
 "id": 710,
@@ -38600,12 +38600,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 5."
 },
 "711": {
 "id": 711,
@@ -38673,12 +38673,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 2."
 },
 "712": {
 "id": 712,
@@ -38738,14 +38738,14 @@
 "element": 5,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 3."
 },
 "713": {
 "id": 713,
@@ -38802,12 +38802,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 6,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 6."
 },
 "730": {
 "id": 730,
@@ -38852,14 +38852,14 @@
 "element": 0,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 6."
 },
 "714": {
 "id": 714,
@@ -38907,12 +38907,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 2,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Lowest-Defense Leader is increased by 2."
 },
 "715": {
 "id": 715,
@@ -38952,14 +38952,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "716": {
 "id": 716,
@@ -38999,14 +38999,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 50."
 },
 "717": {
 "id": 717,
@@ -39055,12 +39055,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 3."
 },
 "718": {
 "id": 718,
@@ -39108,14 +39108,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your Lowest-Attack Leader is increased by 25."
 },
 "719": {
 "id": 719,
@@ -39161,12 +39161,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Defense Leader is increased by 5."
 },
 "720": {
 "id": 720,
@@ -39212,12 +39212,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Slowest Leader is increased by 6."
 },
 "721": {
 "id": 721,
@@ -39257,14 +39257,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 5."
 },
 "722": {
 "id": 722,
@@ -39309,14 +39309,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the Highest-Health Enemy Leader is decreased by 25."
 },
 "723": {
 "id": 723,
@@ -39364,14 +39364,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your fastest Leader is increased by 10."
 },
 "724": {
 "id": 724,
@@ -39416,12 +39416,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Highest-Defense Leader is increased by 5."
 },
 "725": {
 "id": 725,
@@ -39466,12 +39466,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 5,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 5."
 },
 "726": {
 "id": 726,
@@ -39512,14 +39512,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "slowest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Slowest Enemy Leader is decreased by 10."
 },
 "727": {
 "id": 727,
@@ -39562,14 +39562,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of the fastest Enemy Leader is decreased by 3."
 },
 "728": {
 "id": 728,
@@ -39612,12 +39612,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
+"stat": "defense",
+"amount": 4,
 "target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Highest-Attack Enemy Leader is decreased by 4."
 },
 "729": {
 "id": 729,
@@ -39686,12 +39686,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 4,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 4."
 },
 "731": {
 "id": 731,
@@ -39736,12 +39736,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 2."
 },
 "732": {
 "id": 732,
@@ -39789,12 +39789,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
+"stat": "attack",
+"amount": 2,
 "target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 2."
 },
 "733": {
 "id": 733,
@@ -39853,14 +39853,14 @@
 "element": 5,
 "apex": true,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 6,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 6."
 },
 "734": {
 "id": 734,
@@ -39905,12 +39905,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 6,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 6."
 },
 "735": {
 "id": 735,
@@ -39953,12 +39953,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Slowest Leader is increased by 6."
 },
 "736": {
 "id": 736,
@@ -40025,12 +40025,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Defense Leader is increased by 6."
 },
 "737": {
 "id": 737,
@@ -40075,14 +40075,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
+"stat": "defense",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 5."
 },
 "738": {
 "id": 738,
@@ -40151,14 +40151,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 3."
 },
 "739": {
 "id": 739,
@@ -40201,14 +40201,14 @@
 "element": 3,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 6,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 6."
 },
 "740": {
 "id": 740,
@@ -40253,12 +40253,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Health Leader is increased by 25."
 },
 "741": {
 "id": 741,
@@ -40305,12 +40305,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 2."
 },
 "742": {
 "id": 742,
@@ -40363,14 +40363,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 50."
 },
 "743": {
 "id": 743,
@@ -40417,14 +40417,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
 },
 "744": {
 "id": 744,
@@ -40469,12 +40469,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Lowest-Defense Leader is increased by 1."
 },
 "745": {
 "id": 745,
@@ -40547,11 +40547,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "746": {
 "id": 746,
@@ -40592,14 +40592,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 1,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 1."
 },
 "747": {
 "id": 747,
@@ -40642,14 +40642,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
+"stat": "defense",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Lowest-Health Enemy Leader is decreased by 5."
 },
 "748": {
 "id": 748,
@@ -40689,14 +40689,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 6."
 },
 "749": {
 "id": 749,
@@ -40751,14 +40751,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_hp_overall"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Highest-Health Leader is decreased by 6."
 },
 "662": {
 "id": 662,
@@ -40838,11 +40838,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
+"amount": 6,
 "target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 6."
 },
 "663": {
 "id": 663,
@@ -40884,14 +40884,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 6."
 },
 "664": {
 "id": 664,
@@ -40935,12 +40935,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Slowest Leader is increased by 5."
 },
 "665": {
 "id": 665,
@@ -40991,11 +40991,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 3,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 3."
 },
 "666": {
 "id": 666,
@@ -41038,14 +41038,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Attack Enemy Leader is decreased by 6."
 },
 "667": {
 "id": 667,
@@ -41102,14 +41102,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "health",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 5."
 },
 "668": {
 "id": 668,
@@ -41148,12 +41148,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "highest_atk_overall"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of the Highest-Attack Leader is decreased by 25."
 },
 "669": {
 "id": 669,
@@ -41198,12 +41198,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
+"stat": "defense",
+"amount": 4,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your fastest Leader is increased by 4."
 },
 "670": {
 "id": 670,
@@ -41245,14 +41245,14 @@
 "element": 2,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 50."
 },
 "671": {
 "id": 671,
@@ -41295,14 +41295,14 @@
 "element": 0,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 6."
 },
 "672": {
 "id": 672,
@@ -41345,14 +41345,14 @@
 "element": 1,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 3."
 },
 "673": {
 "id": 673,
@@ -41425,14 +41425,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your Slowest Leader is increased by 25."
 },
 "674": {
 "id": 674,
@@ -41495,12 +41495,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
 },
 "675": {
 "id": 675,
@@ -41563,12 +41563,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Lowest-Defense Leader is increased by 6."
 },
 "676": {
 "id": 676,
@@ -41611,14 +41611,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Lowest-Defense Enemy Leader is decreased by 25."
 },
 "677": {
 "id": 677,
@@ -41663,12 +41663,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Slowest Leader is increased by 3."
 },
 "678": {
 "id": 678,
@@ -41712,14 +41712,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 5."
 },
 "679": {
 "id": 679,
@@ -41785,14 +41785,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of the Lowest-Health Enemy Leader is decreased by 4."
 },
 "680": {
 "id": 680,
@@ -41834,14 +41834,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "681": {
 "id": 681,
@@ -41900,14 +41900,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 6,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of the Highest-Attack Enemy Leader is decreased by 6."
 },
 "683": {
 "id": 683,
@@ -41964,14 +41964,14 @@
 "element": 1,
 "apex": true,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 3."
 },
 "684": {
 "id": 684,
@@ -42017,12 +42017,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 4."
 },
 "685": {
 "id": 685,
@@ -42063,12 +42063,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Attack Leader is increased by 25."
 },
 "750": {
 "id": 750,
@@ -42113,14 +42113,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 25."
 },
 "751": {
 "id": 751,
@@ -42168,11 +42168,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 5,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your fastest Leader is increased by 5."
 },
 "752": {
 "id": 752,
@@ -42220,12 +42220,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
+"stat": "defense",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 5."
 },
 "753": {
 "id": 753,
@@ -42290,14 +42290,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Slowest Leader is increased by 6."
 },
 "754": {
 "id": 754,
@@ -42340,12 +42340,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 4."
 },
 "755": {
 "id": 755,
@@ -42464,12 +42464,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 6."
 },
 "757": {
 "id": 757,
@@ -42512,14 +42512,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 4."
 },
 "758": {
 "id": 758,
@@ -42576,14 +42576,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_atk_enemy"
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 2."
 },
 "759": {
 "id": 759,
@@ -42644,11 +42644,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your Highest-Attack Leader is increased by 10."
 },
 "760": {
 "id": 760,
@@ -42710,11 +42710,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
+"amount": 1,
 "target": "highest_def_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Defense Leader is increased by 1."
 },
 "761": {
 "id": 761,
@@ -42784,14 +42784,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 4."
 },
 "762": {
 "id": 762,
@@ -42838,14 +42838,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 4."
 },
 "763": {
 "id": 763,
@@ -42912,14 +42912,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Lowest-Attack Leader is increased by 5."
 },
 "764": {
 "id": 764,
@@ -42963,12 +42963,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
+"stat": "attack",
+"amount": 2,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your fastest Leader is increased by 2."
 },
 "765": {
 "id": 765,
@@ -43011,12 +43011,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Lowest-Defense Leader is increased by 5."
 },
 "766": {
 "id": 766,
@@ -43064,11 +43064,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 4."
 },
 "767": {
 "id": 767,
@@ -43111,11 +43111,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"amount": 4,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of your Slowest Leader is increased by 4."
 },
 "768": {
 "id": 768,
@@ -43173,14 +43173,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your fastest Leader is increased by 3."
 },
 "769": {
 "id": 769,
@@ -43221,14 +43221,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
 },
 "770": {
 "id": 770,
@@ -43287,12 +43287,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 5,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 5."
 },
 "771": {
 "id": 771,
@@ -43334,14 +43334,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Highest-Attack Enemy Leader is decreased by 25."
 },
 "772": {
 "id": 772,
@@ -43383,14 +43383,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 2,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of the Lowest-Health Enemy Leader is decreased by 2."
 },
 "773": {
 "id": 773,
@@ -43436,11 +43436,11 @@
 "effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
+"amount": 3,
 "target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 3."
 },
 "774": {
 "id": 774,
@@ -43486,11 +43486,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your Slowest Leader is increased by 10."
 },
 "775": {
 "id": 775,
@@ -43532,14 +43532,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_atk_overall"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Leader is decreased by 2."
 },
 "776": {
 "id": 776,
@@ -43583,14 +43583,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 5,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 5."
 },
 "777": {
 "id": 777,
@@ -43641,12 +43641,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "lowest_hp_overall"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the Lowest-Health Leader is increased by 50."
 },
 "778": {
 "id": 778,
@@ -43690,12 +43690,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 5."
 },
 "779": {
 "id": 779,
@@ -43733,11 +43733,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 25,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your Lowest-Health Leader is increased by 25."
 },
 "780": {
 "id": 780,
@@ -43777,14 +43777,14 @@
 "element": 0,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 6."
 },
 "781": {
 "id": 781,
@@ -43842,14 +43842,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 3."
 },
 "782": {
 "id": 782,
@@ -43894,14 +43894,14 @@
 "element": 2,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 25,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 25."
 },
 "783": {
 "id": 783,
@@ -43943,14 +43943,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_overall"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of the Lowest-Health Leader is increased by 5."
 },
 "784": {
 "id": 784,
@@ -44004,14 +44004,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of the Lowest-Attack Enemy Leader is decreased by 1."
 },
 "785": {
 "id": 785,
@@ -44057,14 +44057,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "slowest_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Slowest Enemy Leader is decreased by 10."
 },
 "786": {
 "id": 786,
@@ -44125,11 +44125,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
+"amount": 5,
 "target": "lowest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 5."
 },
 "787": {
 "id": 787,
@@ -44186,12 +44186,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 2,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 2."
 },
 "788": {
 "id": 788,
@@ -44253,14 +44253,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 3."
 },
 "789": {
 "id": 789,
@@ -44307,12 +44307,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Highest-Defense Leader is increased by 4."
 },
 "790": {
 "id": 790,
@@ -44369,14 +44369,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Lowest-Health Enemy Leader is decreased by 1."
 },
 "791": {
 "id": 791,
@@ -44434,12 +44434,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Attack Leader is increased by 25."
 },
 "792": {
 "id": 792,
@@ -44481,12 +44481,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of your Slowest Leader is increased by 50."
 },
 "793": {
 "id": 793,
@@ -44531,14 +44531,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_atk_enemy"
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 2."
 },
 "794": {
 "id": 794,
@@ -44597,12 +44597,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
 },
 "795": {
 "id": 795,
@@ -44649,10 +44649,10 @@
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 2."
 },
 "796": {
 "id": 796,
@@ -44697,12 +44697,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Health Leader is increased by 25."
 },
 "797": {
 "id": 797,
@@ -44780,11 +44780,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"amount": 6,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 6."
 },
 "798": {
 "id": 798,
@@ -44830,14 +44830,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 5."
 },
 "799": {
 "id": 799,
@@ -44905,12 +44905,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Slowest Leader is increased by 6."
 },
 "800": {
 "id": 800,
@@ -44952,14 +44952,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Lowest-Health Enemy Leader is decreased by 25."
 },
 "801": {
 "id": 801,
@@ -45007,14 +45007,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 5."
 },
 "802": {
 "id": 802,
@@ -45057,12 +45057,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 4."
 },
 "803": {
 "id": 803,
@@ -45120,12 +45120,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 5."
 },
 "804": {
 "id": 804,
@@ -45167,14 +45167,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Lowest-Attack Enemy Leader is decreased by 5."
 },
 "805": {
 "id": 805,
@@ -45246,12 +45246,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Health Leader is increased by 5."
 },
 "806": {
 "id": 806,
@@ -45310,12 +45310,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 4,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of your fastest Leader is increased by 4."
 },
 "807": {
 "id": 807,
@@ -45376,12 +45376,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "808": {
 "id": 808,
@@ -45422,14 +45422,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your fastest Leader is increased by 3."
 },
 "809": {
 "id": 809,
@@ -45485,12 +45485,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Lowest-Attack Leader is increased by 4."
 },
 "863": {
 "id": 863,
@@ -45550,14 +45550,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_atk_enemy"
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 2."
 },
 "810": {
 "id": 810,
@@ -45602,14 +45602,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Lowest-Attack Enemy Leader is decreased by 1."
 },
 "811": {
 "id": 811,
@@ -45654,14 +45654,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "812": {
 "id": 812,
@@ -45728,12 +45728,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
+"stat": "defense",
+"amount": 4,
 "target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 4."
 },
 "813": {
 "id": 813,
@@ -45779,12 +45779,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
+"stat": "health",
+"amount": 5,
 "target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of the Highest-Attack Enemy Leader is decreased by 5."
 },
 "814": {
 "id": 814,
@@ -45829,12 +45829,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Lowest-Defense Leader is increased by 1."
 },
 "815": {
 "id": 815,
@@ -45879,12 +45879,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Defense Leader is increased by 10."
 },
 "816": {
 "id": 816,
@@ -45931,12 +45931,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Defense Leader is increased by 10."
 },
 "817": {
 "id": 817,
@@ -45982,11 +45982,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"amount": 4,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of your Highest-Attack Leader is increased by 4."
 },
 "818": {
 "id": 818,
@@ -46029,14 +46029,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 4,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Slowest Leader is increased by 4."
 },
 "819": {
 "id": 819,
@@ -46079,14 +46079,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
 },
 "820": {
 "id": 820,
@@ -46133,12 +46133,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 4,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your fastest Leader is increased by 4."
 },
 "821": {
 "id": 821,
@@ -46185,11 +46185,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 4,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Attack Leader is increased by 4."
 },
 "822": {
 "id": 822,
@@ -46237,14 +46237,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 1,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of the fastest Enemy Leader is decreased by 1."
 },
 "823": {
 "id": 823,
@@ -46302,14 +46302,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 4,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Defense Leader is increased by 4."
 },
 "824": {
 "id": 824,
@@ -46378,12 +46378,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 3,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 3."
 },
 "825": {
 "id": 825,
@@ -46430,12 +46430,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_overall"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Lowest-Health Leader is increased by 4."
 },
 "826": {
 "id": 826,
@@ -46480,12 +46480,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 1."
 },
 "827": {
 "id": 827,
@@ -46555,12 +46555,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Slowest Leader is increased by 4."
 },
 "828": {
 "id": 828,
@@ -46607,14 +46607,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 5."
 },
 "829": {
 "id": 829,
@@ -46656,14 +46656,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 2,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of the Highest-Health Enemy Leader is decreased by 2."
 },
 "830": {
 "id": 830,
@@ -46731,14 +46731,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 6,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 6."
 },
 "831": {
 "id": 831,
@@ -46784,12 +46784,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Health Leader is increased by 10."
 },
 "832": {
 "id": 832,
@@ -46835,14 +46835,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
+"stat": "defense",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Highest-Attack Enemy Leader is decreased by 5."
 },
 "833": {
 "id": 833,
@@ -46903,12 +46903,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 10,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of the Highest-Health Enemy Leader is decreased by 10."
 },
 "834": {
 "id": 834,
@@ -46972,14 +46972,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 6."
 },
 "835": {
 "id": 835,
@@ -47020,14 +47020,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Defense Enemy Leader is decreased by 2."
 },
 "836": {
 "id": 836,
@@ -47075,12 +47075,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Attack Leader is increased by 5."
 },
 "837": {
 "id": 837,
@@ -47128,12 +47128,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 2,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 2."
 },
 "838": {
 "id": 838,
@@ -47208,14 +47208,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 6,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 6."
 },
 "839": {
 "id": 839,
@@ -47266,11 +47266,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
+"amount": 25,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your fastest Leader is increased by 25."
 },
 "840": {
 "id": 840,
@@ -47316,12 +47316,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 6."
 },
 "841": {
 "id": 841,
@@ -47384,11 +47384,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
+"amount": 4,
 "target": "lowest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 4."
 },
 "842": {
 "id": 842,
@@ -47434,14 +47434,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the Lowest-Health Enemy Leader is decreased by 50."
 },
 "843": {
 "id": 843,
@@ -47535,14 +47535,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Highest-Defense Leader is increased by 5."
 },
 "844": {
 "id": 844,
@@ -47590,12 +47590,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 5,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Slowest Leader is increased by 5."
 },
 "845": {
 "id": 845,
@@ -47638,14 +47638,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Highest-Attack Enemy Leader is decreased by 10."
 },
 "846": {
 "id": 846,
@@ -47686,14 +47686,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 3."
 },
 "847": {
 "id": 847,
@@ -47754,10 +47754,10 @@
 "params": {
 "stat": "health",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of your Lowest-Attack Leader is increased by 5."
 },
 "849": {
 "id": 849,
@@ -47870,12 +47870,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Health Leader is increased by 5."
 },
 "851": {
 "id": 851,
@@ -47934,12 +47934,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 3,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 3."
 },
 "852": {
 "id": 852,
@@ -48012,12 +48012,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "highest_def_overall"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the Highest-Defense Leader is increased by 50."
 },
 "853": {
 "id": 853,
@@ -48061,14 +48061,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your fastest Leader is increased by 50."
 },
 "854": {
 "id": 854,
@@ -48124,14 +48124,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 6."
 },
 "855": {
 "id": 855,
@@ -48194,10 +48194,10 @@
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 2."
 },
 "856": {
 "id": 856,
@@ -48262,12 +48262,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 2."
 },
 "857": {
 "id": 857,
@@ -48336,14 +48336,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Lowest-Health Enemy Leader is decreased by 6."
 },
 "858": {
 "id": 858,
@@ -48401,14 +48401,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
 },
 "859": {
 "id": 859,
@@ -48458,12 +48458,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 1."
 },
 "860": {
 "id": 860,
@@ -48535,12 +48535,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Attack Leader is increased by 6."
 },
 "848": {
 "id": 848,
@@ -48733,12 +48733,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 3."
 },
 "864": {
 "id": 864,
@@ -48785,12 +48785,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
+"stat": "health",
+"amount": 5,
 "target": "fastest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your fastest Leader is increased by 5."
 },
 "865": {
 "id": 865,
@@ -48840,12 +48840,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Health Leader is increased by 25."
 },
 "866": {
 "id": 866,
@@ -48900,14 +48900,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 1,
+"target": "highest_atk_overall"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Leader is decreased by 1."
 },
 "867": {
 "id": 867,
@@ -48976,12 +48976,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Defense Leader is increased by 3."
 },
 "868": {
 "id": 868,
@@ -49047,12 +49047,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 25."
 },
 "869": {
 "id": 869,
@@ -49094,14 +49094,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 4,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 4."
 },
 "870": {
 "id": 870,
@@ -49143,12 +49143,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 5."
 },
 "873": {
 "id": 873,
@@ -49189,14 +49189,14 @@
 "element": 3,
 "apex": true,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_atk_enemy"
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your fastest Leader is increased by 2."
 },
 "874": {
 "id": 874,
@@ -49278,12 +49278,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "875": {
 "id": 875,
@@ -49380,14 +49380,14 @@
 "element": 3,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Lowest-Attack Enemy Leader is decreased by 1."
 },
 "876": {
 "id": 876,
@@ -49435,14 +49435,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 6,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 6."
 },
 "871": {
 "id": 871,
@@ -49492,12 +49492,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your fastest Leader is increased by 50."
 },
 "872": {
 "id": 872,
@@ -49548,12 +49548,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 4."
 },
 "877": {
 "id": 877,
@@ -49601,14 +49601,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"amount": 6,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of the Highest-Attack Enemy Leader is decreased by 6."
 },
 "878": {
 "id": 878,
@@ -49656,14 +49656,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 4,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 4."
 },
 "879": {
 "id": 879,
@@ -49712,14 +49712,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Lowest-Health Enemy Leader is decreased by 4."
 },
 "880": {
 "id": 880,
@@ -49769,12 +49769,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
+"stat": "speed",
+"amount": 10,
 "target": "highest_def_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Defense Leader is increased by 10."
 },
 "881": {
 "id": 881,
@@ -49825,11 +49825,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
+"amount": 6,
 "target": "lowest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Defense Leader is increased by 6."
 },
 "882": {
 "id": 882,
@@ -49880,12 +49880,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 4."
 },
 "883": {
 "id": 883,
@@ -49933,14 +49933,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your Lowest-Attack Leader is increased by 25."
 },
 "884": {
 "id": 884,
@@ -49988,14 +49988,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 1."
 },
 "885": {
 "id": 885,
@@ -50046,12 +50046,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your fastest Leader is increased by 10."
 },
 "886": {
 "id": 886,
@@ -50102,11 +50102,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 4,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Defense Leader is increased by 4."
 },
 "887": {
 "id": 887,
@@ -50155,12 +50155,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
+"stat": "defense",
+"amount": 6,
 "target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 6."
 },
 "888": {
 "id": 888,
@@ -50210,14 +50210,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 3,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 3."
 },
 "889": {
 "id": 889,
@@ -50267,12 +50267,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 3,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 3."
 },
 "890": {
 "id": 890,
@@ -50316,14 +50316,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "891": {
 "id": 891,
@@ -50372,12 +50372,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Health Leader is increased by 25."
 },
 "892": {
 "id": 892,
@@ -50419,12 +50419,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 3."
 },
 "893": {
 "id": 893,
@@ -50466,14 +50466,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_atk_enemy"
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 2."
 },
 "894": {
 "id": 894,
@@ -50521,11 +50521,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "lowest_def_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of your Lowest-Defense Leader is increased by 10."
 },
 "895": {
 "id": 895,
@@ -50572,10 +50572,10 @@
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 2."
 },
 "896": {
 "id": 896,
@@ -50622,14 +50622,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 5,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of the Lowest-Health Enemy Leader is decreased by 5."
 },
 "897": {
 "id": 897,
@@ -50681,12 +50681,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Highest-Defense Leader is increased by 4."
 },
 "898": {
 "id": 898,
@@ -50736,12 +50736,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of the Lowest-Attack Enemy Leader is decreased by 5."
 },
 "899": {
 "id": 899,
@@ -50785,14 +50785,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 5,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of the Highest-Attack Enemy Leader is decreased by 5."
 },
 "900": {
 "id": 900,
@@ -50841,12 +50841,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 4,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Slowest Leader is increased by 4."
 },
 "901": {
 "id": 901,
@@ -50891,14 +50891,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 1,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the fastest Enemy Leader is decreased by 1."
 },
 "902": {
 "id": 902,
@@ -50942,12 +50942,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of your fastest Leader is increased by 10."
 },
 "903": {
 "id": 903,
@@ -50992,14 +50992,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Lowest-Health Leader is increased by 4."
 },
 "904": {
 "id": 904,
@@ -51044,12 +51044,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 4."
 },
 "905": {
 "id": 905,
@@ -51095,11 +51095,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 1."
 },
 "906": {
 "id": 906,
@@ -51143,14 +51143,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
 },
 "907": {
 "id": 907,
@@ -51197,14 +51197,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "health",
 "amount": 5,
-"target": "lowest_hp_ally"
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 5."
 },
 "908": {
 "id": 908,
@@ -51253,12 +51253,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Lowest-Health Enemy Leader is decreased by 5."
 },
 "909": {
 "id": 909,
@@ -51305,14 +51305,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of the Lowest-Attack Enemy Leader is decreased by 1."
 },
 "910": {
 "id": 910,
@@ -51361,12 +51361,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Slowest Leader is increased by 25."
 },
 "911": {
 "id": 911,
@@ -51415,12 +51415,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The health of your Highest-Defense Leader is increased by 5."
 },
 "912": {
 "id": 912,
@@ -51467,14 +51467,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 50,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 50."
 },
 "913": {
 "id": 913,
@@ -51521,14 +51521,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 10,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your Highest-Attack Leader is increased by 10."
 },
 "914": {
 "id": 914,
@@ -51577,12 +51577,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 5,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 5."
 },
 "915": {
 "id": 915,
@@ -51632,11 +51632,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 1."
 },
 "916": {
 "id": 916,
@@ -51685,12 +51685,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "attack",
+"amount": 3,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 3."
 },
 "917": {
 "id": 917,
@@ -51781,12 +51781,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 4."
 },
 "918": {
 "id": 918,
@@ -51846,12 +51846,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 5."
 },
 "919": {
 "id": 919,
@@ -51911,14 +51911,14 @@
 "element": 5,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 5,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 5."
 },
 "920": {
 "id": 920,
@@ -51962,12 +51962,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 4,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Health Leader is increased by 4."
 },
 "921": {
 "id": 921,
@@ -52023,14 +52023,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
 },
 "922": {
 "id": 922,
@@ -52088,12 +52088,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "923": {
 "id": 923,
@@ -52135,12 +52135,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "defense",
+"amount": 5,
+"target": "highest_def_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The defense of the Highest-Defense Enemy Leader is decreased by 5."
 },
 "924": {
 "id": 924,
@@ -52201,14 +52201,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"amount": 10,
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The speed of the Highest-Attack Enemy Leader is decreased by 10."
 },
 "925": {
 "id": 925,
@@ -52272,11 +52272,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 3,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of your Highest-Attack Leader is increased by 3."
 },
 "926": {
 "id": 926,
@@ -52323,12 +52323,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Highest-Defense Leader is increased by 10."
 },
 "927": {
 "id": 927,
@@ -52386,14 +52386,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"amount": 4,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 4."
 },
 "928": {
 "id": 928,
@@ -52454,11 +52454,11 @@
 "effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 1,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of the Lowest-Health Enemy Leader is decreased by 1."
 },
 "929": {
 "id": 929,
@@ -52500,14 +52500,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of the Lowest-Health Enemy Leader is decreased by 1."
 },
 "930": {
 "id": 930,
@@ -52563,14 +52563,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 4,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 4."
 },
 "931": {
 "id": 931,
@@ -52629,11 +52629,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Slowest Leader is increased by 6."
 },
 "932": {
 "id": 932,
@@ -52675,12 +52675,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "attack",
+"amount": 2,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 2."
 },
 "933": {
 "id": 933,
@@ -52743,12 +52743,12 @@
 "supporter": {
 "effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
+"stat": "health",
+"amount": 5,
 "target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of the Highest-Attack Enemy Leader is decreased by 5."
 },
 "934": {
 "id": 934,
@@ -52790,14 +52790,14 @@
 "element": 5,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 4,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 4."
 },
 "935": {
 "id": 935,
@@ -52839,14 +52839,14 @@
 "element": 4,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"amount": 1,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the fastest Enemy Leader is decreased by 1."
 },
 "936": {
 "id": 936,
@@ -52888,11 +52888,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 5,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Lowest-Attack Leader is increased by 5."
 },
 "937": {
 "id": 937,
@@ -52938,14 +52938,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "defense",
+"amount": 6,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The defense of the Lowest-Defense Enemy Leader is decreased by 6."
 },
 "938": {
 "id": 938,
@@ -52991,14 +52991,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "health",
+"amount": 5,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The health of your Highest-Defense Leader is increased by 5."
 },
 "939": {
 "id": 939,
@@ -53043,12 +53043,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "attack",
+"amount": 1,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The attack of your Lowest-Health Leader is increased by 1."
 },
 "940": {
 "id": 940,
@@ -53091,14 +53091,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "health",
+"amount": 5,
+"target": "highest_hp_enemy"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 5."
 },
 "941": {
 "id": 941,
@@ -53144,11 +53144,11 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"amount": 4,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 4."
 },
 "942": {
 "id": 942,
@@ -53190,12 +53190,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 10,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of your Slowest Leader is increased by 10."
 },
 "943": {
 "id": 943,
@@ -53237,14 +53237,14 @@
 "element": 2,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"amount": 3,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The attack of your Highest-Health Leader is increased by 3."
 },
 "944": {
 "id": 944,
@@ -53288,12 +53288,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 6,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The health of your Slowest Leader is increased by 6."
 },
 "945": {
 "id": 945,
@@ -53334,12 +53334,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "defense",
+"amount": 6,
+"target": "highest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The defense of your Highest-Attack Leader is increased by 6."
 },
 "946": {
 "id": 946,
@@ -53385,14 +53385,14 @@
 "element": 1,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
-"amount": 2,
-"target": "lowest_def_ally"
+"stat": "speed",
+"amount": 25,
+"target": "lowest_def_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The speed of the Lowest-Defense Enemy Leader is decreased by 25."
 },
 "947": {
 "id": 947,
@@ -53440,12 +53440,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 10,
+"target": "highest_def_ally"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of your Highest-Defense Leader is increased by 10."
 },
 "948": {
 "id": 948,
@@ -53488,14 +53488,14 @@
 "element": 0,
 "apex": false,
 "supporter": {
-"effect": "lose_stat_target",
+"effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_atk_enemy"
+"stat": "speed",
+"amount": 25,
+"target": "slowest_ally"
 }
 },
-"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
+"stext_desc": "The speed of your Slowest Leader is increased by 25."
 },
 "949": {
 "id": 949,
@@ -53540,12 +53540,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "defense",
+"amount": 4,
+"target": "highest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8."
+"stext_desc": "The defense of your Highest-Health Leader is increased by 4."
 },
 "950": {
 "id": 950,
@@ -53590,12 +53590,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "attack",
-"amount": 2,
-"target": "highest_def_ally"
+"stat": "speed",
+"amount": 10,
+"target": "lowest_atk_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2."
+"stext_desc": "The speed of your Lowest-Attack Leader is increased by 10."
 },
 "951": {
 "id": 951,
@@ -53642,14 +53642,14 @@
 "element": 5,
 "apex": true,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "defense",
+"stat": "attack",
 "amount": 2,
-"target": "lowest_def_ally"
+"target": "highest_atk_enemy"
 }
 },
-"stext_desc": "The defense of your Lowest-Defense Leader is increased by 2."
+"stext_desc": "The attack of the Highest-Attack Enemy Leader is decreased by 2."
 },
 "952": {
 "id": 952,
@@ -53695,14 +53695,14 @@
 "element": 3,
 "apex": false,
 "supporter": {
-"effect": "gain_stat_target",
+"effect": "lose_stat_target",
 "params": {
-"stat": "health",
-"amount": 5,
-"target": "lowest_hp_ally"
+"stat": "speed",
+"amount": 25,
+"target": "fastest_enemy"
 }
 },
-"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 25."
 },
 "953": {
 "id": 953,
@@ -53800,12 +53800,12 @@
 "supporter": {
 "effect": "gain_stat_target",
 "params": {
-"stat": "speed",
-"amount": 8,
-"target": "fastest_ally"
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
 }
 },
-"stext_desc": "The speed of your Fastest Leader is increased by 8.",
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5.",
 "supporter2_desc": "All of your leaders with <Cola> or <Fish> in their name gain 5 attack.",
 "supporter2_active": false
 },
@@ -53859,10 +53859,10 @@
 "params": {
 "stat": "attack",
 "amount": 2,
-"target": "highest_def_ally"
+"target": "fastest_ally"
 }
 },
-"stext_desc": "The attack of your Highest-Defense Leader is increased by 2.",
+"stext_desc": "The attack of your fastest Leader is increased by 2.",
 "supporter2_desc": "All of your leaders with <Cola> or <Gold> in their name are inflicted with [Lucky].",
 "supporter2_active": false
 }
@@ -54417,7 +54417,7 @@
 "spd": 532,
 "def": 22,
 "atk": 34,
-"style": 1,
+"style": 10,
 "abilities": [
 {
 "trigger": "turn_start",
