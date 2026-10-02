@@ -1,7 +1,8 @@
 """CI verifier for Builds submissions. Reads the issue body from ISSUE_BODY, validates the team
 (well-formed, crate-legal, not a duplicate, correct supporter count for its category), computes
 its metric, and on success appends it to ../builds.json. Story builds are scored by mean win rate
-across the 21 EXTREME chapters. PvP builds cross-validate: a round-robin among ALL PvP builds is
+across every EXTREME chapter of both seasons, each season at its story level cap (Season 1: 15,
+Season 2: 20); eff_s1 / eff_s2 keep the per-season means. PvP builds cross-validate: a round-robin among ALL PvP builds is
 re-run on every accept, so every PvP build's standing adjusts as the pool grows. Always writes
 result.md (the comment) and sets GITHUB_OUTPUT status."""
 import sim, json, os, re, datetime
@@ -17,16 +18,22 @@ BUILDS = json.load(open(BUILDS_PATH)) if os.path.exists(BUILDS_PATH) else []
 def sig(leaders, supp):
     return ",".join(map(str, sorted(leaders))) + "|" + ",".join(map(str, sorted(supp)))
 
+CAP = {1: 15, 2: 20}   # story level cap per season = the level every card is rated at
+def season_of(ch): return 2 if ch.startswith("S2") else 1
+
 def story_eff(leaders, supp, n=250):
-    tot = 0.0
-    for ed in DECKS.values():
-        w = 0
+    """-> (overall, season1, season2) mean EXTREME win rates."""
+    per = {1: [], 2: []}
+    for ch, ed in DECKS.items():
+        lv = CAP[season_of(ch)]; w = 0
         for s in range(n):
-            pd = sim.player_deck(list(leaders), list(supp))
-            if sim.Sim(s * 13 + 5).run(pd, [dict(c) for c in ed]) == 0:
+            pd = [sim.apply_player_level(sim.LEADERS[i], lv) for i in leaders] + [dict(sim.LEADERS[i]) for i in supp]
+            if sim.Sim(s * 13 + 5).run(pd, [dict(c) if c else None for c in ed]) == 0:
                 w += 1
-        tot += w / n
-    return tot / len(DECKS)
+        per[season_of(ch)].append(w / n)
+    allv = per[1] + per[2]
+    m = lambda x: sum(x) / len(x) if x else None
+    return m(allv), m(per[1]), m(per[2])
 
 def pvp_league(builds, n=120):
     """Round-robin among all PvP builds; sets each build's 'pvp' (win fraction) and 'rec' [W,L,D].
@@ -115,7 +122,8 @@ def main():
     entry = {"leaders": leaders, "supp": supp, "by": by,
              "date": datetime.date.today().isoformat(), "for": cat}
     if cat in ("story", "both"):
-        entry["eff"] = round(story_eff(leaders, supp), 3)
+        e, e1, e2 = story_eff(leaders, supp)
+        entry["eff"], entry["eff_s1"], entry["eff_s2"] = round(e, 3), round(e1, 3), round(e2, 3)
     BUILDS.append(entry)
     if cat in ("pvp", "both"):
         pvp_builds = [b for b in BUILDS if b.get("for") in ("pvp", "both")]
@@ -126,7 +134,7 @@ def main():
     names = " + ".join(sim.LEADERS[i]["name"].replace("Linguine", "L.") for i in leaders)
     bits = []
     if entry.get("eff") is not None:
-        bits.append(f"**{entry['eff']*100:.0f}%** story efficiency")
+        bits.append(f"**{entry['eff']*100:.0f}%** story efficiency (Season 1 {entry['eff_s1']*100:.0f}%, Season 2 {entry['eff_s2']*100:.0f}%)")
     if entry.get("pvp") is not None:
         rec = entry.get("rec", [0,0,0])
         bits.append(f"**{entry['pvp']*100:.0f}%** PvP win rate ({rec[0]}-{rec[1]}-{rec[2]}) against the current build pool")
