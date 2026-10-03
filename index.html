@@ -1770,9 +1770,10 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const sigOf=t=>[...t.leaders].filter(x=>x!=null).sort((a,b)=>a-b).join(",")+"|"+[...t.supp].sort((a,b)=>a-b).join(",");
 const sigLv=t=>sigOf(t)+"|"+t.leaders.filter(x=>x!=null).map(id=>(t.levels&&t.levels[id])||10).join(",");   // + levels
 const STOP=new Set(["a","an","the","with","of","but","he","has","and","his","is","on","in","to","for","x"]);
+const dname=c=>(c&&(c.alias||c.name))||"?";   // the in-game (skin) name; c.name is the battle-data name players never see
 function shortName(c){
   if(!c)return"?";
-  let n=c.name;
+  let n=dname(c);
   if(/^linguine\b/i.test(n)){
     let r=n.replace(/^linguine\s*/i,"");
     if(!r)return"Linguine";
@@ -1789,7 +1790,7 @@ function shortName(c){
 function initials(c){
   if(!c)return"?";
   const w=shortName(c).replace(/[^A-Za-z0-9 ]/g," ").split(/\s+/).filter(x=>x&&!STOP.has(x.toLowerCase()));
-  if(!w.length)return c.name.replace(/[^A-Za-z]/g,"").slice(0,2)||"?";
+  if(!w.length)return dname(c).replace(/[^A-Za-z]/g,"").slice(0,2)||"?";
   if(/^\d+/.test(w[0]))return w[0].match(/^\d+/)[0].slice(0,2)+(w[1]?w[1][0]:"");
   if(w.length===1)return w[0].slice(0,2);
   return w[0][0]+w[1][0];
@@ -2026,7 +2027,7 @@ function av(id,size="",boss){
 function cchip(id,o={}){
   const c=o.boss?enemyBase(id):ALLC[id];if(!c)return"";
   const own=o.own&&OWN.size?(OWN.has(id)?` <span class="owned_mark" title="you own this">${ic("check",'width="13" height="13"')}</span>`:""):"";
-  return`<button type="button" class="cc" data-card="${id}"${o.boss?` data-boss="1" data-lvl="${o.lvl||1}" data-season="${o.season||1}"`:""} title="${esc(c.name)}">${av(id,o.size||"sm",o.boss)}<span class="txt"><span class="nm">${esc(shortName(c))}${own}</span>${o.sub?`<span class="sub">${o.sub}</span>`:""}</span></button>`;
+  return`<button type="button" class="cc" data-card="${id}"${o.boss?` data-boss="1" data-lvl="${o.lvl||1}" data-season="${o.season||1}"`:""} title="${esc(dname(c))}">${av(id,o.size||"sm",o.boss)}<span class="txt"><span class="nm">${esc(shortName(c))}${own}</span>${o.sub?`<span class="sub">${o.sub}</span>`:""}</span></button>`;
 }
 function elTag(c){const e=c.element>=0?c.element:3;return`<span class="elname el${e}" title="${esc(elHint(e))}">${esc(ELN[e]||"Unknown")}</span>`;}
 // the four Steam DLC sources (skin_manager.DLC_SOURCES; names, prices and perks from support.gd)
@@ -2383,7 +2384,7 @@ function openCard(id,ctx){
   let lvl=isBoss||!CARDS[id]?((ctx&&ctx.lvl)||1):(S.team.levels[id]||10);
   const season=(ctx&&ctx.season)||1;
   const lvOf=l=>isCard?applyPlayerLevel(c,l):applyEnemyLevel(Object.assign({},c),l,season);
-  const el=openLayer(`<aside class="drawer" role="dialog" aria-label="${esc(c.name)}"><div id="cd_body"></div></aside>`);
+  const el=openLayer(`<aside class="drawer" role="dialog" aria-label="${esc(dname(c))}"><div id="cd_body"></div></aside>`);
   const body=el.querySelector("#cd_body");
   const recs=isCard?recChapters(id):[];
   const draws=drawsSupporters(id);
@@ -2391,8 +2392,8 @@ function openCard(id,ctx){
   body.innerHTML=`
     <div class="row between" style="align-items:flex-start;flex-wrap:nowrap">
       <div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:14px">${av(id,"xl",isBoss)}
-        <div style="min-width:0"><h2 style="font-size:20px">${esc(c.name)}</h2>
-        ${c.alias?`<div class="faint small">In your collection as "${esc(c.alias)}"</div>`:""}
+        <div style="min-width:0"><h2 style="font-size:20px">${esc(dname(c))}</h2>
+        ${c.alias?`<div class="faint small">Battle name: "${esc(c.name)}"</div>`:""}
         <div class="row tight" style="margin-top:7px">${elTag(c)}${c.rarity&&isCard?`<span class="tag">${RAR[c.rarity]||c.rarity}</span>`:""}${c.apex?'<span class="tag apex" title="Apex: its small elemental weakness is cancelled">Apex</span>':""}${isBoss?`<span class="tag boss">${BOSS[id]?"Story boss":"Story enemy"}</span>`:""}</div>
         ${roles.length?`<div class="row tight" style="margin-top:6px">${roles.map(r=>`<span class="tag info" title="${esc(ROLE_HELP[r]||"")}">${r}</span>`).join("")}</div>`:""}</div></div>
       <button class="xbtn" data-act="closeLayer" aria-label="Close">${ic("x")}</button>
@@ -3035,7 +3036,7 @@ function renderResult(r,mode,label,stamp,pd,ed){
       ${r.w?`<div class="fact"><div class="k">Wins take</div><div class="v">${(r.tw/r.w).toFixed(1)} turns</div></div>`:""}
       ${mode==="pvp"?`<div class="fact"><div class="k">Losses / draws</div><div class="v">${r.l} / ${r.d}</div></div>`
         :r.d?`<div class="fact"><div class="k">Losses from running out of time</div><div class="v">${r.d} of ${lossN}</div></div>`:""}
-      ${deaths.length?`<div class="fact"><div class="k">Your leader that falls most in losses</div><div class="v" style="font-size:15px">${esc(shortName({name:deaths[0][0]}))}</div></div>`:""}
+      ${deaths.length?`<div class="fact"><div class="k">Your leader that falls most in losses</div><div class="v" style="font-size:15px">${esc(shortName(Object.values(CARDS).find(c=>c.name===deaths[0][0])||{name:deaths[0][0]}))}</div></div>`:""}
     </div>
     ${mode!=="pvp"&&r.d>lossN*.5&&lossN>0?`<div class="callout warn">Most losses are <b>timeouts</b>: your team survives but can't finish the enemies within 30 turns. You need more damage, not more defense.</div>`:""}
     ${p<.95&&mode!=="pvp"&&S.opp.kind==="chapter"?`<div class="small muted">Want better odds? <a href="#/story/${S.opp.ch}">See the recommended teams for this chapter</a>, or use "Find a better team" below.</div>`:""}
@@ -4154,6 +4155,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
   `<b>Fix:</b> the Cards page's "Not obtainable" source filter showed 0 cards.`,
+  `<b>Cards use their in-game names</b> everywhere (for example Lime Astronaut instead of Lime Imposter, Anti-Gambling Hat instead of Don't Gamble). The card details still show the battle name, and search finds both.`,
   `<b>DLC cards name their DLC.</b> Instead of "Paid DLC", cards now say Supporter Bundle, Supporter Bundle #2, Soundtrack DLC or "All 3 DLCs bonus", and the card's "How to get it" links to the Steam page.`,
   `<b>New look for the team stats image:</b> rounded chapter tiles with Normal and EXTREME rows, the team's element badges, summary chips, the toughest fights and a color legend, rendered sharp enough to paste anywhere.`,
   `<b>Copy image</b> on a team's Share page puts the stats picture straight on your clipboard, ready to paste into Discord.`,
