@@ -48,7 +48,7 @@ def pvp_league(builds, n=120):
     for i in range(k):
         for j in range(i + 1, k):
             for s in range(n):
-                S = sim.Sim(s * 13 + 5)
+                S = sim.Sim(s * 13 + 5, story=False)   # PvP: story_mode off
                 S.run([dict(c) for c in decks[i]], [dict(c) for c in decks[j]])
                 a0, a1 = len(S.alive(0)), len(S.alive(1))
                 if a1 == 0 and a0 > 0:   W[i] += 1; L[j] += 1
