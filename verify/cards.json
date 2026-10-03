@@ -1168,17 +1168,20 @@
 "desc": "If one of your ally Leaders with <Black> in their name takes damage, draw 2 supporters."
 },
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 1
+"amount": 0,
+"vs_element": {
+"1": 40,
+"2": -20
+}
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine gains 1 attack."
+"desc": "This Linguine does 40 more damage to Flubgub enemies, but does 20 less damage to Blobgob enemies."
 }
 ],
 "element": 3,
@@ -1443,10 +1446,10 @@
 "26": {
 "id": 26,
 "name": "Linguine With A Green Bucket Hat",
-"hp": 142,
+"hp": 163,
 "spd": 465,
-"def": 21,
-"atk": 32,
+"def": 24,
+"atk": 37,
 "style": 3,
 "abilities": [
 {
@@ -4293,10 +4296,10 @@
 "74": {
 "id": 74,
 "name": "Linguine With Pink Glasses",
-"hp": 134,
+"hp": 154,
 "spd": 325,
-"def": 16,
-"atk": 34,
+"def": 19,
+"atk": 39,
 "style": 1,
 "abilities": [
 {
@@ -4788,16 +4791,18 @@
 },
 {
 "trigger": "on_attack",
-"effect": "lose_stat",
+"effect": "gamble_attack",
 "params": {
-"stat": "health",
-"amount": 10
+"bonus_chance": 0.01,
+"bonus": 200,
+"doom_chance": 0.05,
+"doom": 10000
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine attacks, its health is decreased by 10."
+"desc": "When this Linguine attacks, there is a 1% chance that this Linguine deals 200 more damage, and a 5% chance that every one of your leader\u2019s healths decrease by 10,000."
 }
 ],
 "element": 4,
@@ -5438,14 +5443,14 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 150
+"amount": 60
 }
 },
 {
 "effect": "gain_stat",
 "params": {
 "stat": "speed",
-"amount": 150
+"amount": 60
 }
 }
 ]
@@ -5457,7 +5462,7 @@
 },
 "once_game": true,
 "once_turn": false,
-"desc": "(Once per game) When this Linguine's attack is over 37, this Linguine's attack and speed are each increased by 150."
+"desc": "(Once per game) When this Linguine's attack is over 37, this Linguine's attack and speed are each increased by 60."
 }
 ],
 "element": 2,
@@ -6745,7 +6750,7 @@
 "hp": 180,
 "spd": 682,
 "def": 24,
-"atk": 38,
+"atk": 35,
 "style": 8,
 "abilities": [
 {
@@ -10664,13 +10669,13 @@
 "effect": "gain_stat",
 "params": {
 "stat": "health",
-"amount": 10
+"amount": 8
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "This Linguine's health is increased by 10 every time a supporter is drawn."
+"desc": "This Linguine's health is increased by 8 every time a supporter is drawn."
 },
 {
 "trigger": "turn_start",
@@ -13161,7 +13166,7 @@
 "trigger": "passive_damage_bonus",
 "effect": "",
 "params": {
-"amount": 60
+"amount": 48
 },
 "condition": "target_level_at_least",
 "cond_params": {
@@ -13169,7 +13174,7 @@
 },
 "once_game": false,
 "once_turn": false,
-"desc": "This Linguine's attacks do 60 more damage to enemy leaders level 10 and up."
+"desc": "This Linguine's attacks do 48 more damage to enemy leaders level 10 and up."
 },
 {
 "trigger": "passive_damage_bonus",
@@ -13210,7 +13215,7 @@
 "trigger": "passive_damage_bonus",
 "effect": "",
 "params": {
-"amount": 60
+"amount": 48
 },
 "condition": "target_level_at_least",
 "cond_params": {
@@ -13218,7 +13223,7 @@
 },
 "once_game": false,
 "once_turn": false,
-"desc": "This Linguine's attacks do 60 more damage to enemy leaders level 10 and up."
+"desc": "This Linguine's attacks do 48 more damage to enemy leaders level 10 and up."
 },
 {
 "trigger": "passive_damage_bonus",
@@ -13261,7 +13266,7 @@
 "trigger": "passive_damage_bonus",
 "effect": "",
 "params": {
-"amount": 60
+"amount": 48
 },
 "condition": "target_level_at_least",
 "cond_params": {
@@ -13269,7 +13274,7 @@
 },
 "once_game": false,
 "once_turn": false,
-"desc": "This Linguine's attacks do 60 more damage to enemy leaders level 10 and up."
+"desc": "This Linguine's attacks do 48 more damage to enemy leaders level 10 and up."
 },
 {
 "trigger": "passive_damage_bonus",
@@ -13608,10 +13613,10 @@
 "247": {
 "id": 247,
 "name": "Linguine (Silly + Big Eyes)",
-"hp": 219,
-"spd": 716,
-"def": 10,
-"atk": 25,
+"hp": 160,
+"spd": 600,
+"def": 8,
+"atk": 18,
 "style": 1,
 "abilities": [
 {
@@ -13619,7 +13624,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 100
+"amount": 10
 },
 "condition": "ally_has_tag",
 "cond_params": {
@@ -13627,7 +13632,7 @@
 },
 "once_game": true,
 "once_turn": false,
-"desc": "(Once per game) This Linguine's attack is increased by 100 if there is an ally leader with <Silly> in their name."
+"desc": "(Once per game) This Linguine's attack is increased by 10 if there is an ally leader with <Silly> in their name."
 },
 {
 "trigger": "turn_start",
@@ -14774,10 +14779,10 @@
 "268": {
 "id": 268,
 "name": "Linguine-Cola (Blue Raspberry)",
-"hp": 219,
+"hp": 252,
 "spd": 388,
-"def": 12,
-"atk": 19,
+"def": 15,
+"atk": 22,
 "style": 1,
 "abilities": [
 {
@@ -15888,10 +15893,10 @@
 "289": {
 "id": 289,
 "name": "Linguine With A Lime On His Head",
-"hp": 160,
+"hp": 184,
 "spd": 502,
-"def": 9,
-"atk": 33,
+"def": 12,
+"atk": 38,
 "style": 5,
 "abilities": [
 {
@@ -16045,17 +16050,20 @@
 "style": 4,
 "abilities": [
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 1
+"amount": 0,
+"vs_element": {
+"2": 40,
+"3": -20
+}
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine's attack is increased by 1."
+"desc": "This Linguine does 40 more damage to Blobgob enemies, but does 20 less damage to Puffporble enemies."
 },
 {
 "trigger": "on_blocked_or_dodged",
@@ -17471,7 +17479,7 @@
 "319": {
 "id": 319,
 "name": "Linguine (Missing Texture)",
-"hp": 316,
+"hp": 295,
 "spd": 44,
 "def": 4,
 "atk": 33,
@@ -17494,13 +17502,13 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 30
+"amount": 22
 },
 "condition": "self_is_slowest",
 "cond_params": {},
 "once_game": true,
 "once_turn": false,
-"desc": "(Once per game) When this Linguine attacks, if it is the slowest leader alive, this Linguine's attack is increased by 30."
+"desc": "(Once per game) When this Linguine attacks, if it is the slowest leader alive, this Linguine's attack is increased by 22."
 }
 ],
 "element": 2,
@@ -17568,8 +17576,8 @@
 "321": {
 "id": 321,
 "name": "Linguine (Blue Lightning)",
-"hp": 156,
-"spd": 640,
+"hp": 145,
+"spd": 615,
 "def": 21,
 "atk": 16,
 "style": 2,
@@ -17795,7 +17803,7 @@
 "325": {
 "id": 325,
 "name": "Linguine (Bricks)",
-"hp": 366,
+"hp": 345,
 "spd": 87,
 "def": 50,
 "atk": 17,
@@ -17822,7 +17830,7 @@
 "effect": "gain_stat_all_enemies",
 "params": {
 "stat": "attack",
-"amount": -12
+"amount": -10
 }
 },
 {
@@ -17840,7 +17848,7 @@
 },
 "once_game": true,
 "once_turn": false,
-"desc": "(Once per game) When this Linguine's defense is 50, all enemy leaders' attack is decreased by 12 and they are inflicted with [Weak]."
+"desc": "(Once per game) When this Linguine's defense is 50, all enemy leaders' attack is decreased by 10 and they are inflicted with [Weak]."
 }
 ],
 "element": 4,
@@ -19045,17 +19053,39 @@
 "style": 5,
 "abilities": [
 {
-"trigger": "turn_start",
+"trigger": "on_status_applied",
+"effect": "multi_effect",
+"params": {
+"effects": [
+{
+"effect": "cleanse_ctx_status",
+"params": {
+"target": "self"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "purified",
+"target": "self"
+}
+},
+{
 "effect": "gain_stat",
 "params": {
 "stat": "health",
-"amount": 4
+"amount": 10
+}
+}
+]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_status_equals",
+"cond_params": {
+"status_id": "chaos"
+},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine gains 4 health."
+"desc": "When this Linguine is inflicted with [Chaos], this Linguine is [Purified] and its health is increased by 10."
 },
 {
 "trigger": "on_attacked",
@@ -19415,17 +19445,20 @@
 "style": 9,
 "abilities": [
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 1
+"amount": 0,
+"vs_element": {
+"3": 40,
+"4": -20
+}
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine's attack is increased by 1."
+"desc": "This Linguine does 40 more damage to Puffporble enemies, but does 20 less damage to Chonblonkle enemies."
 },
 {
 "trigger": "on_attack",
@@ -20205,7 +20238,7 @@
 "id": 372,
 "name": "Linguine (Bad Time)",
 "hp": 54,
-"spd": 800,
+"spd": 333,
 "def": 50,
 "atk": 50,
 "style": 1,
@@ -20466,10 +20499,10 @@
 "377": {
 "id": 377,
 "name": "Linguine (chad)",
-"hp": 160,
+"hp": 184,
 "spd": 478,
-"def": 22,
-"atk": 21,
+"def": 25,
+"atk": 24,
 "style": 3,
 "abilities": [
 {
@@ -21389,10 +21422,10 @@
 "392": {
 "id": 392,
 "name": "Linguine (Not sure what happened here)",
-"hp": 193,
+"hp": 222,
 "spd": 524,
-"def": 10,
-"atk": 27,
+"def": 13,
+"atk": 31,
 "style": 9,
 "abilities": [
 {
@@ -21792,17 +21825,20 @@
 "style": 8,
 "abilities": [
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 1
+"amount": 0,
+"vs_element": {
+"5": 40,
+"0": -20
+}
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine's attack is increased by 1."
+"desc": "This Linguine does 40 more damage to Monblonkin enemies, but does 20 less damage to Gorblegorble enemies."
 },
 {
 "trigger": "passive_damage_bonus",
@@ -22379,13 +22415,13 @@
 "effect": "gain_stat_per_ally_alive",
 "params": {
 "stat": "health",
-"amount": 4
+"amount": 3
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine is attacked, it gains 4 health for every ally leader alive."
+"desc": "When this Linguine is attacked, it gains 3 health for every ally leader alive."
 }
 ],
 "element": 0,
@@ -22432,7 +22468,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "health",
-"amount": 8
+"amount": 6
 }
 },
 {
@@ -22448,7 +22484,7 @@
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine is attacked, it gains 8 health, then this Linguine's defense is increased by 1."
+"desc": "When this Linguine is attacked, it gains 6 health, then this Linguine's defense is increased by 1."
 }
 ],
 "element": 1,
@@ -23458,10 +23494,10 @@
 "436": {
 "id": 436,
 "name": "Linguine With Green Eyes",
-"hp": 154,
+"hp": 177,
 "spd": 611,
-"def": 5,
-"atk": 34,
+"def": 8,
+"atk": 39,
 "style": 2,
 "abilities": [
 {
@@ -25336,17 +25372,20 @@
 "desc": "At the start of the turn, draw 1 supporter."
 },
 {
-"trigger": "on_survive",
-"effect": "gain_stat",
+"trigger": "turn_end",
+"effect": "gain_stat_random",
 "params": {
-"stat": "attack",
-"amount": 4
+"stat": "health",
+"min": -1000,
+"max": 700
 },
-"condition": "",
-"cond_params": {},
+"condition": "turn_equals",
+"cond_params": {
+"value": 2
+},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine survives an attack, this Linguine's attack is increased by 4."
+"desc": "At the end of turn 2, this Linguine gains/loses a random amount of health (-1000 to +700)."
 }
 ],
 "element": 2,
@@ -25366,7 +25405,7 @@
 "id": 467,
 "name": "Linguine (Comic Book)",
 "hp": 155,
-"spd": 652,
+"spd": 625,
 "def": 25,
 "atk": 32,
 "style": 7,
@@ -26168,17 +26207,19 @@
 "style": 9,
 "abilities": [
 {
-"trigger": "on_attacked",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "defense",
-"amount": 2
+"amount": 25
 },
-"condition": "",
-"cond_params": {},
+"condition": "target_has_status",
+"cond_params": {
+"status_id": "soul_protected",
+"target": "target"
+},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine is attacked, its defense is increased by 2."
+"desc": "This Linguine does 25 more damage to enemy leaders that are [Soul Protected]."
 },
 {
 "trigger": "turn_start",
@@ -32354,10 +32395,10 @@
 "582": {
 "id": 582,
 "name": "Linguine with Light Red Headphones",
-"hp": 152,
+"hp": 175,
 "spd": 543,
-"def": 14,
-"atk": 29,
+"def": 17,
+"atk": 33,
 "style": 1,
 "abilities": [
 {
@@ -33680,10 +33721,10 @@
 "607": {
 "id": 607,
 "name": "Linguine with a Red Bike Helmet",
-"hp": 155,
+"hp": 178,
 "spd": 540,
-"def": 15,
-"atk": 29,
+"def": 18,
+"atk": 33,
 "style": 1,
 "abilities": [
 {
@@ -34289,10 +34330,10 @@
 "618": {
 "id": 618,
 "name": "Linguine (Very Pixelated)",
-"hp": 180,
+"hp": 207,
 "spd": 452,
-"def": 15,
-"atk": 29,
+"def": 18,
+"atk": 33,
 "style": 1,
 "abilities": [
 {
@@ -36466,7 +36507,7 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 5,
+"amount": 4,
 "target": "highest_atk_ally"
 }
 },
@@ -36516,7 +36557,7 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 5,
+"amount": 4,
 "target": "highest_atk_ally"
 }
 },
@@ -36564,7 +36605,7 @@
 "effect": "gain_stat_target",
 "params": {
 "stat": "attack",
-"amount": 5,
+"amount": 4,
 "target": "highest_atk_ally"
 }
 },
@@ -38388,17 +38429,16 @@
 "style": 3,
 "abilities": [
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_taken",
+"effect": "",
 "params": {
-"stat": "health",
-"amount": 4
+"flat": -10
 },
-"condition": "",
+"condition": "story_mode",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine gains 4 health."
+"desc": "This Linguine takes 10 less damage in Story Mode battles."
 },
 {
 "trigger": "on_any_attacked",
@@ -39448,17 +39488,16 @@
 "desc": "When this Linguine blocks an attack, it gains 6 health."
 },
 {
-"trigger": "turn_start",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "defense",
-"amount": 2
+"amount": 10
 },
-"condition": "",
+"condition": "target_is_apex",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine gains 2 defense."
+"desc": "This Linguine does 10 more damage to Elite Element enemies."
 }
 ],
 "element": 2,
@@ -39703,17 +39742,17 @@
 "style": 8,
 "abilities": [
 {
-"trigger": "on_attack",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 3
+"amount": 0,
+"per_target_level": 1
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine attacks, it gains 3 attack."
+"desc": "When this Linguine attacks, the enemy leader takes X more damage, where X is the enemy leader\u2019s level."
 },
 {
 "trigger": "on_ally_killed",
@@ -43205,17 +43244,42 @@
 "desc": "When this Linguine is attacked, the attacker is inflicted with [Confused]."
 },
 {
-"trigger": "turn_start",
+"trigger": "on_status_applied",
+"effect": "multi_effect",
+"params": {
+"effects": [
+{
+"effect": "cleanse_ctx_status",
+"params": {
+"target": "self"
+}
+},
+{
+"effect": "inflict_status",
+"params": {
+"status_id": "purified",
+"target": "self"
+}
+},
+{
 "effect": "gain_stat",
 "params": {
 "stat": "health",
 "amount": 5
+}
+}
+]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_status_in",
+"cond_params": {
+"status_ids": [
+"chaos",
+"confused"
+]
+},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, this Linguine gains 5 health."
+"desc": "When this Linguine is inflicted with [Chaos] or [Confused], this Linguine is [Purified] and its health is increased by 5."
 }
 ],
 "element": 3,
@@ -43269,17 +43333,19 @@
 "desc": "At the start of the turn, there is a 25% chance this Linguine is inflicted with [Confused] and gains 10 defense."
 },
 {
-"trigger": "on_attacked",
-"effect": "gain_stat",
+"trigger": "passive_immunity",
+"effect": "",
 "params": {
-"stat": "defense",
-"amount": 2
+"status_ids": [
+"chaos",
+"confused"
+]
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine is attacked, it gains 2 defense."
+"desc": "This Linguine is immune to [Chaos] and [Confused]."
 }
 ],
 "element": 3,
@@ -45673,17 +45739,20 @@
 "style": 1,
 "abilities": [
 {
-"trigger": "on_attack",
-"effect": "gain_stat",
+"trigger": "passive_damage_bonus",
+"effect": "",
 "params": {
-"stat": "attack",
-"amount": 2
+"amount": 0,
+"vs_tags": {
+"jack": 10,
+"linguine": -15
+}
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine attacks, it gains 2 attack."
+"desc": "This Linguine does 10 more damage to enemies with \u201cJack\u201d in their name, but does 15 less damage to enemies with \u201cLinguine\u201d in their name."
 },
 {
 "trigger": "on_any_attacked",
@@ -53172,17 +53241,16 @@
 "desc": "This Linguine takes 4 less damage from every attack."
 },
 {
-"trigger": "on_attacked",
-"effect": "gain_stat",
+"trigger": "passive_immunity",
+"effect": "",
 "params": {
-"stat": "defense",
-"amount": 2
+"status_id": "chaos"
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When this Linguine is attacked, it gains 2 defense."
+"desc": "This Linguine is immune to [Chaos]."
 }
 ],
 "element": 2,
@@ -54270,10 +54338,10 @@
 "849": {
 "id": 849,
 "name": "Supreme Jack",
-"hp": 469,
-"spd": 507,
+"hp": 450,
+"spd": 560,
 "def": 31,
-"atk": 47,
+"atk": 30,
 "style": 8,
 "abilities": [
 {
@@ -54281,7 +54349,7 @@
 "effect": "lose_stat_filtered",
 "params": {
 "stat": "health",
-"amount": 60,
+"amount": 10,
 "side": "enemy",
 "filter": {
 "tags": [
@@ -54293,7 +54361,7 @@
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, all of your leaders with <Linguine> in their name lose 60 health."
+"desc": "At the start of the turn, all of your leaders with <Linguine> in their name lose 10 health."
 },
 {
 "trigger": "on_attack",
@@ -54315,10 +54383,10 @@
 "848": {
 "id": 848,
 "name": "Linguine With An Eye Scarf (Faded Scar - No Mortality Core)",
-"hp": 600,
+"hp": 700,
 "spd": 999,
 "def": 31,
-"atk": 30,
+"atk": 36,
 "style": 8,
 "abilities": [
 {
@@ -54413,10 +54481,10 @@
 "862": {
 "id": 862,
 "name": "Linguine With An Eye Scarf (Blood Of Creation Absorbed)",
-"hp": 262,
-"spd": 532,
-"def": 22,
-"atk": 34,
+"hp": 200,
+"spd": 525,
+"def": 21,
+"atk": 26,
 "style": 10,
 "abilities": [
 {
@@ -54468,7 +54536,7 @@
 "effect": "gain_stat",
 "params": {
 "stat": "attack",
-"amount": 3
+"amount": 2
 }
 }
 ]
@@ -54477,7 +54545,7 @@
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "When any leader dies, this Linguine gains 10 health and 3 attack."
+"desc": "When any leader dies, this Linguine gains 10 health and 2 attack."
 }
 ],
 "element": 4,

@@ -70,7 +70,7 @@ def _rnd(x):   # GDScript round(): half away from zero
     return int(math.floor(x+0.5)) if x>=0 else -int(math.floor(-x+0.5))
 
 class L:
-    __slots__=("d","side","slot","hp","mhp","atk","dfn","spd","elem","apex","abil","name","st","og","ot_turn","dmg_turn","alive","lvl","announced","eot",
+    __slots__=("pending_bonus","d","side","slot","hp","mhp","atk","dfn","spd","elem","apex","abil","name","st","og","ot_turn","dmg_turn","alive","lvl","announced","eot",
                "wa_this","wa_last","turn_now","style_override","hits_turn","echo_guard")
     def __init__(s,d,side,slot):
         s.d=d; s.side=side; s.slot=slot
@@ -80,6 +80,7 @@ class L:
         s.st={}   # status_id -> [remaining, tick_index]; insertion order == the game's statuses list order
         s.og=set(); s.ot_turn=set(); s.dmg_turn=0; s.alive=True; s.announced=False; s.eot=[]
         s.wa_this=False; s.wa_last=False; s.turn_now=0; s.style_override=0; s.hits_turn=0; s.echo_guard=False
+        s.pending_bonus=0   # RuntimeLeader.pending_bonus_damage (gamble_attack jackpot, applied to the current hit)
     def eff_def(s):   # RuntimeLeader.effective_defense: the FIRST status with force_defense wins; capped at 50
         for sid in s.st:
             f=STA.get(sid,(0,[],{}))[2]
@@ -162,7 +163,8 @@ def enemy_card(cid, lvl, season=1):
 
 UNIMPL=set()
 class Sim:
-    def __init__(s, seed):
+    def __init__(s, seed, story=True):
+        s.story=story
         s.rng=random.Random(seed); s.shuf=[random.Random(seed^0x9E3779B9),random.Random(seed^0x85EBCA6B)]; s.turn=0; s.teams=[[],[]]; s.depth=0; s.pending=[]
         s.chain=0                      # _chain_depth (max 5) for nested trigger fires
         s.drawn=[0,0]; s.drawn_last=[0,0]   # supporters drawn this/last turn per side
@@ -292,8 +294,11 @@ class Sim:
         if cname=="turn_in_set": return s.turn in cp.get("values",[])
         if cname=="self_has_status": return cp.get("status_id") in self_l.st
         if cname=="self_no_statuses": return len(self_l.st)==0
-        if cname=="target_has_status":   # game default target "victim" via _select_target (battle_sim.gd:982-986)
-            t=s.sel(self_l,cp.get("target","victim"),ctx); return t is not None and cp.get("status_id") in t.st
+        if cname=="target_has_status":   # default target: "victim" if the ctx has one, else "target" (Oct 3 2026 patch)
+            t=s.sel(self_l,cp.get("target","victim" if "victim" in ctx else "target"),ctx); return t is not None and cp.get("status_id") in t.st
+        if cname=="story_mode": return s.story
+        if cname=="target_is_apex":
+            t=ctx.get("target"); return t is not None and t.apex
         if cname in("ally_has_tag","any_leader_has_tag"):
             tag=cp.get("tag","")
             # ally_has_tag EXCLUDES self (game: `if ally != self_l`); any_leader_has_tag includes all
@@ -501,6 +506,18 @@ class Sim:
     # ---- effects ----
     def run_effect(s, self_l, eff, p, ctx):
         if not eff: return
+        # ---- Oct 3 2026 patch effects ----
+        if eff=="gain_stat_random":
+            amt=s.rng.randint(int(p.get("min",0)),int(p.get("max",0))); stat=str(p.get("stat","health"))
+            if stat=="health" and amt>0: self_l.hp+=amt            # raw add: no overheal cap, no triggers
+            elif amt!=0: s.mod(self_l,stat,amt)
+            return
+        if eff=="gamble_attack":
+            if not ctx.get("missed",False) and s.rng.random()<float(p.get("bonus_chance",0.0)):
+                self_l.pending_bonus+=int(p.get("bonus",0))
+            if s.rng.random()<float(p.get("doom_chance",0.0)):
+                for al in s.alive(self_l.side): s.mod(al,"health",-int(p.get("doom",0)))
+            return
         # ---- Season 2 effects (battle_sim._register_extended3) ----
         if eff=="bonus_hit":
             if str(p.get("target","target"))=="random_other_enemy":
@@ -926,6 +943,13 @@ class Sim:
             if ps: tot+=ps*len(atk.st)
             pt=int(p.get("per_target_status",0))
             if pt and tgt is not None: tot+=pt*len(tgt.st)
+            if tgt is not None:
+                ve=p.get("vs_element") or {}
+                if str(tgt.elem) in ve: tot+=int(ve[str(tgt.elem)])
+                for vt,amt in (p.get("vs_tags") or {}).items():
+                    if tgt.has_tag(str(vt)): tot+=int(amt)
+                pl=int(p.get("per_target_level",0))
+                if pl: tot+=pl*tgt.lvl
         for mate in s.alive(atk.side):
             for a in mate.abil:
                 if a.get("trigger")=="passive_team_damage_bonus" and s.cond(mate,a.get("condition",""),a.get("cond_params",{}),ctx):
@@ -1055,7 +1079,11 @@ class Sim:
                 if ia: s.inflict(atk,ia,tgt)
                 break
         if blocked: dmg//=2
+        atk.pending_bonus=0
         s.fire(atk,"on_attack",{"target":tgt,"damage":0 if dodged else dmg,"pre_statuses":pre})
+        if atk.pending_bonus:
+            if not dodged: dmg=max(0,dmg+atk.pending_bonus)
+            atk.pending_bonus=0
         if dodged:
             s.fire(atk,"on_blocked_or_dodged",{"target":tgt})
             s.fire(tgt,"on_attacked",{"attacker":atk,"dodged":True,"blocked":False,"damage":0})
