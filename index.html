@@ -2029,9 +2029,22 @@ function cchip(id,o={}){
   return`<button type="button" class="cc" data-card="${id}"${o.boss?` data-boss="1" data-lvl="${o.lvl||1}" data-season="${o.season||1}"`:""} title="${esc(c.name)}">${av(id,o.size||"sm",o.boss)}<span class="txt"><span class="nm">${esc(shortName(c))}${own}</span>${o.sub?`<span class="sub">${o.sub}</span>`:""}</span></button>`;
 }
 function elTag(c){const e=c.element>=0?c.element:3;return`<span class="elname el${e}" title="${esc(elHint(e))}">${esc(ELN[e]||"Unknown")}</span>`;}
+// the four Steam DLC sources (skin_manager.DLC_SOURCES; names, prices and perks from support.gd)
+const DLC={money:["Supporter Bundle","DLC 1, $10 on Steam. Also: 3x more Daily crates, crate discounts, Supporter and VIP titles.","https://store.steampowered.com/app/4599230/"],
+  money2:["Supporter Bundle #2","DLC 2, $10 on Steam. Also: 1 more Daily crate a day, 2x fishing XP, cheaper Ocean crates, Patron and VIP titles.","https://store.steampowered.com/app/5073640/"],
+  music:["Soundtrack DLC","$4 on Steam: the game's soundtrack plus 2 titles.","https://store.steampowered.com/app/4732800/"],
+  money3:["All 3 DLCs bonus","A bonus for owning all three DLCs (both Supporter Bundles and the Soundtrack).",""]};
+const dlcsOf=c=>["money","money2","music","money3"].filter(k=>(c.sources||[]).includes(k));
+// source list with "Paid DLC" split into the named DLCs: [[label, cls, hint, url]]
+function srcList(c){
+  const out=[];
+  for(const k of srcCats(c).slice().sort((a,b)=>SRC_ORDER.indexOf(a)-SRC_ORDER.indexOf(b))){
+    if((k==="shop"||k==="music")&&dlcsOf(c).length){for(const d of dlcsOf(c))if(!out.some(o=>o[0]===DLC[d][0]))out.push([DLC[d][0],"bad",DLC[d][1],DLC[d][2]]);continue;}
+    const s=SRC[k]||[k,"",""];out.push([s[0],s[1],s[2],""]);}
+  return out;
+}
 function srcTags(c,max=2){
-  const cats=srcCats(c).slice().sort((a,b)=>SRC_ORDER.indexOf(a)-SRC_ORDER.indexOf(b));
-  return cats.slice(0,max).map(k=>{const s=SRC[k]||[k,"",""];return`<span class="tag ${s[1]}" title="${esc(s[2])}">${s[0]}</span>`;}).join(" ");
+  return srcList(c).slice(0,max).map(([l,cl,h])=>`<span class="tag ${cl}" title="${esc(h)}">${esc(l)}</span>`).join(" ");
 }
 function wmeter(p,o={}){
   const w=winInfo(p);
@@ -2407,7 +2420,7 @@ function openCard(id,ctx){
     <div style="margin-top:8px">${chartFacts(c.element,c.apex)}</div>
     ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: its small elemental weakness (the ×1.05 to ×1.25 hits) is cancelled. Big multipliers still apply.</p>':""}
     ${isCard?`<div class="divider"></div><h3>How to get it</h3>
-    <div class="stack" style="gap:6px;margin-top:8px">${srcCats(c).map(k=>{const s=SRC[k]||[k,"",""];return`<div class="row tight"><span class="tag ${s[1]}">${s[0]}</span><span class="small muted">${esc(s[2])}</span></div>`;}).join("")}</div>`:""}
+    <div class="stack" style="gap:6px;margin-top:8px">${srcList(c).map(([l,cl,h,u])=>`<div class="row tight"><span class="tag ${cl}">${esc(l)}</span><span class="small muted">${esc(h)}${u?` <a href="${u}" target="_blank" rel="noopener">Steam page</a>`:""}</span></div>`).join("")}</div>`:""}
     ${recs.length?`<div class="divider"></div><h3>Recommended in</h3><div class="row tight" style="margin-top:8px">${recs.map(ch=>`<a class="chip click" href="#/story/${ch.id}">S${ch.season||1} · ${chName(ch)}</a>`).join("")}</div>`:""}`;
   // slider: only refresh the numbers, so keyboard focus and drags keep working
   body.querySelector("#cd_lvl").addEventListener("input",e=>{lvl=+e.target.value;body.querySelector("#cd_lv").textContent=lvl;body.querySelector("#cd_stats").innerHTML=statBars(lvOf(lvl));});
@@ -4141,6 +4154,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
   `<b>Fix:</b> the Cards page's "Not obtainable" source filter showed 0 cards.`,
+  `<b>DLC cards name their DLC.</b> Instead of "Paid DLC", cards now say Supporter Bundle, Supporter Bundle #2, Soundtrack DLC or "All 3 DLCs bonus", and the card's "How to get it" links to the Steam page.`,
   `<b>New look for the team stats image:</b> rounded chapter tiles with Normal and EXTREME rows, the team's element badges, summary chips, the toughest fights and a color legend, rendered sharp enough to paste anywhere.`,
   `<b>Copy image</b> on a team's Share page puts the stats picture straight on your clipboard, ready to paste into Discord.`,
   `<b>Fix: teams now list every hard-to-get source.</b> A team showed only its single hardest source, so a story-reward card could hide a Daily-crate or Gold-crate card (for example "Linguine but he has a ruler"). Each source now gets its own tag; hover it to see which cards need it.`,
