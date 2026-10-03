@@ -2042,12 +2042,14 @@ const pill=p=>p==null?'<span class="pctpill faint">?</span>':`<span class="pctpi
 function easiestSrc(c){let best=9,bk="limited";for(const k of srcCats(c)){const e=EASE[k];if(e!=null&&e<best){best=e;bk=k;}}return[best,bk];}
 function teamEase(ids){let worst=-1,wk="crate";for(const id of ids){const c=CARDS[id];if(!c)continue;const[e,k]=easiestSrc(c);
   const rank=k==="limited"?5:e;if(rank>worst){worst=rank;wk=k;}}return[worst,wk];}
-function teamEaseTags(ids){
-  const[w,k]=teamEase(ids);
-  if(w<=0)return'<span class="tag good" title="Every card here drops from the Normal crate">Normal crate only</span>';
-  if(k==="limited")return'<span class="tag bad" title="At least one card is not currently obtainable">Has a card you can\'t get</span>';
-  const lab={seasonal:"Needs a seasonal crate",daily:"Needs the Daily crate",story:"Needs a story reward",shop:"Needs paid DLC",music:"Needs paid DLC"}[k]||SRC[k][0];
-  return`<span class="tag ${SRC[k][1]}" title="The hardest card to get here: ${esc(SRC[k][2])}">${lab}</span>`;
+function teamEaseTags(ids){   // one tag per source the team needs beyond the Normal crate, hardest first, naming the cards
+  const by={};
+  for(const id of ids){const c=CARDS[id];if(!c)continue;const[e,k]=easiestSrc(c);if(e<=0&&k!=="limited")continue;(by[k]=by[k]||[]).push(c);}
+  const ks=Object.keys(by).sort((a,b)=>(a==="limited"?5:EASE[a])-(b==="limited"?5:EASE[b])).reverse();
+  if(!ks.length)return'<span class="tag good" title="Every card here drops from the Normal crate">Normal crate only</span>';
+  const LAB={seasonal:"Needs a seasonal crate",daily:"Needs the Daily crate",story:"Needs a story reward",shop:"Needs paid DLC",music:"Needs paid DLC",
+    ocean:"Needs an Ocean crate",gold:"Needs a Gold crate",limited:"Has a card you can't get"};
+  return ks.map(k=>`<span class="tag ${k==="limited"?"bad":SRC[k][1]}" title="${esc(by[k].map(shortName).join(", "))}: ${esc(SRC[k][2])}">${LAB[k]||SRC[k][0]}</span>`).join(" ");
 }
 const unobtainable=c=>srcCats(c).every(k=>k==="limited");
 function ownCount(ids){return ids.filter(id=>OWN.has(id)).length;}
@@ -4088,6 +4090,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
+  `<b>Fix: teams now list every hard-to-get source.</b> A team showed only its single hardest source, so a story-reward card could hide a Daily-crate or Gold-crate card (for example "Linguine but he has a ruler"). Each source now gets its own tag; hover it to see which cards need it.`,
   `<b>Fishing:</b> ${typeof FI!=="undefined"&&FI?FI.fish.length:115} fish now (13 new, including the secret Brody Fish at Cold Lake), every fish gives about 50% more NP, Ocean Crates are cheaper, and some new fish only live in water with a certain temperature, depth or climate. <b>The letter game changed:</b> on difficulty 10 (and most difficulty 9 catches) a wrong key is now a BAD, so mashing only works on easier spots.`,
 ]],["2026-10-03 · Fishing guide",[
   `<b>Where the Warnings switch is.</b> It's not in the game settings but in the Backpack's top bar; the Fishing tips now say so.`,
