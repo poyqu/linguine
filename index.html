@@ -3722,29 +3722,71 @@ function reportText(){
 }
 const CAN_COPY_IMG=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
 function reportPng(copy){
-  const{t,R,pvp}=REPORT,st=reportStats(),cw=1100,pad=36,cell=46,gap=6;
-  const col={good:"#5fd38a",ok:"#9ccf5a",mid:"#f0b847",bad:"#f0705f"};
-  const rowsH=SEASONS.length*(cell*2+gap+66);
-  const c=document.createElement("canvas");c.width=cw;c.height=200+rowsH+(pvp?44:0);
-  const g=c.getContext("2d"),F=w=>`${w} 16px Nunito, system-ui, sans-serif`;
-  g.fillStyle="#13141a";g.fillRect(0,0,c.width,c.height);
-  g.fillStyle="#f4c35b";g.font="900 30px Nunito, system-ui, sans-serif";g.fillText("Team stats",pad,58);
-  g.fillStyle="#838a9c";g.font=F(700);g.fillText("Linguine Sandbox · cat.poyqu.me",pad+210,58);
-  g.fillStyle="#e9ebf2";g.font="800 20px Nunito, system-ui, sans-serif";
-  g.fillText(t.leaders.map(id=>`${shortName(CARDS[id])} (Lv ${t.levels[id]||10})`).join("  +  "),pad,100);
-  g.fillStyle="#b4b9c7";g.font=F(600);g.fillText(t.supp.length?`Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:"No supporters",pad,128);
-  let y=170;
+  // drawn like the site's cards: dark panels, tinted rounded tiles, element badges; 2x for crisp pastes
+  const{t,R,pvp}=REPORT,st=reportStats(),S2=2,W=1360,pad=40,lab=96,gap=6,th=58;
+  const C={bg:"#13141a",panel:"#1a1c24",surf:"#1f222c",surf2:"#272a36",line:"#2f3341",text:"#e9ebf2",t2:"#b4b9c7",t3:"#838a9c",acc:"#f4c35b",
+    good:"#5fd38a",ok:"#9ccf5a",mid:"#f0b847",bad:"#f0705f"};
+  const EL=["#ff8b7d","#b3a6ff","#6fd6ef","#c7ccd8","#8fe08a","#f1d36b"];
+  const FN=(w,px)=>`${w} ${px}px Nunito, system-ui, sans-serif`;
+  const nCh=Math.max(...SEASONS.map(sn=>(CH_BY_SEASON[sn]||[]).length));
+  const tw=Math.floor((W-pad*2-28-lab-(nCh-1)*gap)/nCh);
+  const secH=60+2*(th+gap)+12;
+  const weak=st.weak.slice(0,4);
+  const H=pad+174+SEASONS.length*(secH+16)+(weak.length?52:0)+(pvp?52:0)+40+pad;
+  const c=document.createElement("canvas");c.width=W*S2;c.height=H*S2;
+  const g=c.getContext("2d");g.scale(S2,S2);
+  const rr=(x,y,w,h,r,fill,stroke)=>{g.beginPath();g.roundRect(x,y,w,h,r);if(fill){g.fillStyle=fill;g.fill();}if(stroke){g.strokeStyle=stroke;g.lineWidth=1;g.stroke();}};
+  const tx=(s_,x,y,font,col,align)=>{g.font=font;g.fillStyle=col;g.textAlign=align||"left";g.fillText(s_,x,y);g.textAlign="left";return g.measureText(s_).width;};
+  const fit=(s_,font,max)=>{g.font=font;if(g.measureText(s_).width<=max)return s_;while(s_.length>1&&g.measureText(s_+"…").width>max)s_=s_.slice(0,-1);return s_+"…";};
+  const al=(hex,x)=>hex+Math.round(x*255).toString(16).padStart(2,"0");
+  const chip=(x,y,label,col)=>{g.font=FN(800,14);const w=g.measureText(label).width+34;rr(x,y,w,30,15,al(col,.13),al(col,.4));
+    g.beginPath();g.arc(x+15,y+15,4.5,0,Math.PI*2);g.fillStyle=col;g.fill();tx(label,x+25,y+20,FN(800,14),C.text);return w;};
+  g.fillStyle=C.bg;g.fillRect(0,0,W,H);
+  // header
+  let y=pad+26;
+  tx("Team stats",pad,y+8,FN(900,34),C.acc);
+  tx("Linguine Sandbox",W-pad,y-4,FN(800,15),C.t2,"right");tx("cat.poyqu.me",W-pad,y+16,FN(700,14),C.t3,"right");
+  y+=38;
+  // the three leaders as cards with element badges, supporters underneath
+  const lw=Math.floor((W-pad*2-2*12)/3);
+  t.leaders.forEach((id,i)=>{const cd=CARDS[id],x=pad+i*(lw+12),el=EL[cd&&cd.element>=0?cd.element:3];
+    rr(x,y,lw,62,14,C.surf,C.line);
+    g.beginPath();g.arc(x+33,y+31,20,0,Math.PI*2);g.fillStyle=al(el,.16);g.fill();g.strokeStyle=al(el,.55);g.lineWidth=1.5;g.stroke();
+    tx(initials(cd),x+33,y+37,FN(900,15),el,"center");
+    tx(fit(shortName(cd),FN(800,17),lw-120),x+62,y+28,FN(800,17),C.text);
+    tx(`Level ${t.levels[id]||10}`,x+62,y+48,FN(700,13),C.t3);});
+  y+=62+26;
+  tx(fit(t.supp.length?`Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:"No supporters",FN(700,15),W-pad*2),pad,y,FN(700,15),C.t2);
+  y+=22;
   for(const sn of SEASONS){const o=st[sn],L=CH_BY_SEASON[sn]||[];
-    g.fillStyle="#e9ebf2";g.font="900 20px Nunito, system-ui, sans-serif";g.fillText(`Season ${sn}`,pad,y);
-    g.fillStyle="#b4b9c7";g.font=F(700);g.fillText(`EXTREME ${o.hard.clears}/${o.hard.n} won 95%+ (avg ${pct(o.hard.mean)})   ·   Normal ${o.normal.clears}/${o.normal.n} (avg ${pct(o.normal.mean)})${sn===1&&t.leaders.some(id=>(t.levels[id]||10)>15)?"   ·   levels capped at 15":""}`,pad+120,y);
-    y+=18;const w=Math.floor((cw-pad*2-(L.length-1)*gap)/L.length);
-    [["normal","N"],["hard","E"]].forEach(([df,lab],ri)=>{L.forEach((ch,i)=>{const v=(R[ch.id]||{})[df],x=pad+i*(w+gap),yy=y+ri*(cell+gap);
-      g.fillStyle=v==null?"#272a36":col[winInfo(v).cls];g.globalAlpha=v==null?1:.9;g.fillRect(x,yy,w,cell);g.globalAlpha=1;
-      g.fillStyle="#13141a";g.font="800 13px Nunito, system-ui, sans-serif";g.textAlign="center";
-      if(v!=null)g.fillText(pct(v),x+w/2,yy+cell/2+5);g.font="700 10px Nunito, system-ui, sans-serif";g.fillText(`${lab}${i+1}`,x+w/2,yy+12);g.textAlign="left";});});
-    y+=cell*2+gap+50;}
-  if(pvp){g.fillStyle="#e9ebf2";g.font="800 18px Nunito, system-ui, sans-serif";g.fillText(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable · ${pvp.n-pvp.fav-pvp.lose} even · ${pvp.lose} losing`,pad,y);y+=30;}
-  g.fillStyle="#838a9c";g.font=F(600);g.fillText(`N = Normal, E = EXTREME, chapter numbers as in the game. Simulated estimates, ${REPORT_N} battles per fight.`,pad,c.height-24);
+    rr(pad,y,W-pad*2,secH,18,C.panel,C.line);
+    const x0=pad+14;let cy=y+38;
+    tx(`Season ${sn}`,x0+6,cy,FN(900,22),C.text);
+    let cx=W-pad-14;const chips=[[`Normal ${o.normal.clears}/${o.normal.n} · avg ${pct(o.normal.mean)}`,C[winInfo(o.normal.mean).cls]||C.t3],
+      [`EXTREME ${o.hard.clears}/${o.hard.n} · avg ${pct(o.hard.mean)}`,C[winInfo(o.hard.mean).cls]||C.t3]].reverse();
+    for(const[lb,col]of chips){g.font=FN(800,14);cx-=g.measureText(lb).width+34;chip(cx,cy-21,lb,col);cx-=10;}
+    if(sn===1&&t.leaders.some(id=>(t.levels[id]||10)>15))tx("levels capped at 15",x0+120,cy-1,FN(700,13),C.t3);
+    cy+=22;
+    [["normal","Normal"],["hard","EXTREME"]].forEach(([df,name],ri)=>{const yy=cy+ri*(th+gap);
+      tx(name,x0+6,yy+th/2+6,FN(900,15),df==="hard"?C.acc:C.t2);
+      L.forEach((ch,i)=>{const v=(R[ch.id]||{})[df],x=x0+lab+i*(tw+gap),col=v==null?C.t3:C[winInfo(v).cls];
+        rr(x,yy,tw,th,10,v==null?C.surf:al(col,.14),v==null?C.line:al(col,.42));
+        tx(String(i+1),x+tw/2,yy+19,FN(800,12),C.t3,"center");
+        if(v==null){tx("–",x+tw/2,yy+43,FN(800,16),C.t3,"center");return;}
+        const p=Math.round(v*100);let fs=19,pw,sw;   // shrink until "100%" fits the tile
+        for(;;){g.font=FN(900,fs);pw=g.measureText(String(p)).width;g.font=FN(800,Math.round(fs*.6));sw=g.measureText("%").width;if(pw+sw+1<=tw-10||fs<=12)break;fs--;}
+        const sx=x+(tw-pw-sw-1)/2;tx(String(p),sx,yy+44,FN(900,fs),col);tx("%",sx+pw+1,yy+44,FN(800,Math.round(fs*.6)),col);});});
+    y+=secH+16;}
+  if(weak.length){tx("Toughest",pad+6,y+24,FN(900,15),C.t2);let wx=pad+90;
+    for(const w of weak){const lb=`S${w.c.season||1} EXTREME ${chNum(w.c)}  ${pct(w.v)}`;wx+=chip(wx,y+4,lb,C[winInfo(w.v).cls])+10;}
+    y+=52;}
+  if(pvp){let px=pad;tx("PvP vs "+pvp.n+" popular teams",px+6,y+24,FN(900,15),C.t2);px+=230;
+    px+=chip(px,y+4,`${pvp.fav} favorable`,C.good)+10;px+=chip(px,y+4,`${pvp.n-pvp.fav-pvp.lose} even`,C.mid)+10;chip(px,y+4,`${pvp.lose} losing`,C.bad);y+=52;}
+  // legend + footnote
+  y=H-pad-6;let lx=pad;
+  for(const[lb,col]of[["95%+",C.good],["55-94%",C.ok],["40-54%",C.mid],["under 40%",C.bad]]){
+    g.beginPath();g.roundRect(lx,y-11,12,12,3);g.fillStyle=col;g.fill();lx+=18+tx(lb,lx+18,y,FN(700,13),C.t2)+16;}
+  tx(`Simulated estimates, ${REPORT_N} battles per fight. Chapter numbers as in the game.`,W-pad,y,FN(600,13),C.t3,"right");
   if(copy){   // the blob is passed as a promise so Safari still counts it as part of the click
     const blob=new Promise(res=>c.toBlob(res,"image/png"));
     navigator.clipboard.write([new ClipboardItem({"image/png":blob})]).then(()=>toast("Image copied. Paste it into Discord or anywhere else."),()=>toast("Couldn't copy the image. Use Download image instead."));
@@ -4098,6 +4140,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
+  `<b>New look for the team stats image:</b> rounded chapter tiles with Normal and EXTREME rows, the team's element badges, summary chips, the toughest fights and a color legend, rendered sharp enough to paste anywhere.`,
   `<b>Copy image</b> on a team's Share page puts the stats picture straight on your clipboard, ready to paste into Discord.`,
   `<b>Fix: teams now list every hard-to-get source.</b> A team showed only its single hardest source, so a story-reward card could hide a Daily-crate or Gold-crate card (for example "Linguine but he has a ruler"). Each source now gets its own tag; hover it to see which cards need it.`,
   `<b>Fishing:</b> ${typeof FI!=="undefined"&&FI?FI.fish.length:115} fish now (13 new, including the secret Brody Fish at Cold Lake), every fish gives about 50% more NP, Ocean Crates are cheaper, and some new fish only live in water with a certain temperature, depth or climate. <b>The letter game changed:</b> on difficulty 10 (and most difficulty 9 catches) a wrong key is now a BAD, so mashing only works on easier spots.`,
