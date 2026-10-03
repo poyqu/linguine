@@ -3652,6 +3652,7 @@ async function pageReport(args){
       <div class="row tight" style="margin-top:12px">
         <button class="btn sm" id="rp_link">${ic("copy")}Copy link</button>
         <button class="btn sm" id="rp_png" disabled>${ic("download")}Download image</button>
+        ${CAN_COPY_IMG?`<button class="btn sm" id="rp_pngc" disabled>${ic("copy")}Copy image</button>`:""}
         <button class="btn sm" id="rp_txt" disabled>${ic("copy")}Copy text</button>
         <button class="btn sm ghost" data-act="useTeam" data-j="${jattr({team:t.leaders,supp:t.supp,lvl:10,auto:"none"})}">${ic("swords")}Open in simulator</button>
       </div></div>
@@ -3707,6 +3708,7 @@ function renderReport(){
   $("#rp_png").disabled=false;$("#rp_txt").disabled=false;
   $("#rp_txt").onclick=()=>{const x=reportText();if(navigator.clipboard)navigator.clipboard.writeText(x).then(()=>toast("Summary copied. Paste it anywhere."),()=>toast("Couldn't copy."));};
   $("#rp_png").onclick=()=>reportPng();
+  if($("#rp_pngc")){$("#rp_pngc").disabled=false;$("#rp_pngc").onclick=()=>reportPng(true);}
 }
 function reportText(){
   const{t,pvp,link}=REPORT,st=reportStats();
@@ -3718,7 +3720,8 @@ function reportText(){
   lines.push(link);
   return lines.join("\n");
 }
-function reportPng(){
+const CAN_COPY_IMG=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
+function reportPng(copy){
   const{t,R,pvp}=REPORT,st=reportStats(),cw=1100,pad=36,cell=46,gap=6;
   const col={good:"#5fd38a",ok:"#9ccf5a",mid:"#f0b847",bad:"#f0705f"};
   const rowsH=SEASONS.length*(cell*2+gap+66);
@@ -3742,6 +3745,11 @@ function reportPng(){
     y+=cell*2+gap+50;}
   if(pvp){g.fillStyle="#e9ebf2";g.font="800 18px Nunito, system-ui, sans-serif";g.fillText(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable · ${pvp.n-pvp.fav-pvp.lose} even · ${pvp.lose} losing`,pad,y);y+=30;}
   g.fillStyle="#838a9c";g.font=F(600);g.fillText(`N = Normal, E = EXTREME, chapter numbers as in the game. Simulated estimates, ${REPORT_N} battles per fight.`,pad,c.height-24);
+  if(copy){   // the blob is passed as a promise so Safari still counts it as part of the click
+    const blob=new Promise(res=>c.toBlob(res,"image/png"));
+    navigator.clipboard.write([new ClipboardItem({"image/png":blob})]).then(()=>toast("Image copied. Paste it into Discord or anywhere else."),()=>toast("Couldn't copy the image. Use Download image instead."));
+    return;
+  }
   const a=document.createElement("a");a.download="team-stats.png";a.href=c.toDataURL("image/png");document.body.appendChild(a);a.click();a.remove();
 }
 
@@ -4090,6 +4098,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
+  `<b>Copy image</b> on a team's Share page puts the stats picture straight on your clipboard, ready to paste into Discord.`,
   `<b>Fix: teams now list every hard-to-get source.</b> A team showed only its single hardest source, so a story-reward card could hide a Daily-crate or Gold-crate card (for example "Linguine but he has a ruler"). Each source now gets its own tag; hover it to see which cards need it.`,
   `<b>Fishing:</b> ${typeof FI!=="undefined"&&FI?FI.fish.length:115} fish now (13 new, including the secret Brody Fish at Cold Lake), every fish gives about 50% more NP, Ocean Crates are cheaper, and some new fish only live in water with a certain temperature, depth or climate. <b>The letter game changed:</b> on difficulty 10 (and most difficulty 9 catches) a wrong key is now a BAD, so mashing only works on easier spots.`,
 ]],["2026-10-03 · Fishing guide",[
