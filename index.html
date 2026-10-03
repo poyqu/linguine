@@ -3428,7 +3428,7 @@ function pageCards(args){
     const r=Object.values(CARDS).filter(c=>{
       if(F.own==="mine"&&!OWN.has(c.id))return false;
       if(F.own==="missing"&&OWN.has(c.id))return false;
-      if(!F.unob&&!q&&F.own!=="mine"&&unobtainable(c))return false;
+      if(!F.unob&&!q&&F.own!=="mine"&&F.src!=="limited"&&unobtainable(c))return false;   // asked for "Not obtainable": show them
       if(F.el!==""&&c.element!==+F.el)return false;
       if(F.src&&!srcMatch(c,F.src))return false;
       if(F.role&&!rolesOf(c.id).includes(F.role))return false;
@@ -3463,7 +3463,7 @@ function pageCards(args){
     if(!cur.length)grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","No cards match",F.own==="mine"&&!OWN.size?"You haven't marked any cards yet. Switch to \"All cards\", then tap the check on cards you own.":"Try fewer filters.")}</div>`;
     moreload.innerHTML=cur.length>limit?`<button class="btn" id="cf_mb">Show more (${cur.length-limit} left)</button>`:"";
     const mb=$("#cf_mb");if(mb)mb.onclick=()=>{limit+=150;paint();};
-    $("#cf_count").textContent=`${cur.length} card${cur.length===1?"":"s"}${!F.unob&&F.own!=="mine"?" (cards you can't get are hidden; see More filters)":""}`;
+    $("#cf_count").textContent=`${cur.length} card${cur.length===1?"":"s"}${!F.unob&&F.own!=="mine"&&F.src!=="limited"?" (cards you can't get are hidden; see More filters)":""}`;
   }
   function bulk(){
     const el=$("#cf_bulk");if(!el)return;
@@ -4140,6 +4140,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-03 · Game update (battles + fishing)",[
   `<b>Updated for today's game patch.</b> The simulator now uses the new card stats and abilities (about 45 cards changed, including nerfs to 10 Stacked, 20 Stacked, Bricks, Blue Lightning, the Visors and Bad Time) and the new mechanics: damage bonuses against an element, a name or a level, a gamble that can wipe your own team, a random health roll, and abilities that only work in Story Mode. Season 2 EXTREME fights got much easier: the two side enemies dropped many levels.`,
+  `<b>Fix:</b> the Cards page's "Not obtainable" source filter showed 0 cards.`,
   `<b>New look for the team stats image:</b> rounded chapter tiles with Normal and EXTREME rows, the team's element badges, summary chips, the toughest fights and a color legend, rendered sharp enough to paste anywhere.`,
   `<b>Copy image</b> on a team's Share page puts the stats picture straight on your clipboard, ready to paste into Discord.`,
   `<b>Fix: teams now list every hard-to-get source.</b> A team showed only its single hardest source, so a story-reward card could hide a Daily-crate or Gold-crate card (for example "Linguine but he has a ruler"). Each source now gets its own tag; hover it to see which cards need it.`,
