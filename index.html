@@ -1756,6 +1756,8 @@ const CH_BY_SEASON={};for(const s of SEASONS)CH_BY_SEASON[s]=CH_ALL.filter(c=>(c
 // in-game numbering = position in the season (Season 2 has no S2E3 internally, the game counts on)
 function chNum(ch){return CH_BY_SEASON[ch.season||1].indexOf(ch)+1;}
 function chName(ch){return `Chapter ${chNum(ch)}`;}
+// chapter links use the game's own numbering (#/story/s2/19 = Season 2 Chapter 19); takes a chapter or its id
+function chHref(ch){const c=typeof ch==="string"?CHM[ch]:ch;return c?`#/story/s${c.season||1}/${chNum(c)}`:"#/story";}
 const REC=(DATA.recommended||{}).story||{};
 const WIDE=(((DATA.recommended||{}).wide)||{}).teams||[];
 const REC_LEVEL=s=>s>=2?20:((REC.F1&&REC.F1.level)||10);   // Season 1 entries carry their rated level
@@ -2439,7 +2441,7 @@ function openCard(id,ctx){
     ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: its small elemental weakness (the ×1.05 to ×1.25 hits) is cancelled. Big multipliers still apply.</p>':""}
     ${isCard?`<div class="divider"></div><h3>How to get it</h3>
     <div class="stack" style="gap:6px;margin-top:8px">${srcList(c).map(([l,cl,h,u])=>`<div class="row tight"><span class="tag ${cl}">${esc(l)}</span><span class="small muted">${esc(h)}${u?` <a href="${u}" target="_blank" rel="noopener">Steam page</a>`:""}</span></div>`).join("")}</div>`:""}
-    ${recs.length?`<div class="divider"></div><h3>Recommended in</h3><div class="row tight" style="margin-top:8px">${recs.map(ch=>`<a class="chip click" href="#/story/${ch.id}">S${ch.season||1} · ${chName(ch)}</a>`).join("")}</div>`:""}`;
+    ${recs.length?`<div class="divider"></div><h3>Recommended in</h3><div class="row tight" style="margin-top:8px">${recs.map(ch=>`<a class="chip click" href="${chHref(ch.id)}">S${ch.season||1} · ${chName(ch)}</a>`).join("")}</div>`:""}`;
   // slider: only refresh the numbers, so keyboard focus and drags keep working
   body.querySelector("#cd_lvl").addEventListener("input",e=>{lvl=+e.target.value;body.querySelector("#cd_lv").textContent=lvl;body.querySelector("#cd_stats").innerHTML=statBars(lvOf(lvl));});
 }
@@ -2564,7 +2566,7 @@ const storyOnly=id=>{const c=CARDS[id];return!!c&&srcCats(c).every(k=>k==="story
 const rewardLate=(ids,chId)=>!!chId&&ids.some(id=>{const r=REWARD_FROM[id];return r&&storyOnly(id)&&chOrder(r[0])>=chOrder(chId);});
 function rewardTags(ids){
   return[...new Set(ids)].filter(id=>REWARD_FROM[id]&&storyOnly(id)).map(id=>{const[c,d]=REWARD_FROM[id],ch=CHM[c];if(!ch)return"";
-    return`<a class="tag acc" href="#/story/${c}" title="${esc(shortName(CARDS[id]))} is a reward for beating this chapter${d==="hard"?" on EXTREME":""}">${esc(shortName(CARDS[id]))}: Season ${ch.season||1} ${chName(ch)}${d==="hard"?" EXTREME":""}</a>`;}).join(" ");
+    return`<a class="tag acc" href="${chHref(c)}" title="${esc(shortName(CARDS[id]))} is a reward for beating this chapter${d==="hard"?" on EXTREME":""}">${esc(shortName(CARDS[id]))}: Season ${ch.season||1} ${chName(ch)}${d==="hard"?" EXTREME":""}</a>`;}).join(" ");
 }
 // "Needs Lv X+" label, shown only when the team actually wins
 function lvTag(min,wr){
@@ -2611,7 +2613,9 @@ function difficultyTag(r){
   return'<span class="tag bad" title="Even the best known team loses often">Very hard</span>';
 }
 function pageStory(args){
-  if(args[0]&&CHM[args[0]])return pageChapter(args[0]);
+  const sm=/^s(\d+)$/i.exec(args[0]||"");
+  if(sm&&args[1]){const c=(CH_BY_SEASON[+sm[1]]||[])[+args[1]-1];if(c)return pageChapter(c.id);}
+  if(args[0]&&CHM[args[0]]){location.replace(chHref(args[0]));return;}   // old internal-id links (#/story/S2E20)
   const s=SEASONS.includes(S.ui.season)?S.ui.season:SEASONS[0];
   const list=CH_BY_SEASON[s]||[];
   let evalOk=S.lastEval&&S.lastEval.sig===sigOf(S.team)?S.lastEval.res:null;
@@ -2627,7 +2631,7 @@ function pageStory(args){
   <div class="chgrid">${list.map(ch=>{
     const bh=bestRecTeam(ch.id,"hard"),bn=bestRecTeam(ch.id,"normal"),r=bh?bh.wr:null,mine=evalOk&&evalOk[ch.id]?evalOk[ch.id].hard:null;
     const line=(lab,t)=>`<div class="foot"><span class="faint">${lab}</span><span class="row tight" style="gap:6px">${t.min!=null&&t.wr>=.5?`<span class="small faint">${t.min<=1?"any level":`Lv ${t.min}+`}</span>`:""}${pill(t.wr)}</span></div>`;
-    return`<a class="chtile" href="#/story/${ch.id}">
+    return`<a class="chtile" href="${chHref(ch.id)}">
       <div class="row between"><span class="num">${chName(ch)}</span>${difficultyTag(r)}</div>
       <div class="ttl">${esc(ch.title)}</div>
       <div class="foes">${(ch.hard.length?ch.hard:ch.normal).map(([id])=>av(id,"sm",true)).join("")}</div>
@@ -2651,7 +2655,7 @@ function wideCard(){
       <div style="min-width:150px"><div style="font-weight:900">Clears ${w.clears} of 21</div><div class="small faint">average EXTREME win ${pct(w.mean)}</div></div>
       <div class="acts"><button class="btn sm" data-act="useTeam" data-j="${jattr({team:w.team,supp:sp,lvl:10,auto:"eval"})}">${ic("play")}Try it</button></div>
       <div class="supps" style="width:100%">${sp.length?`Supporters: ${sp.map(id=>cchip(id)).join("")}`:"No supporters needed"} ${teamEaseTags(w.team.concat(sp))}</div>
-      ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.map(([c,v])=>`<a href="#/story/${c}">${chName(CHM[c])}</a> ${pill(v)}`).join(" ")}</div>`:""}
+      ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.map(([c,v])=>`<a href="${chHref(c)}">${chName(CHM[c])}</a> ${pill(v)}`).join(" ")}</div>`:""}
     </div>`;}).join("")}</div></div></details>`;
 }
 
@@ -2662,7 +2666,7 @@ function pageChapter(chId){
   const lvlRec=REC_LEVEL(season);
   $("#view").innerHTML=`<div class="fadein">
     <div class="crumb row between"><span><a href="#/story" data-act="season" data-s="${season}">Story</a> › <a href="#/story" data-act="season" data-s="${season}">Season ${season}</a></span>
-      <span class="row tight">${(()=>{const L=CH_BY_SEASON[season],i=L.indexOf(ch);return(i>0?`<a class="btn xs ghost" href="#/story/${L[i-1].id}">‹ ${chName(L[i-1])}</a>`:"")+(i<L.length-1?`<a class="btn xs ghost" href="#/story/${L[i+1].id}">${chName(L[i+1])} ›</a>`:"");})()}</span></div>
+      <span class="row tight">${(()=>{const L=CH_BY_SEASON[season],i=L.indexOf(ch);return(i>0?`<a class="btn xs ghost" href="${chHref(L[i-1].id)}">‹ ${chName(L[i-1])}</a>`:"")+(i<L.length-1?`<a class="btn xs ghost" href="${chHref(L[i+1].id)}">${chName(L[i+1])} ›</a>`:"");})()}</span></div>
     <div class="page_head"><div><h1>${chName(ch)}: ${esc(ch.title)}</h1>
       <p id="ch_intro"></p></div>
       <div class="seg" role="tablist" id="ch_diff">
@@ -2994,7 +2998,7 @@ function renderOppPanel(){
     </div>
     <div class="row tight" style="margin-top:12px">${opps.map(([id,l])=>cchip(id,{sub:`Level ${l}${BOSS[id]?" · Boss":""}`,size:"",boss:true,lvl:l,season:ch.season||1})).join("")}</div>
     ${ov?`<div class="row tight" style="margin-top:8px"><span class="tag mid" title="Set in Advanced. Changes the results.">Custom enemy supporters</span></div>`:""}
-    <div class="row" style="margin-top:10px"><a class="small" href="#/story/${ch.id}">See this chapter's enemies and recommended teams ›</a></div>`;
+    <div class="row" style="margin-top:10px"><a class="small" href="${chHref(ch.id)}">See this chapter's enemies and recommended teams ›</a></div>`;
   }else{
     const t=o.pvp;
     body=`<p class="small muted" style="margin:10px 0">Another player's team. Both sides use player levels, and a battle that hits 30 turns counts as a draw, like ranked.</p>
@@ -3065,7 +3069,7 @@ function renderResult(r,mode,label,stamp,pd,ed){
       ${deaths.length?`<div class="fact"><div class="k">Your leader that falls most in losses</div><div class="v" style="font-size:15px">${esc(shortName(Object.values(CARDS).find(c=>c.name===deaths[0][0])||{name:deaths[0][0]}))}</div></div>`:""}
     </div>
     ${mode!=="pvp"&&r.d>lossN*.5&&lossN>0?`<div class="callout warn">Most losses are <b>timeouts</b>: your team survives but can't finish the enemies within 30 turns. You need more damage, not more defense.</div>`:""}
-    ${p<.95&&mode!=="pvp"&&S.opp.kind==="chapter"?`<div class="small muted">Want better odds? <a href="#/story/${S.opp.ch}">See the recommended teams for this chapter</a>, or use "Find a better team" below.</div>`:""}
+    ${p<.95&&mode!=="pvp"&&S.opp.kind==="chapter"?`<div class="small muted">Want better odds? <a href="${chHref(S.opp.ch)}">See the recommended teams for this chapter</a>, or use "Find a better team" below.</div>`:""}
     <div id="watch_out"></div>
   </div>`;
 }
@@ -3659,8 +3663,8 @@ function ovRow(r,i,view){
     <div class="acts"><button class="btn sm primary" data-act="useTeam" data-j="${jattr({team:r.team,supp,lvl:view==="s1"?15:20,auto:"eval",season:evalSeason})}" title="Load it and check it on every chapter at your levels">${ic("play")}Try it</button></div>
     <div class="supps" style="width:100%">${supp.length?`Supporters: ${supp.map(id=>cchip(id)).join("")}`:"No supporters needed"}<span class="spacer"></span>${teamEaseTags(r.team.concat(supp))} ${rewardTags(r.team.concat(supp))} ${lvNote}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
     <details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Every fight${weak.length?` (${weak.length} below 95%)`:""}</summary>
-      <div class="heat" style="margin-top:8px">${chs.map(c=>`<a class="hc" href="#/story/${c.id}" title="${esc(c.title)}"><span class="faint">${seasons.length>1?`S${c.season||1} `:""}${chName(c).replace("Chapter","Ch.")}</span><b class="w_${winInfo(r.per[c.id]).cls}">${pct(r.per[c.id])}</b></a>`).join("")}</div></details>
-    ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.slice(0,8).map(c=>`<a href="#/story/${c.id}">${seasons.length>1?`S${c.season||1} `:""}${chName(c)}</a> ${pill(r.per[c.id])}`).join(" ")}${weak.length>8?` and ${weak.length-8} more`:""}</div>`:""}
+      <div class="heat" style="margin-top:8px">${chs.map(c=>`<a class="hc" href="${chHref(c.id)}" title="${esc(c.title)}"><span class="faint">${seasons.length>1?`S${c.season||1} `:""}${chName(c).replace("Chapter","Ch.")}</span><b class="w_${winInfo(r.per[c.id]).cls}">${pct(r.per[c.id])}</b></a>`).join("")}</div></details>
+    ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.slice(0,8).map(c=>`<a href="${chHref(c.id)}">${seasons.length>1?`S${c.season||1} `:""}${chName(c)}</a> ${pill(r.per[c.id])}`).join(" ")}${weak.length>8?` and ${weak.length-8} more`:""}</div>`:""}
   </div>`;
 }
 
@@ -3735,12 +3739,12 @@ function renderReport(){
     <div class="factgrid" style="margin-top:8px">
       <div class="fact"><div class="k">EXTREME won 95%+</div><div class="v">${o.hard.clears} of ${o.hard.n}</div><div class="small faint">average ${pct(o.hard.mean)}</div></div>
       <div class="fact"><div class="k">Normal won 95%+</div><div class="v">${o.normal.clears} of ${o.normal.n}</div><div class="small faint">average ${pct(o.normal.mean)}</div></div></div>
-    <div class="heat" style="margin-top:12px">${(CH_BY_SEASON[sn]||[]).map(c=>{const r=R[c.id]||{};return`<a class="hc" href="#/story/${c.id}" title="${esc(c.title)}"><span class="faint">${chName(c).replace("Chapter","Ch.")}</span>
+    <div class="heat" style="margin-top:12px">${(CH_BY_SEASON[sn]||[]).map(c=>{const r=R[c.id]||{};return`<a class="hc" href="${chHref(c.id)}" title="${esc(c.title)}"><span class="faint">${chName(c).replace("Chapter","Ch.")}</span>
       <span class="row tight" style="gap:6px"><span class="small faint">N</span><b class="w_${winInfo(r.normal).cls}" style="display:inline">${r.normal==null?"-":pct(r.normal)}</b></span>
       <span class="row tight" style="gap:6px"><span class="small faint">E</span><b class="w_${winInfo(r.hard).cls}" style="display:inline">${r.hard==null?"-":pct(r.hard)}</b></span></a>`;}).join("")}</div></div>`;};
   $("#rp_body").innerHTML=`<div class="stack">
     <div class="grid g2">${SEASONS.map(sum).join("")}</div>
-    ${st.weak.length?`<div class="card"><h3>Toughest fights</h3><div class="supps" style="margin-top:8px">${st.weak.map(x=>`<a href="#/story/${x.c.id}">Season ${x.c.season||1} ${chName(x.c)} EXTREME</a> ${pill(x.v)}`).join(" ")}</div></div>`
+    ${st.weak.length?`<div class="card"><h3>Toughest fights</h3><div class="supps" style="margin-top:8px">${st.weak.map(x=>`<a href="${chHref(x.c.id)}">Season ${x.c.season||1} ${chName(x.c)} EXTREME</a> ${pill(x.v)}`).join(" ")}</div></div>`
       :`<div class="callout good">This team wins every EXTREME fight at least 95% of the time.</div>`}
     ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against ${pvp.n} popular ranked teams (level 10).
       Worst: ${pvp.worst.map(r=>`${esc(r.m.n)} (${pct(r.w)} wins)`).join(", ")}.</p></div>`:""}
@@ -4180,6 +4184,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-04 · Game updates Beta v180 and v181",[
+  `<b>Chapter links use the game's numbers.</b> A chapter's address now matches what the game calls it, for example cat.poyqu.me/#/story/s2/19 is Season 2 Chapter 19. Old links still work.`,
   `<b>Game version in the top bar.</b> The site now shows which game version its data is from (the same "Beta v…" text the game shows). If your game shows a newer one, the site hasn't caught up yet.`,
   `<b>Season 2 recalculated with the correct enemy supporters:</b> every Season 2 EXTREME chapter now has a team that wins 99 to 100% of the time (Chapter 21 included). Season 1 follows tonight.`,
   `<b>Fix: the enemy's supporters in story fights.</b> The site predicted the wrong 4 enemy supporters in every chapter since the October 3 patch: the game skips 31 cards whose picture files are named differently, and the site didn't. Checked against a real fight (Season 2 Chapter 21 EXTREME shows Orange Straw Hat, Red Tie, Gold Chain and Dark Blue Ski Mask in the game, and now on the site too). All recommended teams were re-tested with the right supporters.`,
