@@ -4748,7 +4748,7 @@
 },
 "82": {
 "id": 82,
-"name": "Linguine but it\u2019s just his face",
+"name": "Linguine but it's just his face",
 "hp": 69,
 "spd": 761,
 "def": 4,
@@ -9502,7 +9502,7 @@
 },
 "170": {
 "id": 170,
-"name": "Linguine (Hamburger)",
+"name": "Linguine (Cheeseburger)",
 "hp": 358,
 "spd": 370,
 "def": 10,
@@ -13898,7 +13898,7 @@
 },
 "252": {
 "id": 252,
-"name": "Linguine (bizzare)",
+"name": "Linguine (bizarre)",
 "hp": 275,
 "spd": 582,
 "def": 28,
@@ -13951,7 +13951,7 @@
 },
 "253": {
 "id": 253,
-"name": "Linguine (very bizzare)",
+"name": "Linguine (very bizarre)",
 "hp": 301,
 "spd": 583,
 "def": 37,
@@ -21041,7 +21041,7 @@
 },
 "385": {
 "id": 385,
-"name": "Linguine (elementary school)",
+"name": "Linguine (Elementary School)",
 "hp": 87,
 "spd": 753,
 "def": 4,
@@ -21089,7 +21089,7 @@
 },
 "386": {
 "id": 386,
-"name": "Linguine (Imposter)",
+"name": "Linguine (Astronaut)",
 "hp": 216,
 "spd": 455,
 "def": 5,
@@ -22928,7 +22928,7 @@
 },
 "426": {
 "id": 426,
-"name": "Linguine (Black Imposter)",
+"name": "Linguine (Black Astronaut)",
 "hp": 216,
 "spd": 473,
 "def": 5,
@@ -22990,7 +22990,7 @@
 },
 "427": {
 "id": 427,
-"name": "Linguine (White Imposter)",
+"name": "Linguine (White Astronaut)",
 "hp": 217,
 "spd": 472,
 "def": 6,
@@ -23054,7 +23054,7 @@
 },
 "428": {
 "id": 428,
-"name": "Linguine (Rose Imposter)",
+"name": "Linguine (Rose Astronaut)",
 "hp": 217,
 "spd": 471,
 "def": 5,
@@ -23103,7 +23103,7 @@
 },
 "429": {
 "id": 429,
-"name": "Linguine (Blue Imposter)",
+"name": "Linguine (Blue Astronaut)",
 "hp": 218,
 "spd": 470,
 "def": 6,
@@ -23165,7 +23165,7 @@
 },
 "430": {
 "id": 430,
-"name": "Linguine (Cyan Imposter)",
+"name": "Linguine (Cyan Astronaut)",
 "hp": 219,
 "spd": 469,
 "def": 5,
@@ -23216,7 +23216,7 @@
 },
 "431": {
 "id": 431,
-"name": "Linguine (Purple Imposter)",
+"name": "Linguine (Purple Astronaut)",
 "hp": 219,
 "spd": 468,
 "def": 6,
@@ -23293,7 +23293,7 @@
 },
 "432": {
 "id": 432,
-"name": "Linguine (Lime Imposter)",
+"name": "Linguine (Lime Astronaut)",
 "hp": 220,
 "spd": 467,
 "def": 5,
@@ -23341,7 +23341,7 @@
 },
 "433": {
 "id": 433,
-"name": "Linguine (Green Imposter)",
+"name": "Linguine (Green Astronaut)",
 "hp": 221,
 "spd": 466,
 "def": 6,
@@ -25352,7 +25352,7 @@
 },
 "466": {
 "id": 466,
-"name": "Linguine but the background isn't transparent",
+"name": "Linguine but the background isn\u2019t transparent",
 "hp": 170,
 "spd": 500,
 "def": 25,
@@ -32333,7 +32333,7 @@
 },
 "581": {
 "id": 581,
-"name": "Linguine (Don't Gamble)",
+"name": "Linguine with an Anti-Gambling Hat",
 "hp": 296,
 "spd": 298,
 "def": 35,
@@ -33326,7 +33326,7 @@
 },
 "600": {
 "id": 600,
-"name": "Linguine (Guitar)",
+"name": "Linguine with a Guitar",
 "hp": 169,
 "spd": 541,
 "def": 15,
@@ -35625,7 +35625,7 @@
 },
 "643": {
 "id": 643,
-"name": "Linguine (Superhot)",
+"name": "Linguine (Slow Motion)",
 "hp": 167,
 "spd": 596,
 "def": 13,
@@ -54345,6 +54345,23 @@
 "style": 8,
 "abilities": [
 {
+"trigger": "passive_immunity",
+"effect": "",
+"params": {
+"status_ids": [
+"stunned",
+"paralyzed",
+"tired",
+"dizzy"
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "This Jack can\u2019t be [Stunned], [Paralyzed], [Tired] or [Dizzy]."
+},
+{
 "trigger": "turn_start",
 "effect": "lose_stat_filtered",
 "params": {
@@ -54389,6 +54406,23 @@
 "atk": 36,
 "style": 8,
 "abilities": [
+{
+"trigger": "passive_immunity",
+"effect": "",
+"params": {
+"status_ids": [
+"stunned",
+"paralyzed",
+"tired",
+"dizzy"
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "This Linguine can\u2019t be [Stunned], [Paralyzed], [Tired] or [Dizzy]."
+},
 {
 "trigger": "passive_immunity",
 "effect": "",
@@ -54487,6 +54521,23 @@
 "atk": 26,
 "style": 10,
 "abilities": [
+{
+"trigger": "passive_immunity",
+"effect": "",
+"params": {
+"status_ids": [
+"stunned",
+"paralyzed",
+"tired",
+"dizzy"
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "This Linguine can\u2019t be [Stunned], [Paralyzed], [Tired] or [Dizzy]."
+},
 {
 "trigger": "turn_start",
 "effect": "multi_effect",
