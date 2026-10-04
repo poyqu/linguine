@@ -1922,8 +1922,8 @@ const ST_PLAIN={
   dizzy:"50% chance its attack does nothing.",
   cursed:"Takes a third of the damage it deals back as recoil.",
   doomed:"Loses 200 HP when the countdown ends. Putting it on again restarts the countdown.",
-  chaos:"Attacks anyone, including its own team (never itself).",
-  chaos_blinded:"Attacks anyone, using a random targeting style. Replaces Chaos.",
+  chaos:"Keeps its usual target rule (for example the highest-defense leader), but picks from every leader, its own team included (never itself).",
+  chaos_blinded:"Picks from every leader, its own team included, with a random target rule each turn. Replaces Chaos.",
   soul_bound:"Can't drop below 1 HP, then loses 300 HP on its last turn. It's removed once the other side has 2 or fewer leaders left.",
   jackified:"Shares its attack style with its team. Only one leader per team can have it.",
   horrified:"25% chance its attack is a weak hit (20% damage) when the target has more attack than it.",
@@ -4184,6 +4184,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-04 · Game updates Beta v180 and v181",[
+  `<b>Clearer Chaos description.</b> A [Chaos Bounded] leader keeps its usual target rule but picks from every leader, its own team included. Example: Comic Book attacks the highest-defense leader, so with Chaos it can hit your own White Branded Visor once that has more defense than the boss.`,
   `<b>Chapter links use the game's numbers.</b> A chapter's address now matches what the game calls it, for example cat.poyqu.me/#/story/s2/19 is Season 2 Chapter 19. Old links still work.`,
   `<b>Game version in the top bar.</b> The site now shows which game version its data is from (the same "Beta v…" text the game shows). If your game shows a newer one, the site hasn't caught up yet.`,
   `<b>Season 2 recalculated with the correct enemy supporters:</b> every Season 2 EXTREME chapter now has a team that wins 99 to 100% of the time (Chapter 21 included). Season 1 and the best overall teams are recalculated too.`,
