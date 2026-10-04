@@ -920,10 +920,10 @@
 "17": {
 "id": 17,
 "name": "Linguine With A Light Green Top Hat",
-"hp": 174,
+"hp": 261,
 "spd": 504,
-"def": 23,
-"atk": 30,
+"def": 29,
+"atk": 45,
 "style": 4,
 "abilities": [
 {
@@ -1831,10 +1831,10 @@
 "33": {
 "id": 33,
 "name": "Linguine (Melted)",
-"hp": 84,
+"hp": 126,
 "spd": 423,
-"def": 5,
-"atk": 33,
+"def": 11,
+"atk": 50,
 "style": 3,
 "abilities": [
 {
@@ -1884,10 +1884,10 @@
 "34": {
 "id": 34,
 "name": "Linguine (3 Eyed Form)",
-"hp": 141,
+"hp": 162,
 "spd": 598,
-"def": 13,
-"atk": 35,
+"def": 16,
+"atk": 40,
 "style": 2,
 "abilities": [
 {
@@ -4647,10 +4647,10 @@
 "80": {
 "id": 80,
 "name": "Linguine (Upside-Down Face)",
-"hp": 198,
+"hp": 257,
 "spd": 389,
-"def": 15,
-"atk": 25,
+"def": 20,
+"atk": 32,
 "style": 1,
 "abilities": [
 {
@@ -6150,10 +6150,10 @@
 "107": {
 "id": 107,
 "name": "Linguine With A Dark Blue Scarf",
-"hp": 186,
+"hp": 279,
 "spd": 613,
-"def": 15,
-"atk": 35,
+"def": 21,
+"atk": 52,
 "style": 8,
 "abilities": [
 {
@@ -7325,10 +7325,10 @@
 "129": {
 "id": 129,
 "name": "Linguine With A Lei And Flower Crown",
-"hp": 152,
+"hp": 175,
 "spd": 589,
-"def": 18,
-"atk": 34,
+"def": 21,
+"atk": 39,
 "style": 9,
 "abilities": [
 {
@@ -9124,10 +9124,10 @@
 "163": {
 "id": 163,
 "name": "Linguine With Blue Scuba Gear",
-"hp": 252,
+"hp": 290,
 "spd": 377,
-"def": 27,
-"atk": 23,
+"def": 30,
+"atk": 26,
 "style": 7,
 "abilities": [
 {
@@ -9454,10 +9454,10 @@
 "169": {
 "id": 169,
 "name": "Linguine With Purple Scuba Goggles",
-"hp": 219,
+"hp": 285,
 "spd": 371,
-"def": 24,
-"atk": 23,
+"def": 29,
+"atk": 30,
 "style": 9,
 "abilities": [
 {
@@ -12821,10 +12821,10 @@
 "232": {
 "id": 232,
 "name": "Linguine With A Light Green Branded Visor",
-"hp": 172,
+"hp": 198,
 "spd": 518,
-"def": 23,
-"atk": 31,
+"def": 26,
+"atk": 36,
 "style": 9,
 "abilities": [
 {
@@ -16970,10 +16970,10 @@
 "310": {
 "id": 310,
 "name": "Linguine With Light Blue Ski Goggles",
-"hp": 192,
+"hp": 221,
 "spd": 511,
-"def": 24,
-"atk": 29,
+"def": 27,
+"atk": 33,
 "style": 2,
 "abilities": [
 {
@@ -17082,10 +17082,10 @@
 "312": {
 "id": 312,
 "name": "Linguine With Purple Ski Goggles",
-"hp": 193,
+"hp": 222,
 "spd": 509,
-"def": 20,
-"atk": 29,
+"def": 23,
+"atk": 33,
 "style": 9,
 "abilities": [
 {
@@ -22615,10 +22615,10 @@
 "421": {
 "id": 421,
 "name": "Linguine (Galaxy King)",
-"hp": 336,
-"spd": 661,
+"hp": 300,
+"spd": 580,
 "def": 25,
-"atk": 27,
+"atk": 25,
 "style": 2,
 "abilities": [
 {
@@ -23104,10 +23104,10 @@
 "429": {
 "id": 429,
 "name": "Linguine (Blue Astronaut)",
-"hp": 218,
+"hp": 251,
 "spd": 470,
-"def": 6,
-"atk": 23,
+"def": 9,
+"atk": 26,
 "style": 9,
 "abilities": [
 {
@@ -23314,14 +23314,30 @@
 "desc": "When this Linguine attacks, it inflicts [Poisoned] on the enemy leader."
 },
 {
-"trigger": "turn_start",
-"effect": "gain_stat_all_allies",
+"trigger": "on_any_kill",
+"effect": "gain_stat",
 "params": {
 "stat": "attack",
 "amount": 10
 },
-"condition": "",
-"cond_params": {},
+"condition": "all_of",
+"cond_params": {
+"conds": [
+{
+"condition": "ctx_is_ally",
+"params": {
+"key": "killer"
+}
+},
+{
+"condition": "target_has_status",
+"params": {
+"status_id": "poisoned",
+"target": "victim"
+}
+}
+]
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When any of your leaders kills an enemy leader while that enemy was [Poisoned], this Linguine's attack is increased by 10."
@@ -33265,10 +33281,10 @@
 "599": {
 "id": 599,
 "name": "Linguine with Sunset Headphones",
-"hp": 165,
-"spd": 509,
-"def": 17,
-"atk": 34,
+"hp": 150,
+"spd": 480,
+"def": 14,
+"atk": 26,
 "style": 1,
 "abilities": [
 {
@@ -40468,10 +40484,10 @@
 "744": {
 "id": 744,
 "name": "Linguine (Outdated Painting Tool)",
-"hp": 162,
+"hp": 186,
 "spd": 543,
-"def": 16,
-"atk": 30,
+"def": 19,
+"atk": 34,
 "style": 1,
 "abilities": [
 {
@@ -40802,10 +40818,10 @@
 "662": {
 "id": 662,
 "name": "Linguine (God Of Pineapples)",
-"hp": 334,
-"spd": 456,
-"def": 18,
-"atk": 36,
+"hp": 215,
+"spd": 430,
+"def": 14,
+"atk": 22,
 "style": 4,
 "abilities": [
 {
@@ -40817,7 +40833,7 @@
 "effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "health",
-"amount": 8,
+"amount": 6,
 "tags": [
 "pineapple",
 "fruit"
@@ -40828,7 +40844,7 @@
 "effect": "gain_stat_allies_with_tag",
 "params": {
 "stat": "attack",
-"amount": 3,
+"amount": 2,
 "tags": [
 "pineapple",
 "fruit"
@@ -40841,7 +40857,7 @@
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, all of your leaders with <Pineapple> or <Fruit> in their name gain 8 health and 3 attack."
+"desc": "At the start of the turn, all of your leaders with <Pineapple> or <Fruit> in their name gain 6 health and 2 attack."
 },
 {
 "trigger": "on_damaged",
@@ -40886,10 +40902,10 @@
 "663": {
 "id": 663,
 "name": "Linguine (Knight)",
-"hp": 265,
+"hp": 230,
 "spd": 425,
-"def": 24,
-"atk": 27,
+"def": 20,
+"atk": 24,
 "style": 8,
 "abilities": [
 {
@@ -40935,10 +40951,10 @@
 "664": {
 "id": 664,
 "name": "Linguine but he's a Pineapple",
-"hp": 274,
+"hp": 255,
 "spd": 437,
-"def": 25,
-"atk": 27,
+"def": 23,
+"atk": 26,
 "style": 3,
 "abilities": [
 {
@@ -41153,10 +41169,10 @@
 "668": {
 "id": 668,
 "name": "Linguine With A Rainbow Skull Mask",
-"hp": 278,
+"hp": 215,
 "spd": 255,
-"def": 25,
-"atk": 49,
+"def": 20,
+"atk": 35,
 "style": 1,
 "abilities": [
 {
@@ -41346,10 +41362,10 @@
 "672": {
 "id": 672,
 "name": "Linguine (Galaxy Mage)",
-"hp": 126,
-"spd": 594,
-"def": 8,
-"atk": 45,
+"hp": 85,
+"spd": 430,
+"def": 3,
+"atk": 18,
 "style": 1,
 "abilities": [
 {
@@ -41544,10 +41560,10 @@
 "675": {
 "id": 675,
 "name": "Linguine With A Blessed Pickle On His Head",
-"hp": 291,
+"hp": 215,
 "spd": 472,
-"def": 14,
-"atk": 24,
+"def": 12,
+"atk": 20,
 "style": 5,
 "abilities": [
 {
@@ -43855,10 +43871,10 @@
 "781": {
 "id": 781,
 "name": "Linguine (Hacked Error)",
-"hp": 164,
+"hp": 189,
 "spd": 560,
-"def": 19,
-"atk": 29,
+"def": 22,
+"atk": 33,
 "style": 8,
 "abilities": [
 {
@@ -44855,10 +44871,10 @@
 "798": {
 "id": 798,
 "name": "Linguine With A Designer Brand Box Logo Denim Cap",
-"hp": 245,
+"hp": 282,
 "spd": 444,
-"def": 26,
-"atk": 25,
+"def": 29,
+"atk": 29,
 "style": 7,
 "abilities": [
 {
@@ -45500,10 +45516,10 @@
 "809": {
 "id": 809,
 "name": "Linguine With A Designer Brand Box Logo Golden Skull Pattern White Cap",
-"hp": 198,
+"hp": 228,
 "spd": 495,
-"def": 22,
-"atk": 25,
+"def": 25,
+"atk": 29,
 "style": 1,
 "abilities": [
 {
@@ -50547,10 +50563,10 @@
 "894": {
 "id": 894,
 "name": "Linguine (Cyan X-Ray)",
-"hp": 173,
+"hp": 199,
 "spd": 574,
-"def": 15,
-"atk": 30,
+"def": 18,
+"atk": 34,
 "style": 1,
 "abilities": [
 {
@@ -52104,10 +52120,10 @@
 "922": {
 "id": 922,
 "name": "Linguine With A Cyan Balaclava",
-"hp": 159,
+"hp": 183,
 "spd": 670,
-"def": 13,
-"atk": 34,
+"def": 16,
+"atk": 39,
 "style": 2,
 "abilities": [
 {
@@ -53172,10 +53188,10 @@
 "941": {
 "id": 941,
 "name": "Linguine With A Dark Blue Ski Mask",
-"hp": 189,
+"hp": 246,
 "spd": 438,
-"def": 19,
-"atk": 31,
+"def": 24,
+"atk": 40,
 "style": 1,
 "abilities": [
 {
@@ -53366,10 +53382,10 @@
 "945": {
 "id": 945,
 "name": "Linguine With A Purple Ski Mask",
-"hp": 179,
+"hp": 206,
 "spd": 501,
-"def": 20,
-"atk": 29,
+"def": 23,
+"atk": 33,
 "style": 1,
 "abilities": [
 {
