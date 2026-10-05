@@ -21,16 +21,28 @@ def sig(leaders, supp):
 CAP = {1: 15, 2: 20}   # story level cap per season = the level every card is rated at
 def season_of(ch): return 2 if ch.startswith("S2") else 1
 
+# Battles run on the site's own engine (lab_engine.js) through battles.js under Node, the same engine the
+# site's simulator uses; the old Python engine was retired on Oct 5 2026.
+import subprocess
+_NODE = {"p": None, "sent": set()}
+def battles(ek, ed, n, story=True, pd=None, trio=None, lv=20, supp=()):
+    """n battles (seed 13*k+5) of the player deck (pd, or trio at level lv + supp) vs enemy deck ed -> {w,l,d}"""
+    if _NODE["p"] is None:
+        _NODE["p"] = subprocess.Popen(["node", os.path.join(HERE, "battles.js")], cwd=HERE, stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE, text=True, bufsize=1, encoding="utf-8")
+    job = {"ek": ek, "n": n, "sa": 13, "sb": 5, "story": story}
+    if pd is not None: job["pd"] = pd
+    else: job.update(trio=list(trio), lv=lv, supp=list(supp))
+    if ek not in _NODE["sent"]: job["ed"] = ed; _NODE["sent"].add(ek)
+    _NODE["p"].stdin.write(json.dumps(job) + chr(10)); _NODE["p"].stdin.flush()
+    return json.loads(_NODE["p"].stdout.readline())
+
 def story_eff(leaders, supp, n=250):
     """-> (overall, season1, season2) mean EXTREME win rates."""
     per = {1: [], 2: []}
     for ch, ed in DECKS.items():
-        lv = CAP[season_of(ch)]; w = 0
-        for s in range(n):
-            pd = [sim.apply_player_level(sim.LEADERS[i], lv) for i in leaders] + [dict(sim.LEADERS[i]) for i in supp]
-            if sim.Sim(s * 13 + 5).run(pd, [dict(c) if c else None for c in ed]) == 0:
-                w += 1
-        per[season_of(ch)].append(w / n)
+        r = battles(ch, ed, n, trio=leaders, lv=CAP[season_of(ch)], supp=supp)
+        per[season_of(ch)].append(r["w"] / n)
     allv = per[1] + per[2]
     m = lambda x: sum(x) / len(x) if x else None
     return m(allv), m(per[1]), m(per[2])
@@ -47,14 +59,9 @@ def pvp_league(builds, n=120):
     W = [0]*k; L = [0]*k; D = [0]*k; N = [0]*k
     for i in range(k):
         for j in range(i + 1, k):
-            for s in range(n):
-                S = sim.Sim(s * 13 + 5, story=False)   # PvP: story_mode off
-                S.run([dict(c) for c in decks[i]], [dict(c) for c in decks[j]])
-                a0, a1 = len(S.alive(0)), len(S.alive(1))
-                if a1 == 0 and a0 > 0:   W[i] += 1; L[j] += 1
-                elif a0 == 0 and a1 > 0: L[i] += 1; W[j] += 1
-                else:                    D[i] += 1; D[j] += 1
-                N[i] += 1; N[j] += 1
+            r = battles(f"pvp{j}", decks[j], n, story=False, pd=decks[i])   # PvP: story_mode off, timeout = draw
+            W[i] += r["w"]; L[j] += r["w"]; L[i] += r["l"]; W[j] += r["l"]; D[i] += r["d"]; D[j] += r["d"]
+            N[i] += n; N[j] += n
     for idx, b in enumerate(builds):
         b["pvp"] = round(W[idx] / N[idx], 3) if N[idx] else None
         b["rec"] = [W[idx], L[idx], D[idx]]
