@@ -1,0 +1,93 @@
+name: Recompute recommended teams
+
+# Started by the update pipeline after a game patch (or by hand from the Actions tab).
+# One machine per story chapter runs that chapter's full team search (compute/ci_chapter.py), then one machine
+# merges everything, picks the final teams and builds the best-overall list (compute/ci_merge.py).
+# Inputs come from compute/search_bundle.json + compute/cards.json, data the site already shows publicly;
+# no game files are needed. The result is the "results" artifact the pipeline downloads to rebuild the site.
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Seasons to recompute: 1, 2 or 1,2"
+        default: "1,2"
+      smoke:
+        description: "Dry run with tiny searches (true / false)"
+        default: "false"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recompute
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.p.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: echo "matrix=$(python3 compute/ci_plan.py '${{ inputs.seasons }}')" >> "$GITHUB_OUTPUT"
+
+  chapter:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Search ${{ matrix.ch }}
+        working-directory: compute
+        env:
+          SEARCH_BUNDLE: "1"
+          POOL: "4"
+          CI_SMOKE: ${{ inputs.smoke == 'true' && '1' || '' }}
+          SMOKE_WRITE: ${{ inputs.smoke == 'true' && '1' || '' }}
+        run: python -X utf8 ci_chapter.py ${{ matrix.ch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.ch }}
+          path: compute/out/
+          retention-days: 3
+
+  merge:
+    needs: chapter
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: part-*
+          path: compute/parts
+          merge-multiple: true
+      - name: Merge, pick teams, best overall
+        working-directory: compute
+        env:
+          SEARCH_BUNDLE: "1"
+          POOL: "4"
+          OV_QUICK: ${{ inputs.smoke == 'true' && '1' || '' }}
+        run: python -X utf8 ci_merge.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: compute/results/
+          retention-days: 7
