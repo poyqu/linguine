@@ -53958,7 +53958,7 @@
 "hp": 444,
 "spd": 680,
 "def": 42,
-"atk": 58,
+"atk": 54,
 "style": 3,
 "abilities": [
 {
@@ -54165,7 +54165,7 @@
 "hp": 137,
 "spd": 720,
 "def": 50,
-"atk": 30,
+"atk": 28,
 "style": 6,
 "abilities": [
 {
@@ -54247,7 +54247,7 @@
 "hp": 191,
 "spd": 525,
 "def": 25,
-"atk": 62,
+"atk": 58,
 "style": 5,
 "abilities": [
 {
@@ -54303,7 +54303,7 @@
 "hp": 191,
 "spd": 565,
 "def": 21,
-"atk": 62,
+"atk": 58,
 "style": 4,
 "abilities": [
 {
@@ -54355,9 +54355,9 @@
 "id": 849,
 "name": "Supreme Jack",
 "hp": 450,
-"spd": 560,
-"def": 31,
-"atk": 30,
+"spd": 650,
+"def": 35,
+"atk": 28,
 "style": 8,
 "abilities": [
 {
@@ -54382,7 +54382,7 @@
 "effect": "lose_stat_filtered",
 "params": {
 "stat": "health",
-"amount": 10,
+"amount": 9,
 "side": "enemy",
 "filter": {
 "tags": [
@@ -54394,7 +54394,7 @@
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "At the start of the turn, all of your leaders with <Linguine> in their name lose 10 health."
+"desc": "At the start of the turn, all of your leaders with <Linguine> in their name lose 9 health."
 },
 {
 "trigger": "on_attack",
@@ -54419,7 +54419,7 @@
 "hp": 700,
 "spd": 999,
 "def": 31,
-"atk": 36,
+"atk": 33,
 "style": 8,
 "abilities": [
 {
@@ -54495,7 +54495,7 @@
 "hp": 707,
 "spd": 999,
 "def": 21,
-"atk": 30,
+"atk": 28,
 "style": 1,
 "abilities": [
 {
@@ -54531,10 +54531,10 @@
 "862": {
 "id": 862,
 "name": "Linguine With An Eye Scarf (Blood Of Creation Absorbed)",
-"hp": 200,
+"hp": 193,
 "spd": 525,
 "def": 21,
-"atk": 26,
+"atk": 24,
 "style": 10,
 "abilities": [
 {
@@ -54546,13 +54546,31 @@
 "paralyzed",
 "tired",
 "dizzy"
+],
+"turns": [
+1,
+2,
+3
 ]
 },
 "condition": "",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
-"desc": "This Linguine can\u2019t be [Stunned], [Paralyzed], [Tired] or [Dizzy]."
+"desc": "For the first 3 turns, this Linguine can\u2019t be [Stunned], [Paralyzed], [Tired] or [Dizzy]."
+},
+{
+"trigger": "passive_all_cooldown",
+"effect": "",
+"params": {
+"cooldown": 1,
+"fallback_style": 4
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "Attacking all enemy leaders has a 1-turn cooldown. While it cools down, this Linguine attacks the Highest-Health enemy leader instead."
 },
 {
 "trigger": "turn_start",
