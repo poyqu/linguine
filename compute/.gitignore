@@ -1,0 +1,8 @@
+out/
+parts/
+results/
+__pycache__/
+*_teams*.json
+*_levels.json
+*_recommended.json
+overall_*.json
