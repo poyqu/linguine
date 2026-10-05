@@ -38,7 +38,7 @@ jobs:
     timeout-minutes: 300
     strategy:
       fail-fast: false
-      max-parallel: 6   # GitHub gives this repo ~5 hosted machines at a time and cancels jobs left waiting ~15 min
+      max-parallel: 20
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
