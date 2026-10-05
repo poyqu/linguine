@@ -70,7 +70,7 @@ def _rnd(x):   # GDScript round(): half away from zero
     return int(math.floor(x+0.5)) if x>=0 else -int(math.floor(-x+0.5))
 
 class L:
-    __slots__=("pending_bonus","d","side","slot","hp","mhp","atk","dfn","spd","elem","apex","abil","name","st","og","ot_turn","dmg_turn","alive","lvl","announced","eot",
+    __slots__=("all_ready_turn","pending_bonus","d","side","slot","hp","mhp","atk","dfn","spd","elem","apex","abil","name","st","og","ot_turn","dmg_turn","alive","lvl","announced","eot",
                "wa_this","wa_last","turn_now","style_override","hits_turn","echo_guard")
     def __init__(s,d,side,slot):
         s.d=d; s.side=side; s.slot=slot
@@ -80,6 +80,7 @@ class L:
         s.st={}   # status_id -> [remaining, tick_index]; insertion order == the game's statuses list order
         s.og=set(); s.ot_turn=set(); s.dmg_turn=0; s.alive=True; s.announced=False; s.eot=[]
         s.wa_this=False; s.wa_last=False; s.turn_now=0; s.style_override=0; s.hits_turn=0; s.echo_guard=False
+        s.all_ready_turn=0   # RuntimeLeader.all_ready_turn (passive_all_cooldown, v183)
         s.pending_bonus=0   # RuntimeLeader.pending_bonus_damage (gamble_attack jackpot, applied to the current hit)
     def eff_def(s):   # RuntimeLeader.effective_defense: the FIRST status with force_defense wins; capped at 50
         for sid in s.st:
@@ -1197,7 +1198,14 @@ class Sim:
             if any(STA.get(x,(0,[],{}))[2].get("shares_attack_style") for x in al.st):
                 style=int(al.d.get("style",1)); break
         if atk.flag("random_attack_style"): style=s.rng.randint(1,9)
+        if style==STYLE_ALL and s.turn<atk.all_ready_turn:     # attack-all on cooldown: fallback style (v183)
+            cd=s.all_cooldown(atk)
+            if cd: style=int((cd.get("params") or {}).get("fallback_style",4))
         return style
+    def all_cooldown(s, atk):   # battle_sim._all_cooldown
+        for a in atk.abil:
+            if a.get("trigger")=="passive_all_cooldown": return a
+        return None
     def pick_from(s, enemies, style):   # battle_sim._pick_from
         if not enemies: return None
         if style==1: return s.rng.choice(enemies)
@@ -1254,7 +1262,10 @@ class Sim:
             pool=s.target_pool(atk)
             if not pool: continue
             style=s.resolved_style(atk)
-            if style==STYLE_ALL: s.resolve_multi(atk,pool)
+            if style==STYLE_ALL:
+                s.resolve_multi(atk,pool)
+                cd=s.all_cooldown(atk)
+                if cd: atk.all_ready_turn=s.turn+1+int((cd.get("params") or {}).get("cooldown",1))
             else:
                 tgt=s.pick_from(pool,style)
                 if tgt is None: continue
