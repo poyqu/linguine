@@ -25,6 +25,10 @@ jobs:
         with:
           python-version: '3.11'
 
+      - uses: actions/setup-node@v4   # battles run on the site's engine (verify/battles.js + lab_engine.js)
+        with:
+          node-version: '20'
+
       - name: Verify submission
         id: verify
         env:
