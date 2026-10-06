@@ -353,7 +353,11 @@ details.adv>.in{padding:0 16px 16px}
 .modeseg button.on{background:var(--acc);color:var(--accink);box-shadow:0 1px 6px #0004}
 :root[data-theme="light"] .modeseg button.on{background:var(--acc);color:var(--accink)}
 @media(max-width:700px){.bulkbar{padding:10px 12px;gap:8px}.bulkbar .btn.sm{padding:6px 10px;font-size:13px}}
-.pk_sf{flex-wrap:wrap}.pk_sf .select{flex:1 1 140px;min-width:0}
+.pk_sf{flex-wrap:wrap}
+.findctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.findctl .select{max-width:100%}
+.mustchip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:12px;padding-right:2px;background:var(--surface2)}
+.xbtn.sm{width:30px;height:30px}
+@media(max-width:700px){.findctl .seg{width:100%;display:flex}.findctl .seg button{flex:1;padding:7px 8px}.findctl>.select{flex:1 1 100%}}.pk_sf .select{flex:1 1 140px;min-width:0}
 @media(max-width:700px){.filters .modeseg{width:100%;display:flex}.filters .modeseg button{flex:1}
   .filters>.select{flex:1 1 calc(50% - 4px);min-width:0}}
 @media (max-width:600px){.rk_tbl thead{display:none}.rk_tbl tbody tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -2846,28 +2850,58 @@ async function checkNormal(ch,teams,lvl){
     const sub=$("#ch_sub");if(sub)sub.textContent=`These EXTREME teams were checked live against the Normal boss with every card at level ${lvl}.`;
   }catch(e){if(GEN!==my||e==="cancelled")return;$$("#ch_teams .teamrow .wm").forEach(m=>{m.outerHTML=wmeter(null,{none:"Couldn't check"});});}
 }
+// team finder options: which cards (yours / strong / every card), how hard they may be to get, an optional must-use card
+const FIND_SRC=[["","Any source"],["nodlc","No paid DLC"],["crates","Crates only"],["easy","Easy crates only"]];   // crates = no story rewards or DLC; easy = Normal, Seasonal, Ocean
+function findAllowed(c,src){
+  if(!src)return true;
+  const[e,k]=easiestSrc(c);
+  if(src==="nodlc")return e<4;
+  if(src==="crates")return k!=="story"&&e<=2;
+  if(src==="easy")return e<=1&&k!=="story";
+  return true;
+}
+function findControls(pre,lvl,maxLvl){
+  const mineOk=OWN.size>=3,FO=Object.assign({pool:mineOk?"mine":"strong",src:""},S.ui.findOpts||{});
+  if(FO.pool==="mine"&&!mineOk)FO.pool="strong";
+  return`<div class="findctl">
+      <div class="seg" id="${pre}_pool" role="group" aria-label="Cards to use">${[["mine",`My cards (${OWN.size})`],["strong","Strong cards"],["all","Every card"]].map(([v,l])=>`<button class="${FO.pool===v?"on":""}" data-p="${v}" ${v==="mine"&&!mineOk?'disabled title="Mark at least 3 cards as yours first"':""}>${l}</button>`).join("")}</div>
+      <select class="select" id="${pre}_src" aria-label="How hard the cards may be to get" title="How hard the cards may be to get">${FIND_SRC.map(([v,l])=>`<option value="${v}" ${FO.src===v?"selected":""}>${l}</option>`).join("")}</select>
+      <label class="small muted row tight" title="Use the level your cards are actually at">Level <select class="select" id="${pre}_lvl">${Array.from({length:maxLvl||20},(_,i)=>i+1).map(x=>`<option ${x===lvl?"selected":""}>${x}</option>`).join("")}</select></label>
+      <span id="${pre}_must"></span>
+      <button class="btn primary" id="${pre}_go">${ic("search")}Search</button>
+    </div>
+    <p class="small faint" id="${pre}_hint" style="margin-top:6px"></p>`;
+}
+function wireFindControls(pre,onGo){
+  const FO=Object.assign({pool:OWN.size>=3?"mine":"strong",src:""},S.ui.findOpts||{});
+  let must=null;
+  const pool=$("#"+pre+"_pool"),hint=$("#"+pre+"_hint");
+  const cur=()=>pool.querySelector(".on").dataset.p;
+  const setHint=()=>{const p=cur();hint.innerHTML=p==="mine"?"Searches teams built only from the cards you marked as yours."
+    :p==="strong"?"Starts from the cards in recommended, ranked and community teams, then keeps the 30 that work best against this fight."
+    :`Screens every card you can get against this fight first, then searches the best 30. Slower, but finds unusual picks.${OWN.size<3?` Tip: <a href="#/cards">mark the cards you own</a> to search only teams you can build.`:""}`;};
+  const paintMust=()=>{$("#"+pre+"_must").innerHTML=must?`<span class="mustchip">${cchip(must)}<button class="xbtn sm" data-mx="1" aria-label="Remove the must-use card">${ic("x")}</button></span>`
+    :`<button class="btn ghost sm" data-mp="1" title="Only show teams that include this card">${ic("plus")}Must use a card</button>`;};
+  $("#"+pre+"_must").addEventListener("click",e=>{
+    if(e.target.closest("[data-mx]")){must=null;paintMust();return;}
+    if(e.target.closest("[data-mp]"))pickCard("Must use this card",id=>{must=id;paintMust();},{mine:cur()==="mine"});});
+  pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));S.ui.findOpts=Object.assign(FO,{pool:b.dataset.p});save();setHint();});
+  $("#"+pre+"_src").addEventListener("change",e=>{S.ui.findOpts=Object.assign(FO,{src:e.target.value});save();});
+  $("#"+pre+"_go").addEventListener("click",()=>onGo({pool:cur(),src:$("#"+pre+"_src").value,must,lvl:+$("#"+pre+"_lvl").value}));
+  setHint();paintMust();
+}
 function searchCard(ch,diff,lvl){
   const mineOk=OWN.size>=3;
   return`<div class="card" id="srch">
     <div class="card_head"><div><h3>Find a team yourself</h3>
       <div class="card_sub">Tries thousands of team setups against this exact fight, then double-checks the best ones. Takes 10 to 60 seconds depending on your device.</div></div></div>
-    <div class="row">
-      <div class="seg" id="sr_pool"><button class="${mineOk?"on":""}" data-p="mine" ${mineOk?"":"disabled title=\"Mark at least 3 cards as yours first\""}>My cards (${OWN.size})</button><button class="${mineOk?"":"on"}" data-p="strong">Strong popular cards</button></div>
-      <label class="small muted row tight" title="Use the level your cards are actually at">Your card level <select class="select" id="sr_lvl">${Array.from({length:20},(_,i)=>i+1).map(x=>`<option ${x===lvl?"selected":""}>${x}</option>`).join("")}</select></label>
-      <button class="btn primary" id="sr_go">${ic("search")}Search</button>
-    </div>
-    ${mineOk?"":`<p class="small faint" style="margin-top:8px">Tip: <a href="#/cards">mark the cards you own</a> to search only teams you can build.</p>`}
+    ${findControls("sr",lvl,20)}
     <div id="sr_out" style="margin-top:12px"></div>
   </div>`;
 }
 function wireSearch(ch,diff){
-  const pool=$("#sr_pool");if(!pool)return;
-  pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));});
-  $("#sr_go").addEventListener("click",()=>{
-    const p=pool.querySelector(".on").dataset.p;
-    const lvl=Math.min(capOf(ch.id),+$("#sr_lvl").value);
-    teamSearch({ed:chapterDeck(ch.id,diff),pool:p,lvl,out:$("#sr_out"),btn:$("#sr_go"),ctx:{ch:ch.id,diff}});
-  });
+  if(!$("#sr_pool"))return;
+  wireFindControls("sr",o=>teamSearch({ed:chapterDeck(ch.id,diff),pool:o.pool,src:o.src,must:o.must,lvl:Math.min(capOf(ch.id),o.lvl),out:$("#sr_out"),btn:$("#sr_go"),ctx:{ch:ch.id,diff}}));
 }
 
 // =====================================================================================
@@ -2877,7 +2911,24 @@ const STRONG_BASE=[325,275,273,324,372,190,191,412,413,334,285,319,305,170,175,2
  321,217,240,238,239,182,118,117,195,475,24,335,56,423,199,297,299,221,252,213,
  377,653,619,263,390,94,632,634,631,643,633,644,660,420,637,628,484,483,477,459,
  458,457,40,39,241,546,529,540,553,575,379,12,443,253];
-const SUPP_PKGS={pump:[653,660,420,632],pumpTV:[660,420,632,634],heal:[633,644,628,637],mix:[653,633,644,660],tv:[660],none:[]};
+// "Strong cards": everything that shows up in recommended teams, the ranked top teams, community builds, plus a
+// hand-picked base list; the search then screens them against the actual fight
+function strongPool(){
+  const s=new Set(STRONG_BASE);
+  for(const id in REC_USE)s.add(+id);
+  if(RANKED){RANKED.top.forEach(e=>e.t.forEach(id=>s.add(id)));RANKED.popular.forEach(([id])=>s.add(id));}
+  for(const b of BUILDS)(b.leaders||[]).forEach(id=>s.add(+id));
+  return[...s].filter(id=>CARDS[id]);
+}
+// supporter packages built from the allowed cards: the strongest heal / attack / defense pumps and enemy debuffs
+function suppPkgs(allowed){
+  const cand=[...allowed].map(id=>CARDS[id]).filter(c=>c&&suppInfo(c));
+  const best=(f,n)=>cand.filter(c=>f(suppInfo(c))).sort((a,b)=>suppRank(b)-suppRank(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)).slice(0,n).map(c=>c.id);
+  const heal=best(i=>i.up&&i.stat==="health"&&i.side==="ally",4),atk=best(i=>i.up&&i.stat==="attack"&&i.side==="ally",4),
+    def=best(i=>i.up&&i.stat==="defense"&&i.side==="ally",4),deb=best(i=>!i.up&&i.stat==="attack"&&i.side==="enemy",4),dmg=best(i=>!i.up&&i.stat==="health"&&i.side==="enemy",4);
+  const pk=[heal,atk,def,deb,dmg,heal.slice(0,2).concat(atk.slice(0,2)),heal.slice(0,2).concat(deb.slice(0,2)),[]];
+  return[...new Map(pk.map(p=>[p.join(","),p])).values()];
+}
 function groupByPair(list,maxGroups,altsPer){
   const groups=[];let rem=list.slice();
   while(rem.length&&groups.length<maxGroups){
@@ -2890,33 +2941,38 @@ function groupByPair(list,maxGroups,altsPer){
   return groups;
 }
 ACT.cancelSearch=()=>{cancelWork();toast("Search stopped.");};
-async function teamSearch({ed,pool,lvl,out,btn,ctx,mode,baseline}){
+async function teamSearch({ed,pool,src,must,lvl,out,btn,ctx,mode,baseline}){
   const my=GEN;
-  let P=pool==="mine"?[...OWN].filter(id=>CARDS[id]):STRONG_BASE.filter(id=>CARDS[id]&&CARDS[id].crate);
-  const supPool=pool==="mine"?new Set(OWN):null;
-  let pkgs=Object.values(SUPP_PKGS).map(p=>supPool?p.filter(id=>supPool.has(id)):p.filter(id=>CARDS[id]&&CARDS[id].crate));
-  if(supPool){   // add a package of the player's own best-looking pumps/heals
-    const mine=[...OWN].filter(id=>CARDS[id]&&CARDS[id].stext&&/gains|heal|HP/i.test(CARDS[id].stext)).slice(0,4);
-    if(mine.length)pkgs.push(mine);
-  }
-  pkgs=[...new Map(pkgs.map(p=>[p.join(","),p])).values()];
+  if(pool==="strong")await loadRanked();
+  // cards you could have: not unobtainable, allowed by the source option, and (in a chapter) no story reward from this chapter or later
+  const can=id=>{const c=CARDS[id];return c&&(pool==="mine"||(!unobtainable(c)&&findAllowed(c,src)))&&!(ctx&&ctx.ch&&rewardLate([id],ctx.ch));};
+  const allowed=new Set((pool==="mine"?[...OWN]:Object.keys(CARDS).map(Number)).filter(can));
+  let P=(pool==="mine"?[...OWN]:pool==="strong"?strongPool():Object.keys(CARDS).map(Number)).filter(id=>allowed.has(id));
+  if(must!=null){P=P.filter(id=>id!==must);if(!CARDS[must]){must=null;}}
+  const pkgs=suppPkgs(allowed);
   btn.disabled=true;
   const prog=(label,f)=>{out.innerHTML=`<div class="row between"><div class="small muted row tight"><span class="spin"></span>${label}</div><button class="btn xs ghost" data-act="cancelSearch">Stop</button></div><div class="progress" style="margin-top:8px"><i style="width:${Math.round(f*100)}%"></i></div>`;};
   try{
     let base=null;
     if(baseline){prog("Checking your current team first...",0);const r=await runJobs([{k:0,pd:baseline,seed:4242,n:250}],{ed},null,mode);base=mode==="pvp"?(r[0].w+r[0].d*.5)/r[0].n:r[0].w/r[0].n;}
-    if(P.length>30){   // screen: each card in random trios, keep the 30 that do best
-      prog(`Screening ${P.length} cards...`,0);
-      const rng=mulberry32(12345),jobs=[];
-      for(const c of P)for(let r=0;r<10;r++){const a=P[Math.floor(rng()*P.length)],b=P[Math.floor(rng()*P.length)];if(a===c||b===c||a===b)continue;jobs.push({k:c,ids:[c,a,b],supp:[660].filter(id=>!supPool||supPool.has(id)),lvl,seed:31+r*997,n:4});}
-      const res=await runJobs(jobs,{ed},(d,t)=>prog(`Screening ${P.length} cards...`,d/t*.25),mode);
-      const sc={};for(const r of res){sc[r.k]=(sc[r.k]||0)+r.w/r.n;}
-      P=P.sort((a,b)=>(sc[b]||0)-(sc[a]||0)).slice(0,30);
-    }
-    if(P.length<3){out.innerHTML=`<div class="callout">You need at least 3 cards to search.</div>`;return;}
+    const keep=must!=null?40:30;   // with a must-use card only pairs are searched, so more cards fit
+    const screen=async(list,tries,n,keepN,from,span)=>{   // each card in random trios (with the must-use card when set); keep the best
+      const rng=mulberry32(12345+list.length),jobs=[],sp=pkgs[0]||[];
+      for(const c of list)for(let r=0;r<tries;r++){const a=must!=null?must:list[Math.floor(rng()*list.length)],b=list[Math.floor(rng()*list.length)];if(a===c||b===c||a===b)continue;
+        jobs.push({k:c,ids:[c,a,b],supp:sp.filter(id=>id!==c&&id!==a&&id!==b),lvl,seed:31+r*997,n});}
+      const res=await runJobs(jobs,{ed},(d,t)=>prog(`Screening ${list.length} cards...`,from+d/t*span),mode);
+      const sc={};for(const r of res)sc[r.k]=(sc[r.k]||0)+(r.w+(mode==="pvp"?r.d*.5:0))/r.n;
+      return list.slice().sort((a,b)=>(sc[b]||0)-(sc[a]||0)).slice(0,keepN);
+    };
+    if(P.length>120)P=await screen(P,6,3,90,0,.12);
+    if(P.length>keep)P=await screen(P,10,4,keep,.12,.13);
+    if(GEN!==my)return;
+    if(P.length<(must!=null?2:3)){out.innerHTML=`<div class="callout">Not enough cards to search with these options. ${pool==="mine"?"Mark more cards as yours, or":"Try"} a wider source option.</div>`;return;}
     const jobs=[];let k=0;
-    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)for(let m=j+1;m<P.length;m++){
-      const team=[P[i],P[j],P[m]];
+    const trios=[];
+    if(must!=null){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)trios.push([must,P[i],P[j]]);}
+    else for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)for(let m=j+1;m<P.length;m++)trios.push([P[i],P[j],P[m]]);
+    for(const team of trios){
       const use=teamDraws(team)?pkgs:[[]];   // supporters can't matter if no leader draws them
       for(const pk of use)jobs.push({k:k++,team,ids:team,supp:pk.filter(id=>!team.includes(id)),lvl,seed:5,n:8});
     }
@@ -2926,7 +2982,7 @@ async function teamSearch({ed,pool,lvl,out,btn,ctx,mode,baseline}){
     const scored=coarse.map(r=>({team:byK[r.k].team,supp:byK[r.k].supp,wr:(r.w+(mode==="pvp"?r.d*.5:0))/r.n})).sort((a,b)=>b.wr-a.wr);
     const seen=new Set(),uniq=[];
     for(const r of scored){if(r.wr<=0)break;const key=r.team.slice().sort((a,b)=>a-b).join(",");if(seen.has(key))continue;seen.add(key);uniq.push(r);if(uniq.length>=300)break;}
-    if(!uniq.length){out.innerHTML=`<div class="callout warn"><b>Nothing won in the quick pass.</b> This fight is very hard for these cards${pool==="mine"?". Try \"Strong popular cards\" to see what would work":""}, or raise the card level.</div>`;return;}
+    if(!uniq.length){out.innerHTML=`<div class="callout warn"><b>Nothing won in the quick pass.</b> This fight is very hard for these cards${pool==="mine"?". Try \"Strong cards\" or \"Every card\" to see what would work":pool==="strong"?". Try \"Every card\" for unusual picks":""}, or raise the card level.</div>`;return;}
     const val=[],vs=new Set();
     for(const g of groupByPair(uniq,10,5))for(const r of g.members){const key=r.team.slice().sort((a,b)=>a-b).join(",");if(!vs.has(key)){vs.add(key);val.push(r);}}
     const vjobs=val.map((r,i)=>({k:i,ids:r.team,supp:r.supp,lvl,seed:(1+Math.floor(Math.random()*2e9))>>>0,n:250}));
@@ -2935,7 +2991,7 @@ async function teamSearch({ed,pool,lvl,out,btn,ctx,mode,baseline}){
     const res=rankTeams(fin.map(r=>({...val[r.k],wr:mode==="pvp"?(r.w+r.d*.5)/r.n:r.w/r.n})).sort((a,b)=>b.wr-a.wr));
     const groups=groupByPair(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,lead:g.pair,alts:g.members.slice(1)}));
     out.innerHTML=`${base!=null?`<div class="callout ${groups[0]&&groups[0].wr>base+.02?"good":""}" style="margin-bottom:10px">Your current team: <b>${pct(base)}</b>. ${groups[0]&&groups[0].wr>base+.02?`The best team below wins ${pct(groups[0].wr)}.`:"Nothing found clearly beats it."}</div>`:""}
-      <div class="small muted" style="margin-bottom:8px">Best teams found at level ${lvl}${pool==="mine"?" from your cards":""}${mode==="pvp"?" (a draw counts as half a win)":""}:</div>
+      <div class="small muted" style="margin-bottom:8px">Best teams found at level ${lvl}${pool==="mine"?" from your cards":pool==="all"?" from every card":""}${must!=null?` with ${esc(shortName(CARDS[must]))}`:""}${src?` (${esc(FIND_SRC.find(x=>x[0]===src)[1].toLowerCase())})`:""}${mode==="pvp"?" (a draw counts as half a win)":""}:</div>
       <div class="stack">${groups.map((t,i)=>teamRowHtml(t,{best:i===0,ch:ctx&&ctx.ch,diff:ctx&&ctx.diff,lvl})).join("")}</div>`;
   }catch(e){out.innerHTML=e==="cancelled"?`<div class="small faint">Search stopped.</div>`:`<div class="callout warn">The search stopped: ${esc(e&&e.message||e)}</div>`;}
   finally{btn.disabled=false;}
@@ -3203,17 +3259,12 @@ ACT.openFight=el=>{S.opp.kind="chapter";S.opp.ch=el.dataset.ch;S.opp.diff=el.dat
   runSim().then(()=>{const r=$("#result_panel");if(r)r.scrollIntoView({behavior:"smooth",block:"start"});});};
 ACT.findBest=el=>{
   const {out}=toolStart(el);
-  const mineOk=OWN.size>=3;
   const ready=S.team.leaders.every(x=>x!=null);
   const lv=ready?Math.round(S.team.leaders.reduce((a,id)=>a+(S.team.levels[id]||10),0)/3):10;
   out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">Uses the opponent selected above. Takes 10 to 60 seconds depending on your device.</div></div></div>
-    <div class="row"><div class="seg" id="fb_pool"><button class="${mineOk?"on":""}" data-p="mine" ${mineOk?"":"disabled"}>My cards (${OWN.size})</button><button class="${mineOk?"":"on"}" data-p="strong">Strong popular cards</button></div>
-    <label class="small muted row tight" title="Use the level your cards are actually at">Your card level <select class="select" id="fb_lvl">${Array.from({length:20},(_,i)=>i+1).map(x=>`<option ${x===lv?"selected":""}>${x}</option>`).join("")}</select></label>
-    <button class="btn primary" id="fb_go">${ic("search")}Search</button></div><div id="fb_out" style="margin-top:12px"></div></div>`;
-  const pool=$("#fb_pool");
-  pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));});
-  $("#fb_go").onclick=()=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:pool.querySelector(".on").dataset.p,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,+$("#fb_lvl").value),out:$("#fb_out"),btn:$("#fb_go"),
-    ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});};
+    ${findControls("fb",lv,20)}<div id="fb_out" style="margin-top:12px"></div></div>`;
+  wireFindControls("fb",o=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:o.pool,src:o.src,must:o.must,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
+    ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});});
   showOut(out);
 };
 const META_TEAMS=[
@@ -4389,6 +4440,7 @@ const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
   `<b>Cards: Leaders / Supporters switch.</b> Each mode shows only the filters that matter for it. <b>Supporters</b> filters by what the supporter ability does (grants or lowers, which stat, teammate or enemy, which leader it picks), sorts the strongest first (helpful effects before harmful ones) or shows the <b>best card per effect</b>. The filter area takes about half the space it did on phones. A name search that other filters hide now tells you which filters.`,
   `<b>Simulator: the supporter picker</b> has the same supporter filters and sorts the strongest first. Role and element filters are gone there, since they only matter for leaders. It remembers your choice.`,
+  `<b>Better team finder</b> (chapter pages and the simulator). Choose <b>My cards</b>, <b>Strong cards</b> (now built from recommended, ranked and community teams, including Season 2 cards and story rewards you already have by that chapter) or <b>Every card</b> (screens every card against the fight first). New options: how hard the cards may be to get (no paid DLC, crates only, easy crates only) and a <b>must use</b> card. Supporter packages are now picked from the strongest heals, attack boosts and enemy debuffs available. Your choices are remembered.`,
   `<b>"Clear all my cards" now asks first</b>, so one stray tap can't wipe your marked cards.`,
   `<b>PvP check now fights real ranked teams.</b> Instead of a hand-picked list at level 10, it now fights the 30 best teams of the ranked top 100 at their real levels. The team stats page uses the same teams.`,
 ]],["2026-10-06 · Game update Beta v184",[
