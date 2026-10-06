@@ -354,6 +354,8 @@ details.adv>.in{padding:0 16px 16px}
 :root[data-theme="light"] .modeseg button.on{background:var(--acc);color:var(--accink)}
 @media(max-width:700px){.bulkbar{padding:10px 12px;gap:8px}.bulkbar .btn.sm{padding:6px 10px;font-size:13px}}
 .pk_sf{flex-wrap:wrap}
+.btn .badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--acc);color:var(--accink);font-size:11px;font-weight:900;margin-left:2px}
+.btn .badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--acc);color:var(--accink);font-size:11px;font-weight:900;margin-left:2px}
 .findctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.findctl .select{max-width:100%}
 .mustchip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:12px;padding-right:2px;background:var(--surface2)}
 .xbtn.sm{width:30px;height:30px}
@@ -1923,6 +1925,12 @@ function loadState(){
   if(!s.team||!Array.isArray(s.team.leaders))s.team=base.team;
   if(!s.team.levels)s.team.levels={};
   if(!Array.isArray(s.team.supp))s.team.supp=[];
+  // drop card ids this version doesn't know (old saves, removed cards), so no panel can break on them
+  const clean=t=>{if(!t||!Array.isArray(t.leaders))return null;t.leaders=t.leaders.slice(0,3).map(x=>CARDS[x]?x:null);while(t.leaders.length<3)t.leaders.push(null);
+    t.supp=(Array.isArray(t.supp)?t.supp:[]).filter(x=>CARDS[x]).slice(0,4);if(!t.levels||typeof t.levels!=="object")t.levels={};return t;};
+  clean(s.team);if(!clean(s.opp.pvp))s.opp.pvp=base.opp.pvp;
+  for(const n in s.saved||{})if(!clean(s.saved[n]))delete s.saved[n];
+  for(const k in s.opp.suppOv){s.opp.suppOv[k]=(s.opp.suppOv[k]||[]).filter(x=>CARDS[x]);if(!s.opp.suppOv[k].length)delete s.opp.suppOv[k];}
   return s;
 }
 const S=loadState();
@@ -2054,6 +2062,7 @@ function abilitiesHtml(c,lvl){
 }
 function walkEff(a,f){if(!a)return;f(a.effect||"");const p=a.params||{};for(const e of p.effects||[])walkEff(e,f);if(p.then)walkEff(p.then,f);if(p.else)walkEff(p.else,f);for(const e of p.choices||[])walkEff(e,f);}
 function drawsSupporters(id){let y=false;for(const a of(CARDS[id]||ALLC[id]||{}).abilities||[])walkEff(a,e=>{if(/draw/.test(e))y=true;});return y;}
+const cardsN=n=>`${n} card${n===1?"":"s"}`;
 const teamDraws=ids=>ids.some(id=>id!=null&&drawsSupporters(id));
 
 // =====================================================================================
@@ -2324,6 +2333,8 @@ function route(){
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
+// keyboard: non-button elements that act like buttons (role="button") react to Enter and Space
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches('[role="button"][data-act]:not(button):not(a)')){e.preventDefault();e.target.click();}});
 window.addEventListener("storage",e=>{if(e.key!==LS_KEY||!e.newValue)return;
   try{const n=JSON.parse(e.newValue);for(const k in n)S[k]=n[k];OWN.clear();(S.owned||[]).forEach(id=>CARDS[id]&&OWN.add(id));renderTeamPill();}catch(err){}});
 
@@ -2352,17 +2363,17 @@ function teamAdd(id,role,t=S.team){
   if(role==="L"&&t===S.team&&S.ownLv[id])t.levels[id]=S.ownLv[id];   // your real level, if you imported it
   save();renderTeamPill();return true;
 }
-function setTeam(lead,supp,lvl){
+function setTeam(lead,supp,lvl,lvArr){   // lvArr: exact level per leader (wins over everything)
   if(S.team.leaders.some(x=>x!=null)&&sigOf(S.team)!==sigOf({leaders:lead,supp:supp||[]}))LAST_UNDO=snapshotTeam();
   S.team={leaders:[lead[0]??null,lead[1]??null,lead[2]??null],supp:(supp||[]).filter(id=>CARDS[id]&&!lead.includes(id)).slice(0,4),levels:{}};
-  for(const id of lead)if(id!=null)S.team.levels[id]=S.ownLv[id]||lvl||10;   // imported levels win over the rated level
+  lead.forEach((id,i)=>{if(id!=null)S.team.levels[id]=(lvArr&&lvArr[i])||S.ownLv[id]||lvl||10;});   // imported levels win over the rated level
   save();renderTeamPill();
 }
 let LAST_UNDO=null;
 ACT.useTeam=el=>{   // load a team (+ optional chapter) into the simulator and run the matching check
   const j=J(el);if(!j)return;
   LAST_UNDO=null;
-  setTeam(j.team,j.supp,j.lvl);
+  setTeam(j.team,j.supp,j.lvl,j.lv);
   if(j.ch){S.opp.kind="chapter";S.opp.ch=j.ch;S.opp.diff=j.diff||"hard";save();}
   if(j.season){S.ui.evalSeason=j.season;save();}
   AUTO_RUN=j.auto||"sim";
@@ -2376,6 +2387,7 @@ ACT.useTeam=el=>{   // load a team (+ optional chapter) into the simulator and r
 };
 ACT.fightTeam=el=>{
   const j=J(el);if(!j)return;
+  j.team=(j.team||[]).map(id=>CARDS[id]?id:null);j.supp=(j.supp||[]).filter(id=>CARDS[id]);
   S.opp.kind="pvp";S.opp.pvp={leaders:[j.team[0]??null,j.team[1]??null,j.team[2]??null],supp:(j.supp||[]).slice(0,4),levels:j.lv?Object.fromEntries(j.team.map((id,i)=>[id,j.lv[i]])):{}};
   save();
   if(PAGE==="team"){renderOppPanel();renderAdvanced();clearResult(true);if(S.team.leaders.every(x=>x!=null))runSim();else{const op=$("#opp_panel");if(op)op.scrollIntoView({behavior:"smooth",block:"start"});}}
@@ -2500,7 +2512,7 @@ function pickCard(title,onPick,o={}){
         ${o.supp?"":`<select class="select" id="pk_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option>${r}</option>`).join("")}</select>`}
         <select class="select" id="pk_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.filter(k=>k!=="limited").map(k=>`<option value="${k}">${SRC[k][0]}</option>`).join("")}</select>
       </div>
-      ${PS?`<div class="row tight pk_sf">${suppSelects(PS,"pk_")}<select class="select" id="pk_sort" aria-label="Sort"><option value="amt" ${PS.sort==="amt"?"selected":""}>Strongest first</option><option value="rec" ${PS.sort==="rec"?"selected":""}>Most recommended first</option></select></div>`
+      ${PS?`<div class="row tight pk_sf">${suppSelects(PS,"pk_")}<select class="select" id="pk_sort" aria-label="Sort"><option value="amt" ${PS.sort==="amt"?"selected":""}>Strongest first</option><option value="rec" ${PS.sort==="rec"?"selected":""}>Most used in recommended teams</option></select></div>`
         :o.only?"":`<div class="small faint">Cards that show up most in recommended teams come first.</div>`}
     </div>
     <div class="modal_body"><div class="cgrid" id="pk_grid"></div><div id="pk_more" style="text-align:center;margin-top:12px"></div></div>
@@ -2522,8 +2534,8 @@ function pickCard(title,onPick,o={}){
       if(PS&&!o.only&&!suppPass(c,PS))return false;
       return true;});
     if(o.only){r.sort((a,b)=>o.only.indexOf(a.id)-o.only.indexOf(b.id));return r;}
-    if(PS&&PS.sort==="amt"){r.sort((a,b)=>suppRank(b)-suppRank(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
-    const use=c=>(REC_USE[c.id]||0)+(o.supp?(c.stext&&!/^the (highest|lowest)-\w+ enemy/.test(c.stext)?0.5:0):0);
+    if(PS&&PS.sort==="amt"){r.sort((a,b)=>suppRank(b)-suppRank(a)||(REC_SUPP[b.id]||0)-(REC_SUPP[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
+    const use=c=>o.supp?(REC_SUPP[c.id]||0)+(c.stext&&!/^the (highest|lowest)-\w+ enemy/.test(c.stext)?0.5:0):(REC_USE[c.id]||0);
     r.sort((a,b)=>(use(b)-use(a))||shortName(a).localeCompare(shortName(b)));
     return r;
   }
@@ -2533,7 +2545,7 @@ function pickCard(title,onPick,o={}){
     if(!r.length){grid.innerHTML="";more.innerHTML=emptyState("search","No cards found",st.mine?"Nothing in your cards matches. Turn off \"Only my cards\" to search everything.":PS&&suppActive(PS)?"No supporter matches these supporter filters. Try \"Any\" on one of them.":"Try a different name or filter.");return;}
     grid.innerHTML=r.slice(0,st.limit).map(c=>`<button type="button" class="ctile ${OWN.has(c.id)?"owned":""}" data-pick="${c.id}">
       ${av(c.id)}<div class="body"><div class="nm">${esc(shortName(c))}</div>
-      <div class="meta">${elTag(c)}${o.supp?"":roleTags(c.id,2)}${REC_USE[c.id]?`<span class="tag acc">Recommended</span>`:""}</div>
+      <div class="meta">${o.supp?"":elTag(c)+roleTags(c.id,2)}${(o.supp?REC_SUPP[c.id]:REC_USE[c.id])?`<span class="tag acc">Recommended</span>`:""}</div>
       ${o.supp?`<div class="desc sdesc">${suppLine(c)}</div>`:`<div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div>`}</div></button>`).join("");
     more.innerHTML=r.length>st.limit?`<button class="btn sm" id="pk_mb">Show more (${r.length-st.limit} left)</button>`:"";
     const mb=more.querySelector("#pk_mb");if(mb)mb.onclick=()=>{st.limit+=120;renderGrid();};
@@ -2696,7 +2708,7 @@ function wideCard(){
     <p class="small muted" style="margin-top:0">No team clears every chapter. These are different teams, so if you lack a card, try the next one, and use the chapter's own team for its weak spots.</p>
     <div class="stack">${top.map((w,i)=>{const sp=teamDraws(w.team)?w.supp:[];const weak=weakOf(w);return`<div class="teamrow ${i===0?"best":""}">
       <div class="members">${w.team.map(id=>cchip(id,{own:true})).join("")}</div>
-      <div style="min-width:150px"><div style="font-weight:900">Clears ${w.clears} of 21</div><div class="small faint">average EXTREME win ${pct(w.mean)}</div></div>
+      <div style="min-width:150px"><div style="font-weight:900">Clears ${w.clears} of ${(CH_BY_SEASON[1]||[]).length}</div><div class="small faint">average EXTREME win ${pct(w.mean)}</div></div>
       <div class="acts"><button class="btn sm" data-act="useTeam" data-j="${jattr({team:w.team,supp:sp,lvl:10,auto:"eval"})}">${ic("play")}Try it</button></div>
       <div class="supps" style="width:100%">${sp.length?`Supporters: ${sp.map(id=>cchip(id)).join("")}`:"No supporters needed"} ${teamEaseTags(w.team.concat(sp))}</div>
       ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.map(([c,v])=>`<a href="${chHref(c)}">${chName(CHM[c])}</a> ${pill(v)}`).join(" ")}</div>`:""}
@@ -2744,7 +2756,7 @@ function renderFoes(ch,diff){
         <div class="small muted" style="margin-top:4px">Attacks ${STYLE[c.style]||"an enemy"}.</div>
         ${abilitiesHtml(c)}
       </div></div>`;}).join("")}</div>
-    ${sp&&sp.length?`<details class="adv" style="margin-top:12px"><summary>The enemy also has ${sp.length} supporters</summary><div class="in">
+    ${sp&&sp.length?`<details class="adv" style="margin-top:12px"><summary>The enemy also has ${sp.length} supporter${sp.length===1?"":"s"}</summary><div class="in">
       <p class="small muted">${spDraw?"An enemy here draws supporters, so these do come into play.":"No enemy here draws supporters, so these never come into play."}</p>
       <div class="stack" style="gap:6px">${sp.map(id=>{const c=CARDS[id]||ALLC[id],t=c&&storySuppText(c,diff);return`<div class="row tight" style="flex-wrap:nowrap">${cchip(id)}<span class="small muted">${t?esc(capFirst(t)):"No supporter ability here"}</span></div>`;}).join("")}</div></div></details>`:""}
   </div>`;
@@ -2764,7 +2776,7 @@ function suppBox(supp,wr,wrNs){
   const drop=wrNs!=null&&wr!=null&&wr-wrNs>=.03;
   const missTag=id=>{const alt=sameSupp(id).find(x=>OWN.has(x)),nm=esc(shortName(CARDS[id]||ALLC[id]));
     return alt?`<span class="tag good" title="${esc(shortName(CARDS[alt]))} has exactly the same supporter ability">Instead of ${nm}: your ${esc(shortName(CARDS[alt]))}</span>`
-      :`<span class="tag bad">You don't own ${nm}${sameSupp(id).length?` (${sameSupp(id).length} other card${sameSupp(id).length===1?"":"s"} do the same)`:""}</span>`;};
+      :`<span class="tag bad">You don't own ${nm}${sameSupp(id).length?` (${sameSupp(id).length} other card${sameSupp(id).length===1?" does":"s do"} the same)`:""}</span>`;};
   return`<div class="suppbox"><b>${supp.length>1?`Supporters (use all ${supp.length})`:"Supporter"}:</b> ${supp.map(id=>cchip(id,{own:true})).join("")}
     ${miss.map(missTag).join(" ")}
     ${drop?`<span class="small" title="Same team with no supporters in the deck">Without ${supp.length>1?"them":"it"}: <b class="w_${winInfo(wrNs).cls}">${pct(wrNs)}</b></span>`:""}</div>`;
@@ -2783,7 +2795,7 @@ function teamRowHtml(t,o){
     </div>
     <div class="supps" style="width:100%">${supp.length?suppBox(supp,t.wr,t.wr_ns):`<span title="None of these leaders draw supporters, so supporters would never come into play">No supporters needed</span>`}
       <span class="spacer"></span>${lvTag(t.min,t.wr,t)} ${myLvTag(t.team,t.min,t.wr,t)} ${teamEaseTags(t.team.concat(supp))} ${rewardTags(t.team.concat(supp))}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
-    ${t.alts&&t.alts.length&&third!=null?`<details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Missing ${esc(shortName(ALLC[third]))}? ${t.alts.length} other card${t.alts.length>1?"s":""} work in its place</summary>
+    ${t.alts&&t.alts.length&&third!=null?`<details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Missing ${esc(shortName(ALLC[third]))}? ${t.alts.length} other card${t.alts.length>1?"s work":" works"} in its place</summary>
       <div class="altlist">${t.alts.map(a=>{const x=a.team.find(id=>!t.lead.includes(id));const asupp=teamDraws(a.team)?(a.supp||[]):[];
         return`<span class="row tight" style="gap:4px">${cchip(x,{own:true})}${pill(a.wr)}${a.min_level&&a.wr>=.5?`<span class="tag" title="lowest working level${lowLvText(a)?". Wins "+lowLvText(a):""}">${a.min_level<=1?"any level":`Lv ${a.min_level}+`}</span>`:""}${sameSupp(a)?"":`<span class="tag" title="Uses these supporters: ${esc(asupp.map(id=>shortName(CARDS[id])).join(", ")||"none")}">other supporters</span>`}<button class="btn xs" data-act="useTeam" data-j="${jattr({team:a.team,supp:asupp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">Use</button></span>`;}).join("")}</div></details>`:""}
   </div>`;
@@ -3038,11 +3050,12 @@ function pageTeam(){
   const auto=AUTO_RUN;AUTO_RUN=false;
   if(auto&&auto!=="none")setTimeout(()=>{
     if(auto==="eval")ACT.evalAll($('[data-act="evalAll"]'));
-    else if(auto==="pvp"&&S.team.supp.length===4)ACT.pvpCheck($('[data-act="pvpCheck"]'));
+    else if(auto==="pvp"){if(S.team.supp.length===4)ACT.pvpCheck($('[data-act="pvpCheck"]'));else toast("PvP check needs exactly 4 supporters. Fill the supporter slots, then run it from More with this team.");}
     else runSim();
   },60);
 }
 function slotHtml(t,id,role,idx,side){
+  if(id!=null&&!CARDS[id])id=null;   // unknown card: show the slot as empty instead of breaking the panel
   if(id==null)return`<div class="slot empty" role="button" tabindex="0" data-act="pickSlot" data-side="${side}" data-r="${role}">${ic("plus",'width="18" height="18"')} ${role==="L"?"Add a leader":"Add a supporter"}</div>`;
   const c=CARDS[id],lvl=t.levels[id]||10;
   const line=role==="L"?((c.atext||[])[0]||"No abilities"):(c.stext?("Supporter: "+c.stext):"No supporter ability, does nothing when drawn");
@@ -3088,7 +3101,7 @@ ACT.pickSlot=el=>{
   pickCard(role==="L"?(side==="opp"?"Choose an opponent leader":"Choose a leader"):"Choose a supporter",id=>{
     if(teamAdd(id,role,t)){save();side==="opp"?renderOppPanel():renderTeamPanel();clearResult();}
   },{exclude:ex,supp:role==="S",mine:side==="opp"?false:undefined,
-     hint:role==="S"?"Only the supporter ability matters here. It fires when one of your leaders draws this card.":(side==="you"&&OWN.size<3?'Tip: mark the cards you own on the <a href="#/cards">Cards page</a> to filter this list.':"")});
+     hint:role==="S"?(side==="opp"?"Only the supporter ability matters here. It fires when one of the opponent's leaders draws this card.":"Only the supporter ability matters here. It fires when one of your leaders draws this card."):(side==="you"&&OWN.size<3?'Tip: mark the cards you own on the <a href="#/cards">Cards page</a> to filter this list.':"")});
 };
 ACT.suppSwap=el=>{
   const t=S.team,i=+el.dataset.i,id=t.supp[i];if(id==null)return;
@@ -3325,7 +3338,9 @@ ACT.pvpCheck=async el=>{
   if(t.supp.length!==4){toast("Ranked uses exactly 4 supporters. Fill all 4 supporter slots first.");return;}
   const {out,live}=toolStart(el),pd=playerDeck(t),stamp=sigLv(t);
   out.innerHTML=`<div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the ranked teams...</div></div>`;showOut(out);
-  const FIELD=await pvpField();if(!live())return;
+  let FIELD;try{FIELD=await pvpField();}catch(e){FIELD=null;}
+  if(!live())return;
+  if(!FIELD||!FIELD.length){out.innerHTML=`<div class="callout warn">The ranked teams couldn't be loaded. Try again in a moment.</div>`;return;}
   const jobs=FIELD.map((m,i)=>({k:i,ed:m.ed,seed:99,n:200}));
   out.innerHTML=`<div class="card"><div class="small muted row tight"><span class="spin"></span>Fighting ${jobs.length} teams...${stopBtn()}</div><div class="progress" style="margin-top:8px"><i id="pv_pr"></i></div></div>`;
   showOut(out);
@@ -3484,7 +3499,7 @@ function importPreview(box,res,src){
     const useLv=$("#imp_lv")?$("#imp_lv").checked:false;
     if(useLv)S.ownLv=mode==="replace"?Object.assign({},res.lv):Object.assign({},S.ownLv,res.lv);
     save();closeAll();renderTeamPill();if(PAGE==="cards")pageCards([]);else route();
-    toast(`${OWN.size} cards marked as yours${useLv?", with levels":""}.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));S.ownLv=lvBefore;save();route();});
+    toast(`${cardsN(OWN.size)} marked as yours${useLv?", with levels":""}.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));S.ownLv=lvBefore;save();route();});
   };
 }
 ACT.importSave=()=>{
@@ -3509,7 +3524,6 @@ ACT.importSave=()=>{
   el.querySelector("#imp_file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importPreview(box,parseSave(String(r.result)),f.name);r.readAsText(f);};
   let tt=null;el.querySelector("#imp_txt").addEventListener("input",e=>{clearTimeout(tt);tt=setTimeout(()=>{const v=e.target.value.trim();if(v)importPreview(box,parseSave(v),null);},250);});
 };
-ACT.closeLayer=()=>closeLayer();
 ACT.shareMine=()=>{
   if(!OWN.size)return toast("Mark some cards first.");
   const url=location.origin+location.pathname+"#/mycards/"+encodeMine();
@@ -3549,6 +3563,11 @@ const REC_USE={};
 for(const chId in REC){const r=REC[chId];for(const e of[r,r&&r.normal]){if(!e)continue;
   const teams=(e.cores&&e.cores.length)?e.cores.flatMap(c=>c.alts):(e.team?[e]:[]);
   for(const t of teams){const ids=(t.team||[]).concat(teamDraws(t.team||[])?(t.supp||[]):[]);for(const id of ids)REC_USE[id]=(REC_USE[id]||0)+1;}}}
+// how often a card is used AS A SUPPORTER in recommended teams (only teams with a leader that draws count)
+const REC_SUPP={};
+for(const chId in REC){const r=REC[chId];for(const e of[r,r&&r.normal]){if(!e)continue;
+  const teams=(e.cores&&e.cores.length)?e.cores.flatMap(c=>c.alts):(e.team?[e]:[]);
+  for(const t of teams)if(teamDraws(t.team||[]))for(const id of t.supp||[])REC_SUPP[id]=(REC_SUPP[id]||0)+1;}}
 let CF_BULK=null;
 // supporter abilities are "raise/lower one stat of a picked leader": parse them so Cards can filter and sort by effect
 const SPICK={lowest_hp:"Lowest health",highest_hp:"Highest health",lowest_atk:"Lowest attack",highest_atk:"Highest attack",lowest_def:"Lowest defense",highest_def:"Highest defense",fastest:"Fastest",slowest:"Slowest"};
@@ -3573,11 +3592,6 @@ function suppKeyLabel(k){
   if(side==="enemy")return`${up?"Raise":"Lower"} an enemy's ${stat}`;
   return`${up?"Raise":"Lower"} anyone's ${stat} (either side)`;
 }
-function suppEffectOptions(sel){
-  const keys=new Set();for(const id in CARDS){const i=suppInfo(CARDS[id]);if(i)keys.add(i.key);}
-  return`<option value="">Any effect</option>`+SUPP_GROUPS.map(([g,f])=>{const ks=[...keys].filter(f).sort((a,b)=>suppKeyLabel(a).localeCompare(suppKeyLabel(b)));
-    return ks.length?`<optgroup label="${g}">${ks.map(k=>`<option value="${esc(k)}" ${sel===k?"selected":""}>${esc(suppKeyLabel(k))}</option>`).join("")}</optgroup>`:"";}).join("");
-}
 // "strongest": helpful effects first, then the amount compared with the best card that has the same effect
 // (speed amounts run 10-50, health 1-6, so raw numbers can't be compared across stats)
 const SUPP_MAX={};for(const id in CARDS){const i=suppInfo(CARDS[id]);if(i)SUPP_MAX[i.key]=Math.max(SUPP_MAX[i.key]||0,i.amt);}
@@ -3594,7 +3608,7 @@ function suppSelects(F,pre){   // the supporter ability filters: grants or lower
 function suppPass(c,F){
   if(!suppActive(F))return true;
   const i=suppInfo(c);if(!i)return false;
-  if(F.sdir&&(i.stat===""||(F.sdir==="up")!==i.up))return false;
+  if(F.sdir&&(F.sdir==="up")!==i.up)return false;   // status supporters (e.g. Lucky on all allies) count as grants
   if(F.sstat&&(F.sstat==="other"?i.stat!=="":i.stat!==F.sstat))return false;
   if(F.sside&&i.side!==F.sside)return false;
   if(F.spick&&i.pick!==F.spick)return false;
@@ -3620,7 +3634,7 @@ function pageCards(args){
   const srcSel=`<select class="select" id="cf_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.map(k=>`<option value="${k}" ${F.src===k?"selected":""}>${SRC[k][0]}</option>`).join("")}</select>`;
   const rarSel=`<select class="select" id="cf_rar"><option value="">Any rarity</option>${RAR_ORDER.map(r=>`<option value="${r}" ${F.rar===r?"selected":""}>${RAR[r]}</option>`).join("")}</select>`;
   const unobBox=`<label style="justify-content:flex-end"><span class="check" title="Cards from past events or with no known source"><input type="checkbox" id="cf_unob" ${F.unob?"checked":""}> Show cards you can't get</span></label>`;
-  const SORTS=SUP?[["amt","Strongest first"],["group","Best per effect"],["rec","Most recommended first"],["name","Name"],["id","Newest first"]]
+  const SORTS=SUP?[["amt","Strongest first"],["group","Best per effect"],["rec","Most used in recommended teams"],["name","Name"],["id","Newest first"]]
     :[["rec","Most recommended first"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["id","Newest first"]];
   const sortKey=SUP?"ssort":"sort";
   $("#view").innerHTML=`<div class="fadein">
@@ -3632,7 +3646,7 @@ function pageCards(args){
       ${SUP?suppSelects(F,"cf_")
         :`<select class="select" id="cf_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option ${F.role===r?"selected":""}>${r}</option>`).join("")}</select>${srcSel}`}
       <select class="select" id="cf_sort" aria-label="Sort">${SORTS.map(([v,l])=>`<option value="${v}" ${F[sortKey]===v?"selected":""}>${l}</option>`).join("")}</select>
-      <button class="btn sm ${F.more?"":"ghost"}" id="cf_morebtn">${ic("filter")}More filters</button>
+      <button class="btn sm ${F.more?"":"ghost"}" id="cf_morebtn">${ic("filter")}More filters${(()=>{const n=(SUP?[F.src,F.rar,F.unob]:[F.trig,F.eff,F.st,F.rar,F.apex,F.unob,F.lvl!==10]).filter(Boolean).length;return n?` <span class="badge">${n}</span>`:"";})()}</button>
     </div>
     ${SUP?"":`<div class="row tight" id="cf_els" style="margin-bottom:14px"></div>`}
     <div class="morefilters" id="cf_more" style="${F.more?"":"display:none"}">
@@ -3652,6 +3666,9 @@ function pageCards(args){
     <div id="cf_moreload" style="text-align:center;margin-top:16px"></div>
   </div>`;
   if(!SUP)["trig","eff","st"].forEach(k=>{const s=$("#cf_"+k);if(s)s.value=F[k]||"";});
+  // a saved value the dropdown doesn't offer (older version, renamed option) would filter invisibly: drop it
+  for(const k of["own","role","src","rar","trig","eff","st","sort","ssort",...SUPP_KEYS]){const el=$("#cf_"+(k==="ssort"?"sort":k));
+    if(el&&el.tagName==="SELECT"&&(k!=="ssort"||SUP)&&(k!=="sort"||!SUP)&&F[k]&&el.value!==String(F[k])){F[k]=k==="own"?"all":k==="sort"?"rec":k==="ssort"?"amt":"";el.value=F[k];}}
   const els=$("#cf_els");
   const renderEls=()=>{if(!els)return;els.innerHTML=`<button class="chip click ${F.el===""?"on":""}" data-e="">All elements</button>`+ELN.map((n,i)=>`<button class="chip click ${F.el===String(i)?"on":""}" data-e="${i}" title="${esc(elHint(i))}"><span class="elname el${i}">${n}</span></button>`).join("");};
   if(els)els.onclick=e=>{const b=e.target.closest("[data-e]");if(!b)return;F.el=b.dataset.e;renderEls();refresh();};
@@ -3677,8 +3694,8 @@ function pageCards(args){
     if(SUP){const A=c=>suppInfo(c).amt,k=F.ssort;
       if(k==="name")r.sort((a,b)=>shortName(a).localeCompare(shortName(b)));
       else if(k==="id")r.sort((a,b)=>b.id-a.id);
-      else if(k==="rec")r.sort((a,b)=>(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||A(b)-A(a));
-      else r.sort((a,b)=>suppRank(b)-suppRank(a)||(OWN.has(b.id)-OWN.has(a.id))||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));
+      else if(k==="rec")r.sort((a,b)=>(REC_SUPP[b.id]||0)-(REC_SUPP[a.id]||0)||A(b)-A(a));
+      else r.sort((a,b)=>suppRank(b)-suppRank(a)||(OWN.has(b.id)-OWN.has(a.id))||(REC_SUPP[b.id]||0)-(REC_SUPP[a.id]||0)||shortName(a).localeCompare(shortName(b)));
       return r;}
     const key={name:c=>shortName(c).toLowerCase(),id:c=>-c.id,rec:c=>-(REC_USE[c.id]||0)*1e4+c.id}[F.sort];
     if(key)r.sort((a,b)=>{const x=key(a),y=key(b);return x<y?-1:x>y?1:0;});
@@ -3703,9 +3720,9 @@ function pageCards(args){
   }
   function activeFilters(){
     const a=[];if(F.own!=="all")a.push(F.own==="mine"?"My cards":"Cards I'm missing");if(F.src)a.push("source ("+SRC[F.src][0]+")");if(F.rar)a.push("rarity");
-    if(SUP){a.push("Supporters mode (cards without a supporter ability)");if(suppActive(F))a.push("supporter filters");}
+    if(SUP&&suppActive(F))a.push("supporter filters");
     else{if(F.role)a.push("role");if(F.el!=="")a.push("element");if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.apex)a.push("Apex only");}
-    if(!F.unob)a.push("cards you can't get are hidden");return a;
+    return a;   // (unobtainable cards are never hidden from a name search)
   }
   function paint(){
     if(SUP&&F.ssort==="group"&&cur.length){paintGroups();return;}
@@ -3713,7 +3730,7 @@ function pageCards(args){
     grid.innerHTML=cur.slice(0,limit).map(tile).join("")||"";
     const q=F.q.toLowerCase(),named=!cur.length&&q?Object.values(CARDS).filter(c=>nameHit(c,q)).length:0;
     if(named){grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","Hidden by your filters",`${named} card${named===1?" matches":"s match"} "${esc(F.q)}", but other filters hide ${named===1?"it":"them"}: ${activeFilters().join(", ")}.`,`<button class="btn" id="cf_keepq">Clear the other filters</button>`)}</div>`;
-      $("#cf_keepq").onclick=()=>{S.ui.cardsFilters={q:F.q,unob:true,more:F.more};save();pageCards([]);};}
+      $("#cf_keepq").onclick=()=>{S.ui.cardsFilters={q:F.q,unob:true,more:F.more,view:F.view};save();pageCards([]);};}
     else if(!cur.length)grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","No cards match",F.own==="mine"&&!OWN.size?"You haven't marked any cards yet. Switch to \"All cards\", then tap the check on cards you own.":"Try fewer filters.")}</div>`;
     moreload.innerHTML=cur.length>limit?`<button class="btn" id="cf_mb">Show more (${cur.length-limit} left)</button>`:"";
     const mb=$("#cf_mb");if(mb)mb.onclick=()=>{limit+=150;paint();};
@@ -3740,7 +3757,7 @@ function pageCards(args){
   function bulk(){
     const el=$("#cf_bulk");if(!el)return;
     const mine=cur.filter(c=>OWN.has(c.id)).length,n=cur.length;
-    el.innerHTML=`<div class="row tight" style="flex:1;min-width:0"><b>${OWN.size}</b>&nbsp;<span class="muted">cards marked as yours${Object.keys(S.ownLv).length?" (levels imported)":""}</span></div>
+    el.innerHTML=`<div class="row tight" style="flex:1;min-width:0"><b>${OWN.size}</b>&nbsp;<span class="muted">card${OWN.size===1?"":"s"} marked as yours${Object.keys(S.ownLv).length?" (levels imported)":""}</span></div>
       <div class="row tight">
         <button class="btn sm primary" data-act="importSave">${ic("download")}Import from game</button>
         ${n&&mine<n&&F.own!=="mine"?`<button class="btn sm" id="cf_markall">${ic("check")}Mark all ${n} shown</button>`:""}
@@ -3749,9 +3766,9 @@ function pageCards(args){
         ${OWN.size?`<button class="btn sm ghost" data-act="shareMine">${ic("copy")}Share my cards</button>`:""}
       </div>`;
     const ma=$("#cf_markall");if(ma)ma.onclick=()=>{const before=new Set(OWN);cur.forEach(c=>OWN.add(c.id));save();$("#owncount").textContent=OWN.size;paint();bulk();
-      toast(`${OWN.size-before.size} cards marked as yours.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));save();refresh();});};
+      toast(`${cardsN(OWN.size-before.size)} marked as yours.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));save();refresh();});};
     const um=$("#cf_unmark");if(um)um.onclick=()=>{const before=new Set(OWN);cur.forEach(c=>OWN.delete(c.id));save();$("#owncount").textContent=OWN.size;refresh();
-      toast(`${before.size-OWN.size} cards unmarked.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));save();refresh();});};
+      toast(`${cardsN(before.size-OWN.size)} unmarked.`,()=>{OWN.clear();before.forEach(x=>OWN.add(x));save();refresh();});};
     $("#cf_markmode").onclick=()=>{MARK_MODE=!MARK_MODE;bulk();toast(MARK_MODE?"Tap any card to mark or unmark it. Turn this off to open cards again.":"Tapping a card opens it again.");};
   }
   CF_BULK=bulk;
@@ -3763,10 +3780,10 @@ function pageCards(args){
   else{bind("#cf_role","role");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex","change",x=>x.checked);}
   $("#cf_view").onclick=e=>{const b=e.target.closest("[data-v]");if(!b||b.dataset.v===F.view)return;F.view=b.dataset.v;S.ui.cardsFilters=F;save();pageCards([]);};
   $("#cf_morebtn").onclick=()=>{F.more=!F.more;$("#cf_more").style.display=F.more?"":"none";$("#cf_morebtn").classList.toggle("ghost",!F.more);S.ui.cardsFilters=F;save();};
-  $("#cf_clearmine").onclick=()=>{if(!OWN.size)return;if(!confirm(`Clear all ${OWN.size} cards marked as yours${Object.keys(S.ownLv).length?" and their imported levels":""}?`))return;const before=new Set(OWN),lv=S.ownLv;OWN.clear();S.ownLv={};save();$("#owncount").textContent=0;refresh();
-    toast(`Cleared ${before.size} cards.`,()=>{before.forEach(x=>OWN.add(x));S.ownLv=lv;save();refresh();});};
+  $("#cf_clearmine").onclick=()=>{if(!OWN.size)return;if(!confirm(`Clear all ${cardsN(OWN.size)} marked as yours${Object.keys(S.ownLv).length?" and their imported levels":""}?`))return;const before=new Set(OWN),lv=S.ownLv;OWN.clear();S.ownLv={};save();$("#owncount").textContent=0;refresh();
+    toast(`Cleared ${cardsN(before.size)}.`,()=>{before.forEach(x=>OWN.add(x));S.ownLv=lv;save();refresh();});};
   $("#cf_reset").onclick=()=>{S.ui.cardsFilters={more:true,view:F.view};save();pageCards([]);};
-  grid.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".ctile"))openCard(+e.target.dataset.card);});
+  grid.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".ctile")){e.preventDefault();e.target.click();}});
   renderEls();refresh();
   if(args&&args[0]==="import")setTimeout(()=>ACT.importSave(),50);
 }
@@ -3853,13 +3870,19 @@ function teamsSwitch(cur){
 let RANKED=null,rankedReq=null;
 function loadRanked(){
   if(!rankedReq)rankedReq=fetch("ranked.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{
-    if(j&&Array.isArray(j.top)){j.top=j.top.filter(e=>e.t.every(id=>CARDS[id])&&e.s.every(id=>CARDS[id]));RANKED=j;}
-    return RANKED;}).catch(()=>null);
+    if(j&&Array.isArray(j.top)){j.top=j.top.filter(e=>Array.isArray(e.t)&&Array.isArray(e.s)&&Array.isArray(e.lv)&&e.t.every(id=>CARDS[id])&&e.s.every(id=>CARDS[id]));
+      if(!Array.isArray(j.popular))j.popular=[];if(!j.cut)j.cut={};RANKED=j;}
+    if(!RANKED)rankedReq=null;   // a failed load is retried next time
+    return RANKED;}).catch(()=>{rankedReq=null;return null;});
   return rankedReq;
 }
 const rankedLv=e=>Object.fromEntries(e.t.map((id,i)=>[id,e.lv[i]]));
 const rankedDeck=e=>playerDeck({leaders:e.t,supp:e.s,levels:rankedLv(e)});
 const teamName=t=>t.map(id=>shortName(CARDS[id])).join(" + ");
+// a ranked team a player could copy: 3 different leaders and no developer-only card (Linguine (DEV), only the
+// developer's account can own it: skin_manager.is_dev_skin). Past-event cards are fine: players who have them can use them.
+const DEV_ONLY=new Set([686]);
+const rankedBuildable=e=>new Set(e.t).size===3&&!e.t.concat(e.s).some(id=>DEV_ONLY.has(id));
 function agoText(ts){
   const m=Math.max(0,Math.round((Date.now()/1000-ts)/60));
   if(m<60)return m<=1?"just now":`${m} minutes ago`;
@@ -3869,7 +3892,7 @@ function agoText(ts){
 // the opponents PvP check fights: the 30 best distinct teams of the ranked board (real levels), or the old list
 async function pvpField(){
   const R=await loadRanked();
-  if(!R||!R.top.length)return META_TEAMS.map(m=>({n:m.n,t:m.t,s:pad4(m.s,m.t),ed:deckIds({ids:m.t,supp:pad4(m.s,m.t),lvl:10})}));
+  if(!R||!R.top.length)return META_TEAMS.map(m=>{const sp=pad4(m.s,m.t);return{n:m.n,t:m.t,s:sp,ed:playerDeck({leaders:m.t,supp:sp,levels:Object.fromEntries(m.t.map(id=>[id,10]))})};});
   const seen=new Set(),out=[];
   for(const e of R.top){const k=e.t.join()+"|"+e.lv.join()+"|"+e.s.join();if(seen.has(k))continue;seen.add(k);
     out.push({n:teamName(e.t),t:e.t,s:e.s,lv:e.lv,rank:e.r,ed:rankedDeck(e)});if(out.length>=30)break;}
@@ -3896,11 +3919,11 @@ function pageRanked(){
         ${R.top.map(e=>`<tr><td class="rk_n">${e.r}</td><td class="rk_rt">${e.rating.toLocaleString()}</td>
           <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}<span class="rk_lv${e.lv[i]<20?" lo":""}" title="Level ${e.lv[i]}">Lv ${e.lv[i]}</span></span>`).join("")}</div></td>
           <td><div class="rk_supp">${e.s.map(id=>`<button type="button" class="cc bare" data-card="${id}" title="${esc(dname(CARDS[id]))}">${av(id,"sm")}</button>`).join("")}</div></td>
-          <td><div class="rk_btns"><button class="btn xs primary" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (level 20) and run the PvP check">${ic("play")}Try it</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
+          <td><div class="rk_btns">${rankedBuildable(e)?`<button class="btn xs primary" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (your imported levels, else level 20) and run the PvP check">${ic("play")}Try it</button>`:`<span class="tag bad" title="Uses the developer-only card or the same leader more than once">Can't be built</span>`}<button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
         </tbody></table></div></div>`;
   });
 }
-ACT.rankedCheck=()=>{AUTO_RUN="pvp";go("#/team");if(S.team.supp.length!==4)setTimeout(()=>toast("PvP check needs a full team with 4 supporters."),300);};
+ACT.rankedCheck=()=>{AUTO_RUN="pvp";go("#/team");};
 function pageTeams(args){
   if(args[0]==="community")return go("#/builds");
   const view=["s1","s2","both"].includes(S.ui.ovView)?S.ui.ovView:"both";
@@ -3981,7 +4004,7 @@ async function pageReport(args){
         <button class="btn sm" id="rp_png" disabled>${ic("download")}Download image</button>
         ${CAN_COPY_IMG?`<button class="btn sm" id="rp_pngc" disabled>${ic("copy")}Copy image</button>`:""}
         <button class="btn sm" id="rp_txt" disabled>${ic("copy")}Copy text</button>
-        <button class="btn sm ghost" data-act="useTeam" data-j="${jattr({team:t.leaders,supp:t.supp,lvl:10,auto:"none"})}">${ic("swords")}Open in simulator</button>
+        <button class="btn sm ghost" data-act="useTeam" data-j="${jattr({team:t.leaders,supp:t.supp,lvl:10,lv:t.leaders.map(id=>(t.levels||{})[id]||10),auto:"none"})}">${ic("swords")}Open in simulator</button>
       </div></div>
     <div id="rp_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Simulating every fight...</div><div class="progress" style="margin-top:8px"><i id="rp_pr"></i></div></div></div></div>`;
   // levels from the code win over imported levels for this team
@@ -3996,12 +4019,12 @@ async function pageReport(args){
     const R={};for(const r of res){const[c,df]=String(r.k).split("|");(R[c]=R[c]||{})[df]=r.w/r.n;}
     let pvp=null;
     if(t.supp.length===4){
-      const FIELD=await pvpField();if(GEN!==my||!$("#rp_body"))return;
+      let FIELD=[];try{FIELD=await pvpField();}catch(e){FIELD=[];}if(GEN!==my||!$("#rp_body"))return;
       const pj=FIELD.map((m,i)=>({k:i,ed:m.ed,seed:99,n:200}));
       const pr=await runJobs(pj,{pd},(a,n)=>{const p=$("#rp_pr");if(p)p.style.width=(80+a/n*20)+"%";},"pvp");
       if(GEN!==my||!$("#rp_body"))return;
       const rows=pr.map(r=>({m:FIELD[r.k],net:(r.w-r.l)/r.n,w:r.w/r.n})).sort((a,b)=>a.net-b.net);
-      pvp={fav:rows.filter(r=>r.net>=.1).length,lose:rows.filter(r=>r.net<=-.1).length,n:rows.length,worst:rows.slice(0,3)};
+      pvp={ranked:!!(FIELD[0]&&FIELD[0].lv),fav:rows.filter(r=>r.net>=.1).length,lose:rows.filter(r=>r.net<=-.1).length,n:rows.length,worst:rows.slice(0,3)};
     }
     REPORT={t,R,pvp,link,date:new Date()};
     renderReport();
@@ -4030,7 +4053,7 @@ function renderReport(){
     <div class="grid g2">${SEASONS.map(sum).join("")}</div>
     ${st.weak.length?`<div class="card"><h3>Toughest fights</h3><div class="supps" style="margin-top:8px">${st.weak.map(x=>`<a href="${chHref(x.c.id)}">Season ${x.c.season||1} ${chName(x.c)} EXTREME</a> ${pill(x.v)}`).join(" ")}</div></div>`
       :`<div class="callout good">This team wins every EXTREME fight at least 95% of the time.</div>`}
-    ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against the ${pvp.n} best teams of the <a href="#/ranked">ranked top 100</a>.
+    ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against ${pvp.ranked?`the ${pvp.n} best teams of the <a href="#/ranked">ranked top 100</a>`:`${pvp.n} popular ranked teams (level 10)`}.
       Worst: ${pvp.worst.map(r=>`${esc(r.m.n)} (${pct(r.w)} wins)`).join(", ")}.</p></div>`:""}
     <p class="small faint">Generated ${date.toLocaleDateString()} on Linguine Sandbox. N = Normal, E = EXTREME. Like the game, Season 1 fights cap card levels at 15. Simulated estimates, the real game's dice differ.</p></div>`;
   $("#rp_png").disabled=false;$("#rp_txt").disabled=false;
@@ -4471,6 +4494,7 @@ const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
   `<b>Cards: Leaders / Supporters switch.</b> Each mode shows only the filters that matter for it. <b>Supporters</b> filters by what the supporter ability does (grants or lowers, which stat, teammate or enemy, which leader it picks), sorts the strongest first (helpful effects before harmful ones) or shows the <b>best card per effect</b>. The filter area takes about half the space it did on phones. A name search that other filters hide now tells you which filters.`,
   `<b>Simulator: the supporter picker</b> has the same supporter filters and sorts the strongest first. Role and element filters are gone there, since they only matter for leaders. It remembers your choice.`,
+  `<b>Fixes from a quality check.</b> PvP check no longer hangs when the ranked teams can't load. Old saved teams with unknown cards can't break the simulator anymore. Ranked "Try it" with fewer than 4 supporters no longer runs a story fight, and the developer-only DEV team is marked as one you can't build. "Most used in recommended teams" for supporters now counts supporter use only. "Grants" + "Statuses" now finds the Lucky supporter. "Open in simulator" from team stats keeps the levels. Filters hidden under More filters show a count on the button. Keyboard Enter/Space works on card tiles and empty team slots. Plural fixes ("1 card").`,
   `<b>Supporter swaps.</b> Many supporters share the exact same ability. Your supporter slots in the simulator now have a <b>swaps</b> button listing those cards (yours first), and when a recommended team uses a supporter you don't own, it names one of yours that does the same.`,
   `<b>Lower levels.</b> "Needs Lv" now shows (on hover) how often the team wins with every card at level 10 and 15, and "Your lowest is Lv X" adds the odds at your level.`,
   `<b>Simulator: Advanced.</b> Enemy supporters now show the four the site computed, and you can change just one of them. Saved teams show their cards, their supporter count and a <b>Fight it</b> button.`,
