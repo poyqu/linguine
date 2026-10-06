@@ -1841,7 +1841,10 @@ window.evalAllChapters=async()=>{
       const ed=opps.map(([id,lvl])=>applyEnemyLevel(Object.assign({},ALLC[id]),lvl,ch.season||1));
       while(ed.length<3)ed.push(null);   // single-boss normal fights: keep supporters out of the leader slots
       const csupp=diff==="hard"?ch.csupp:ch.csupp_normal;
-      for(const sid of csupp)ed.push(Object.assign({},ALLC[sid]));
+      const EASY=[["attack",2,"highest_atk_ally"],["speed",25,"fastest_ally"],["defense",4,"highest_def_ally"],["health",5,"highest_hp_ally"]];
+      for(const sid of csupp){const c=Object.assign({},ALLC[sid]);   // same story rewrite as the single-fight path (story_hub._build_cpu_deck)
+        if(diff==="hard"){if("sx" in c)c.supporter=c.sx;}else{const[stat,amount,target]=EASY[c.id%4];c.supporter={effect:"lose_stat_target",params:{stat,amount,target}};}
+        ed.push(c);}
       fights.push({ch:ch.id,diff,ed});
     }
   }
