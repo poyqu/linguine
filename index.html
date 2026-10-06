@@ -2488,7 +2488,7 @@ const SRC_FILTER=["crate","seasonal","ocean","daily","gold","story","shop","limi
 function roleTags(id,max=2){return rolesOf(id).slice(0,max).map(r=>`<span class="tag info" title="${esc(ROLE_HELP[r]||"")}">${r}</span>`).join("");}
 function pickCard(title,onPick,o={}){
   const st={q:"",el:"",mine:OWN.size>=3&&o.mine!==false,src:"",role:"",unob:false,limit:80};
-  const PS=o.supp?Object.assign({sdir:"",sstat:"",sside:"",spick:"",sort:"amt"},S.ui.pickSupp||{}):null;   // supporter filters, remembered between opens
+  const PS=o.supp&&!o.only?Object.assign({sdir:"",sstat:"",sside:"",spick:"",sort:"amt"},S.ui.pickSupp||{}):null;   // supporter filters, remembered between opens
   const el=openLayer(`<div class="modal" role="dialog" aria-label="${esc(title)}">
     <div class="modal_head">
       <div class="row between"><h3>${esc(title)}</h3><button class="xbtn" data-act="closeLayer" aria-label="Close">${ic("x")}</button></div>
@@ -2500,8 +2500,8 @@ function pickCard(title,onPick,o={}){
         ${o.supp?"":`<select class="select" id="pk_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option>${r}</option>`).join("")}</select>`}
         <select class="select" id="pk_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.filter(k=>k!=="limited").map(k=>`<option value="${k}">${SRC[k][0]}</option>`).join("")}</select>
       </div>
-      ${o.supp?`<div class="row tight pk_sf">${suppSelects(PS,"pk_")}<select class="select" id="pk_sort" aria-label="Sort"><option value="amt" ${PS.sort==="amt"?"selected":""}>Strongest first</option><option value="rec" ${PS.sort==="rec"?"selected":""}>Most recommended first</option></select></div>`
-        :`<div class="small faint">Cards that show up most in recommended teams come first.</div>`}
+      ${PS?`<div class="row tight pk_sf">${suppSelects(PS,"pk_")}<select class="select" id="pk_sort" aria-label="Sort"><option value="amt" ${PS.sort==="amt"?"selected":""}>Strongest first</option><option value="rec" ${PS.sort==="rec"?"selected":""}>Most recommended first</option></select></div>`
+        :o.only?"":`<div class="small faint">Cards that show up most in recommended teams come first.</div>`}
     </div>
     <div class="modal_body"><div class="cgrid" id="pk_grid"></div><div id="pk_more" style="text-align:center;margin-top:12px"></div></div>
   </div>`,"modal");
@@ -2512,14 +2512,16 @@ function pickCard(title,onPick,o={}){
     const q=st.q.toLowerCase();
     let r=Object.values(CARDS).filter(c=>{
       if(o.exclude&&o.exclude.includes(c.id))return false;
+      if(o.only&&!o.only.includes(c.id))return false;
       if(st.mine&&!OWN.has(c.id))return false;
       if(!st.mine&&!q&&unobtainable(c))return false;   // can't-get cards only show up when searched by name
       if(st.el!==""&&c.element!==+st.el)return false;
       if(st.src&&!srcMatch(c,st.src))return false;
       if(st.role&&!rolesOf(c.id).includes(st.role))return false;
       if(q&&!c.name.toLowerCase().includes(q)&&!(c.alias||"").toLowerCase().includes(q)&&String(c.id)!==q)return false;
-      if(PS&&!suppPass(c,PS))return false;
+      if(PS&&!o.only&&!suppPass(c,PS))return false;
       return true;});
+    if(o.only){r.sort((a,b)=>o.only.indexOf(a.id)-o.only.indexOf(b.id));return r;}
     if(PS&&PS.sort==="amt"){r.sort((a,b)=>suppRank(b)-suppRank(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
     const use=c=>(REC_USE[c.id]||0)+(o.supp?(c.stext&&!/^the (highest|lowest)-\w+ enemy/.test(c.stext)?0.5:0):0);
     r.sort((a,b)=>(use(b)-use(a))||shortName(a).localeCompare(shortName(b)));
@@ -2605,19 +2607,24 @@ function rewardTags(ids){
   return[...new Set(ids)].filter(id=>REWARD_FROM[id]&&storyOnly(id)).map(id=>{const[c,d]=REWARD_FROM[id],ch=CHM[c];if(!ch)return"";
     return`<a class="tag acc" href="${chHref(c)}" title="${esc(shortName(CARDS[id]))} is a reward for beating this chapter${d==="hard"?" on EXTREME":""}">${esc(shortName(CARDS[id]))}: Season ${ch.season||1} ${chName(ch)}${d==="hard"?" EXTREME":""}</a>`;}).join(" ");
 }
+// win chance at lower levels: recommended teams were also measured with every card at level 10 and 15
+const lowLvText=t=>t&&(t.wr10!=null||t.wr15!=null)?[[10,t.wr10],[15,t.wr15]].filter(x=>x[1]!=null).map(([l,w])=>`${pct(w)} at level ${l}`).join(", "):"";
 // "Needs Lv X+" label, shown only when the team actually wins
-function lvTag(min,wr){
+function lvTag(min,wr,t){
   if(min==null||(wr!=null&&wr<.5))return"";
-  return min<=1?'<span class="tag info" title="Wins at any card level">Any level</span>':`<span class="tag info" title="The lowest level (all 3 leaders) at which this team still wins about this often">Needs Lv ${min}+</span>`;
+  const low=lowLvText(t);
+  return min<=1?'<span class="tag info" title="Wins at any card level">Any level</span>':`<span class="tag info" title="The lowest level (all 3 leaders) at which this team still wins about this often${low?". It wins "+low:""}">Needs Lv ${min}+</span>`;
 }
 // compares the player's imported card levels with what the team needs
-function myLvTag(team,min,wr){
+function myLvTag(team,min,wr,t){
   if(min==null||(wr!=null&&wr<.5))return"";
   const L=team.map(id=>S.ownLv&&S.ownLv[id]).filter(Boolean);
   if(L.length<team.length)return"";
   const low=Math.min(...L);
-  return low>=min?'<span class="tag good" title="Every leader is at or above the level this team needs">Your levels are enough</span>'
-    :`<span class="tag mid" title="Your lowest leader is below the level this team needs">Your lowest is Lv ${low}</span>`;
+  if(low>=min)return'<span class="tag good" title="Every leader is at or above the level this team needs">Your levels are enough</span>';
+  // the closest measured level at or below yours (level 15 or 10) says roughly how it goes for you
+  const at=t&&low>=15&&t.wr15!=null?[15,t.wr15]:t&&low>=10&&t.wr10!=null?[10,t.wr10]:null;
+  return`<span class="tag mid" title="Your lowest leader is below the level this team needs${at?`. With every card at level ${at[0]} it wins ${pct(at[1])}`:""}">Your lowest is Lv ${low}${at?` (about ${pct(at[1])})`:""}</span>`;
 }
 function recEntry(chId,diff){const r=REC[chId];if(!r)return null;return diff==="normal"?(r.normal||null):r;}
 function recTeams(chId,diff="hard"){
@@ -2627,14 +2634,14 @@ function recTeams(chId,diff="hard"){
     // inside a core, the same rule as between teams: near-best win rate, then lowest level, then easiest to get
     const ranked=rankTeams(c.alts.map(a=>({...a,min:a.min_level,wr:a.wr!=null?a.wr:c.wr})),chId);
     const head=ranked[0];
-    return{team:head.team,supp:head.supp,wr:head.wr,wr_ns:head.wr_ns,min:head.min,lead:c.lead,
+    return{team:head.team,supp:head.supp,wr:head.wr,wr_ns:head.wr_ns,min:head.min,wr10:head.wr10,wr15:head.wr15,lead:c.lead,
       alts:ranked.slice(1).filter(a=>key(a.team)!==key(head.team)&&(a.wr||0)>=(head.wr||0)-.10)};});   // weaker swaps are not real alternatives
   if(!r.team)return[];
-  return[{team:r.team,supp:r.supp||[],wr:r.winrate,wr_ns:r.wr_ns,min:r.min_level,lead:null,alts:[]}];
+  return[{team:r.team,supp:r.supp||[],wr:r.winrate,wr_ns:r.wr_ns,min:r.min_level,wr10:r.wr10,wr15:r.wr15,lead:null,alts:[]}];
 }
 function myTeamFor(chId,diff="hard"){   // best recommended team (or 3rd-card swap) you own; ok = your levels reach its minimum
   if(OWN.size<3)return null;
-  const flat=[];rankTeams(recTeams(chId,diff),chId).forEach(t=>{flat.push(t);(t.alts||[]).forEach(a=>flat.push({team:a.team,supp:a.supp,wr:a.wr,wr_ns:a.wr_ns,min:a.min_level}));});
+  const flat=[];rankTeams(recTeams(chId,diff),chId).forEach(t=>{flat.push(t);(t.alts||[]).forEach(a=>flat.push({team:a.team,supp:a.supp,wr:a.wr,wr_ns:a.wr_ns,min:a.min_level,wr10:a.wr10,wr15:a.wr15}));});
   const hasLv=Object.keys(S.ownLv||{}).length>0;
   const lvOk=t=>{if(!hasLv||t.min==null)return null;const L=t.team.map(id=>S.ownLv[id]);return L.every(Boolean)&&Math.min(...L)>=t.min;};
   const owned=flat.filter(t=>(t.wr||0)>=.9&&t.team.every(id=>OWN.has(id)));
@@ -2744,11 +2751,22 @@ function renderFoes(ch,diff){
 }
 // supporters are part of the recommendation: show them boxed, mark the ones you don't own, and what the team
 // wins without them (wr_ns, from add_nosupp.py) so a missing supporter doesn't look like a wrong prediction
+// cards whose supporter ability is exactly the same (same text = same effect, target and amount):
+// cards you own first, then the easiest to get
+const SAME_SUPP={};for(const id in CARDS){const t=CARDS[id].stext;if(t)(SAME_SUPP[t]=SAME_SUPP[t]||[]).push(+id);}
+function sameSupp(id){
+  const c=CARDS[id];if(!c||!c.stext)return[];
+  return(SAME_SUPP[c.stext]||[]).filter(x=>x!==id&&!unobtainable(CARDS[x]))
+    .sort((a,b)=>(OWN.has(b)-OWN.has(a))||easiestSrc(CARDS[a])[0]-easiestSrc(CARDS[b])[0]||(REC_USE[b]||0)-(REC_USE[a]||0));
+}
 function suppBox(supp,wr,wrNs){
   const miss=OWN.size?supp.filter(id=>!OWN.has(id)):[];
   const drop=wrNs!=null&&wr!=null&&wr-wrNs>=.03;
+  const missTag=id=>{const alt=sameSupp(id).find(x=>OWN.has(x)),nm=esc(shortName(CARDS[id]||ALLC[id]));
+    return alt?`<span class="tag good" title="${esc(shortName(CARDS[alt]))} has exactly the same supporter ability">Instead of ${nm}: your ${esc(shortName(CARDS[alt]))}</span>`
+      :`<span class="tag bad">You don't own ${nm}${sameSupp(id).length?` (${sameSupp(id).length} other card${sameSupp(id).length===1?"":"s"} do the same)`:""}</span>`;};
   return`<div class="suppbox"><b>${supp.length>1?`Supporters (use all ${supp.length})`:"Supporter"}:</b> ${supp.map(id=>cchip(id,{own:true})).join("")}
-    ${miss.length?`<span class="tag bad">You don't own ${esc(miss.map(id=>shortName(CARDS[id]||ALLC[id])).join(" or "))}</span>`:""}
+    ${miss.map(missTag).join(" ")}
     ${drop?`<span class="small" title="Same team with no supporters in the deck">Without ${supp.length>1?"them":"it"}: <b class="w_${winInfo(wrNs).cls}">${pct(wrNs)}</b></span>`:""}</div>`;
 }
 function teamRowHtml(t,o){
@@ -2764,10 +2782,10 @@ function teamRowHtml(t,o){
       <button class="btn sm primary" data-act="useTeam" data-j="${jattr({team:t.team,supp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">${ic("play")}Use</button>
     </div>
     <div class="supps" style="width:100%">${supp.length?suppBox(supp,t.wr,t.wr_ns):`<span title="None of these leaders draw supporters, so supporters would never come into play">No supporters needed</span>`}
-      <span class="spacer"></span>${lvTag(t.min,t.wr)} ${myLvTag(t.team,t.min,t.wr)} ${teamEaseTags(t.team.concat(supp))} ${rewardTags(t.team.concat(supp))}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
+      <span class="spacer"></span>${lvTag(t.min,t.wr,t)} ${myLvTag(t.team,t.min,t.wr,t)} ${teamEaseTags(t.team.concat(supp))} ${rewardTags(t.team.concat(supp))}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
     ${t.alts&&t.alts.length&&third!=null?`<details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Missing ${esc(shortName(ALLC[third]))}? ${t.alts.length} other card${t.alts.length>1?"s":""} work in its place</summary>
       <div class="altlist">${t.alts.map(a=>{const x=a.team.find(id=>!t.lead.includes(id));const asupp=teamDraws(a.team)?(a.supp||[]):[];
-        return`<span class="row tight" style="gap:4px">${cchip(x,{own:true})}${pill(a.wr)}${a.min_level&&a.wr>=.5?`<span class="tag" title="lowest working level">${a.min_level<=1?"any level":`Lv ${a.min_level}+`}</span>`:""}${sameSupp(a)?"":`<span class="tag" title="Uses these supporters: ${esc(asupp.map(id=>shortName(CARDS[id])).join(", ")||"none")}">other supporters</span>`}<button class="btn xs" data-act="useTeam" data-j="${jattr({team:a.team,supp:asupp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">Use</button></span>`;}).join("")}</div></details>`:""}
+        return`<span class="row tight" style="gap:4px">${cchip(x,{own:true})}${pill(a.wr)}${a.min_level&&a.wr>=.5?`<span class="tag" title="lowest working level${lowLvText(a)?". Wins "+lowLvText(a):""}">${a.min_level<=1?"any level":`Lv ${a.min_level}+`}</span>`:""}${sameSupp(a)?"":`<span class="tag" title="Uses these supporters: ${esc(asupp.map(id=>shortName(CARDS[id])).join(", ")||"none")}">other supporters</span>`}<button class="btn xs" data-act="useTeam" data-j="${jattr({team:a.team,supp:asupp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">Use</button></span>`;}).join("")}</div></details>`:""}
   </div>`;
 }
 // within 2 points of the best win rate: teams made of easy-to-get cards first (crate, seasonal, ocean), then the
@@ -2813,7 +2831,7 @@ function renderChapterTeams(ch,diff,lvl){
     // the strongest recommended team (or 3rd-card swap) the player owns, preferring one their levels already reach
     let pickHtml="";
     if(!live&&!onlyMine&&OWN.size>=3){
-      const flat=[];teams.forEach(t=>{flat.push(t);(t.alts||[]).forEach(a=>flat.push({team:a.team,supp:a.supp,wr:a.wr,wr_ns:a.wr_ns,min:a.min_level,lead:t.lead,alts:[]}));});
+      const flat=[];teams.forEach(t=>{flat.push(t);(t.alts||[]).forEach(a=>flat.push({team:a.team,supp:a.supp,wr:a.wr,wr_ns:a.wr_ns,min:a.min_level,wr10:a.wr10,wr15:a.wr15,lead:t.lead,alts:[]}));});
       const owned=flat.filter(t=>t.team.every(id=>OWN.has(id)));
       const lvOk=t=>{const L=t.team.map(id=>S.ownLv&&S.ownLv[id]);return L.every(Boolean)&&t.min!=null&&Math.min(...L)>=t.min;};
       const p=owned.find(lvOk)||owned[0];
@@ -3031,6 +3049,7 @@ function slotHtml(t,id,role,idx,side){
   return`<div class="slot">${av(id)}
     <div class="body"><div class="nm" data-card="${id}">${esc(shortName(c))}</div>
       <div class="small faint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(plainAbility(line))}</div></div>
+    ${role==="S"&&side==="you"&&sameSupp(id).length?`<button class="btn xs ghost" data-act="suppSwap" data-i="${idx}" title="Cards with exactly the same supporter ability">${sameSupp(id).length} swap${sameSupp(id).length===1?"":"s"}</button>`:""}
     ${role==="L"?`<span class="lvl" title="Card level (1 to 20)"><button data-act="lvl" data-side="${side}" data-id="${id}" data-d="-1" aria-label="Lower level">−</button><span>${lvl}<small>LEVEL</small></span><button data-act="lvl" data-side="${side}" data-id="${id}" data-d="1" aria-label="Raise level">+</button></span>`:""}
     <button class="xbtn" data-act="rmSlot" data-side="${side}" data-r="${role}" data-i="${idx}" aria-label="Remove">${ic("x")}</button>
   </div>`;
@@ -3070,6 +3089,11 @@ ACT.pickSlot=el=>{
     if(teamAdd(id,role,t)){save();side==="opp"?renderOppPanel():renderTeamPanel();clearResult();}
   },{exclude:ex,supp:role==="S",mine:side==="opp"?false:undefined,
      hint:role==="S"?"Only the supporter ability matters here. It fires when one of your leaders draws this card.":(side==="you"&&OWN.size<3?'Tip: mark the cards you own on the <a href="#/cards">Cards page</a> to filter this list.':"")});
+};
+ACT.suppSwap=el=>{
+  const t=S.team,i=+el.dataset.i,id=t.supp[i];if(id==null)return;
+  pickCard("Same supporter ability",nid=>{if(t.supp.includes(nid)||t.leaders.includes(nid))return toast("That card is already in your team.");t.supp[i]=nid;save();renderTeamPanel();clearResult();},
+    {supp:true,mine:false,only:sameSupp(id),hint:`These cards do exactly what ${esc(shortName(CARDS[id]))} does as a supporter. Cards you own come first.`});
 };
 ACT.rmSlot=el=>{const t=sideTeam(el.dataset.side),i=+el.dataset.i;if(el.dataset.r==="L")t.leaders[i]=null;else t.supp.splice(i,1);save();renderTeamPill();el.dataset.side==="opp"?renderOppPanel():renderTeamPanel();clearResult();};
 ACT.lvl=el=>{const t=sideTeam(el.dataset.side),id=+el.dataset.id;t.levels[id]=Math.max(1,Math.min(20,(t.levels[id]||10)+(+el.dataset.d)));save();el.dataset.side==="opp"?renderOppPanel():renderTeamPanel();clearResult();};
@@ -3346,8 +3370,10 @@ function renderAdvanced(){
   el.innerHTML=`<div class="grid g2">
     <div class="stack"><h4>Saved teams</h4>
       <div class="row tight"><input class="input" id="sv_name" placeholder="Name this team" style="flex:1"><button class="btn sm" data-act="saveTeam">${ic("save")}Save current</button></div>
-      ${names.length?`<div class="stack" style="gap:6px">${names.map(n=>{const t=S.saved[n];return`<div class="teamrow" style="padding:8px 10px"><b style="min-width:90px">${esc(n)}</b><div class="row tight" style="flex:1">${(t.leaders||[]).map(id=>av(id,"sm")).join("")}</div>
-        <button class="btn xs" data-act="loadSaved" data-n="${esc(n)}">Load</button><button class="btn xs ghost" data-act="delSaved" data-n="${esc(n)}">Delete</button></div>`;}).join("")}</div>`:'<p class="small faint">No saved teams yet.</p>'}
+      ${names.length?`<div class="stack" style="gap:6px">${names.map(n=>{const t=S.saved[n];const L=(t.leaders||[]).filter(id=>CARDS[id]),sp=(t.supp||[]).filter(id=>CARDS[id]);
+        return`<div class="teamrow savedrow" style="padding:8px 10px"><div style="flex:1;min-width:0"><b>${esc(n)}</b>
+          <div class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(L.map(id=>shortName(CARDS[id])).join(" + "))}${sp.length?` <span class="faint">+${sp.length} supporter${sp.length===1?"":"s"}</span>`:""}</div></div>
+        <div class="row tight"><button class="btn xs" data-act="loadSaved" data-n="${esc(n)}">Load</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:L,supp:sp,lv:L.map(id=>(t.levels||{})[id]||10)})}" title="Load it as your opponent">Fight it</button><button class="btn xs ghost" data-act="delSaved" data-n="${esc(n)}">Delete</button></div></div>`;}).join("")}</div>`:'<p class="small faint">No saved teams yet.</p>'}
     </div>
     <div class="stack"><h4>Team code</h4>
       <p class="small muted" style="margin:0">Paste the code from the game's "Copy Team ID" button, or copy your team's code to share it.</p>
@@ -3358,8 +3384,10 @@ function renderAdvanced(){
       <label class="check"><input type="checkbox" id="adv_fixed" ${S.fixedSeed?"checked":""}> Same dice every run (seed <input class="input" id="adv_seed" type="number" value="${S.seed}" style="width:80px;padding:4px 8px">)</label>
       <p class="small faint" style="margin:0">Off: each run uses new random battles, so the number moves a little between runs. That's normal.</p>
       ${S.opp.kind==="chapter"?`<h4 style="margin-top:10px">Enemy supporters</h4><p class="small muted" style="margin:0">The site computes the enemy's 4 supporters from the game's code. If the game shows different ones, set them here.</p>
-        <div class="row tight">${(S.opp.suppOv[S.opp.ch+S.opp.diff]||[]).map(id=>cchip(id)).join("")||'<span class="small faint">Using the computed set.</span>'}</div>
-        <div class="row tight"><button class="btn sm" data-act="suppOv">Choose enemy supporters</button>${(S.opp.suppOv[S.opp.ch+S.opp.diff]||[]).length?'<button class="btn sm ghost" data-act="suppOvClear">Reset</button>':""}</div>`:""}
+        ${(()=>{const ov=S.opp.suppOv[S.opp.ch+S.opp.diff]||[],cur=enemySupp();
+          return`<div class="small faint">${ov.length?"Your choice:":"Computed from the game's code:"}</div>
+          <div class="row tight" style="flex-wrap:wrap">${cur.map((id,i)=>`<span class="mustchip">${cchip(id)}<button class="btn xs ghost" data-act="suppOvOne" data-i="${i}" title="Replace this supporter">Change</button></span>`).join("")}</div>
+          ${ov.length?'<div class="row tight"><button class="btn sm ghost" data-act="suppOvClear">Back to the computed set</button></div>':""}`;})()}`:""}
     </div></div>`;
   $("#adv_n").onchange=e=>{S.simN=+e.target.value;save();renderRunPanel();};
   $("#adv_fixed").onchange=e=>{S.fixedSeed=e.target.checked;save();};
@@ -3375,9 +3403,12 @@ ACT.codeLoad=el=>{const d=parseCode($("#code_in").value);if(!d)return toast("Tha
   save();clearResult();toast("Team code loaded.",undo);};
 ACT.codeCopy=()=>{if(S.team.leaders.filter(x=>x!=null).length<3)return toast("Add 3 leaders first.");const c=buildCode(S.team);$("#code_in").value=c;
   if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast("Code copied."),()=>toast("Copy it from the box."));else toast("Copy it from the box.");};
-ACT.suppOv=()=>{const key=S.opp.ch+S.opp.diff;const cur=[];   // working copy: nothing changes until all 4 are picked
-  const add=()=>pickCard(`Enemy supporter ${cur.length+1} of 4`,id=>{cur.push(id);if(cur.length<4)return add();S.opp.suppOv[key]=cur.slice();save();renderAdvanced();renderOppPanel();clearResult();toast("Enemy supporters set.");},{supp:true,mine:false,exclude:cur,hint:"Pick the 4 supporters the game shows for this enemy. Closing this window keeps the current set."});
-  add();};
+// the enemy supporters in use: your override for this chapter + difficulty, else the computed set
+function enemySupp(){const ch=CHM[S.opp.ch];if(!ch)return[];const ov=S.opp.suppOv[S.opp.ch+S.opp.diff];
+  return(ov&&ov.length?ov:(S.opp.diff==="hard"?ch.csupp:ch.csupp_normal)||[]).slice();}
+ACT.suppOvOne=el=>{const key=S.opp.ch+S.opp.diff,i=+el.dataset.i,cur=enemySupp();
+  pickCard(`Replace enemy supporter ${i+1}`,id=>{cur[i]=id;S.opp.suppOv[key]=cur;save();renderAdvanced();renderOppPanel();clearResult();toast("Enemy supporter changed.");},
+    {supp:true,mine:false,exclude:cur,hint:"Pick the supporter the game shows for this enemy. The other three stay as they are."});};
 ACT.suppOvClear=()=>{delete S.opp.suppOv[S.opp.ch+S.opp.diff];save();renderAdvanced();clearResult();};
 
 // =====================================================================================
@@ -4440,6 +4471,9 @@ const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
   `<b>Cards: Leaders / Supporters switch.</b> Each mode shows only the filters that matter for it. <b>Supporters</b> filters by what the supporter ability does (grants or lowers, which stat, teammate or enemy, which leader it picks), sorts the strongest first (helpful effects before harmful ones) or shows the <b>best card per effect</b>. The filter area takes about half the space it did on phones. A name search that other filters hide now tells you which filters.`,
   `<b>Simulator: the supporter picker</b> has the same supporter filters and sorts the strongest first. Role and element filters are gone there, since they only matter for leaders. It remembers your choice.`,
+  `<b>Supporter swaps.</b> Many supporters share the exact same ability. Your supporter slots in the simulator now have a <b>swaps</b> button listing those cards (yours first), and when a recommended team uses a supporter you don't own, it names one of yours that does the same.`,
+  `<b>Lower levels.</b> "Needs Lv" now shows (on hover) how often the team wins with every card at level 10 and 15, and "Your lowest is Lv X" adds the odds at your level.`,
+  `<b>Simulator: Advanced.</b> Enemy supporters now show the four the site computed, and you can change just one of them. Saved teams show their cards, their supporter count and a <b>Fight it</b> button.`,
   `<b>Better team finder</b> (chapter pages and the simulator). Choose <b>My cards</b>, <b>Strong cards</b> (now built from recommended, ranked and community teams, including Season 2 cards and story rewards you already have by that chapter) or <b>Every card</b> (screens every card against the fight first). New options: how hard the cards may be to get (no paid DLC, crates only, easy crates only) and a <b>must use</b> card. Supporter packages are now picked from the strongest heals, attack boosts and enemy debuffs available. Your choices are remembered.`,
   `<b>"Clear all my cards" now asks first</b>, so one stray tap can't wipe your marked cards.`,
   `<b>PvP check now fights real ranked teams.</b> Instead of a hand-picked list at level 10, it now fights the 30 best teams of the ranked top 100 at their real levels. The team stats page uses the same teams.`,
