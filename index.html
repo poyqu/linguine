@@ -350,7 +350,8 @@ details.adv>.in{padding:0 16px 16px}
 .desc.sdesc{display:flex;gap:6px;align-items:flex-start}
 .samt{flex:none;font-weight:900;font-size:12px;border-radius:6px;padding:0 6px;background:var(--surface2);border:1px solid var(--line);font-variant-numeric:tabular-nums}
 .samt.h_good{background:var(--goodsoft)}.samt.h_bad{background:var(--badsoft)}.samt.h_mixed{background:var(--midsoft)}
-.cgrid.asgroups{display:block}.sgtbl td{vertical-align:middle}
+.cgrid.asgroups{display:block}
+.suppfilters.pk_sf{margin:2px 0 0;padding:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.sgtbl td{vertical-align:middle}
 @media (max-width:600px){.rk_tbl thead{display:none}.rk_tbl tbody tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
 .rk_tbl tbody tr:last-child{border-bottom:0}.rk_tbl td{border:0;padding:0}.rk_tbl td:nth-child(1){grid-area:1/1}.rk_tbl td:nth-child(2){grid-area:1/2}.rk_tbl td:nth-child(5){grid-area:1/3}
 .rk_tbl td:nth-child(3){grid-area:2/1/3/4}.rk_tbl td:nth-child(4){grid-area:3/1/4/4}.rk_team{min-width:0}.rk_supp{grid-template-columns:repeat(4,auto)}.rk_m .cc{flex:0 1 auto}}
@@ -2479,6 +2480,7 @@ const SRC_FILTER=["crate","seasonal","ocean","daily","gold","story","shop","limi
 function roleTags(id,max=2){return rolesOf(id).slice(0,max).map(r=>`<span class="tag info" title="${esc(ROLE_HELP[r]||"")}">${r}</span>`).join("");}
 function pickCard(title,onPick,o={}){
   const st={q:"",el:"",mine:OWN.size>=3&&o.mine!==false,src:"",role:"",unob:false,limit:80};
+  const PS=o.supp?Object.assign({seff:"",spick:"",shelp:"",sort:"rec"},S.ui.pickSupp||{}):null;   // supporter filters, remembered between opens
   const el=openLayer(`<div class="modal" role="dialog" aria-label="${esc(title)}">
     <div class="modal_head">
       <div class="row between"><h3>${esc(title)}</h3><button class="xbtn" data-act="closeLayer" aria-label="Close">${ic("x")}</button></div>
@@ -2490,7 +2492,8 @@ function pickCard(title,onPick,o={}){
         <select class="select" id="pk_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option>${r}</option>`).join("")}</select>
         <select class="select" id="pk_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.filter(k=>k!=="limited").map(k=>`<option value="${k}">${SRC[k][0]}</option>`).join("")}</select>
       </div>
-      <div class="small faint">${o.supp?"Cards most used as supporters in recommended teams come first.":"Cards that show up most in recommended teams come first."}</div>
+      ${o.supp?`<div class="suppfilters pk_sf">${suppFilterFields(PS,"pk_")}<label>Sort<select class="select" id="pk_sort"><option value="rec" ${PS.sort==="rec"?"selected":""}>Most recommended first</option><option value="amt" ${PS.sort==="amt"?"selected":""}>Strongest effect first</option></select></label></div>`
+        :`<div class="small faint">Cards that show up most in recommended teams come first.</div>`}
     </div>
     <div class="modal_body"><div class="cgrid" id="pk_grid"></div><div id="pk_more" style="text-align:center;margin-top:12px"></div></div>
   </div>`,"modal");
@@ -2507,7 +2510,9 @@ function pickCard(title,onPick,o={}){
       if(st.src&&!srcMatch(c,st.src))return false;
       if(st.role&&!rolesOf(c.id).includes(st.role))return false;
       if(q&&!c.name.toLowerCase().includes(q)&&!(c.alias||"").toLowerCase().includes(q)&&String(c.id)!==q)return false;
+      if(PS&&!suppPass(c,PS))return false;
       return true;});
+    if(PS&&PS.sort==="amt"){const A=c=>{const i=suppInfo(c);return i?i.amt:-1;};r.sort((a,b)=>A(b)-A(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
     const use=c=>(REC_USE[c.id]||0)+(o.supp?(c.stext&&!/^the (highest|lowest)-\w+ enemy/.test(c.stext)?0.5:0):0);
     r.sort((a,b)=>(use(b)-use(a))||shortName(a).localeCompare(shortName(b)));
     return r;
@@ -2515,11 +2520,11 @@ function pickCard(title,onPick,o={}){
   const grid=el.querySelector("#pk_grid"),more=el.querySelector("#pk_more");
   function renderGrid(){
     const r=list();
-    if(!r.length){grid.innerHTML="";more.innerHTML=emptyState("search","No cards found",st.mine?"Nothing in your cards matches. Turn off \"Only my cards\" to search everything.":"Try a different name or filter.");return;}
+    if(!r.length){grid.innerHTML="";more.innerHTML=emptyState("search","No cards found",st.mine?"Nothing in your cards matches. Turn off \"Only my cards\" to search everything.":PS&&(PS.seff||PS.spick||PS.shelp)?"No supporter matches these supporter filters. Try \"Any\" on one of them.":"Try a different name or filter.");return;}
     grid.innerHTML=r.slice(0,st.limit).map(c=>`<button type="button" class="ctile ${OWN.has(c.id)?"owned":""}" data-pick="${c.id}">
       ${av(c.id)}<div class="body"><div class="nm">${esc(shortName(c))}</div>
       <div class="meta">${elTag(c)}${o.supp?"":roleTags(c.id,2)}${REC_USE[c.id]?`<span class="tag acc">Recommended</span>`:""}</div>
-      <div class="desc">${o.supp?(c.stext?"Supporter: "+esc(plainAbility(c.stext)):"No supporter ability"):esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div></div></button>`).join("");
+      ${o.supp?`<div class="desc sdesc">${suppLine(c)}</div>`:`<div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div>`}</div></button>`).join("");
     more.innerHTML=r.length>st.limit?`<button class="btn sm" id="pk_mb">Show more (${r.length-st.limit} left)</button>`:"";
     const mb=more.querySelector("#pk_mb");if(mb)mb.onclick=()=>{st.limit+=120;renderGrid();};
   }
@@ -2528,6 +2533,7 @@ function pickCard(title,onPick,o={}){
   el.querySelector("#pk_mine").addEventListener("change",e=>{st.mine=e.target.checked;st.limit=80;renderGrid();});
   el.querySelector("#pk_src").addEventListener("change",e=>{st.src=e.target.value;st.limit=80;renderGrid();});
   el.querySelector("#pk_role").addEventListener("change",e=>{st.role=e.target.value;st.limit=80;renderGrid();});
+  if(PS)for(const k of["seff","spick","shelp","sort"])el.querySelector("#pk_"+k).addEventListener("change",e=>{PS[k]=e.target.value;S.ui.pickSupp=PS;save();st.limit=80;renderGrid();});
   renderEls();renderGrid();
 }
 
@@ -3481,6 +3487,25 @@ function suppKeyLabel(k){
   if(side==="enemy")return`${up?"Raise":"Lower"} an enemy's ${stat}`;
   return`${up?"Raise":"Lower"} anyone's ${stat} (either side)`;
 }
+function suppEffectOptions(sel){
+  const keys=new Set();for(const id in CARDS){const i=suppInfo(CARDS[id]);if(i)keys.add(i.key);}
+  return`<option value="">Any effect</option>`+SUPP_GROUPS.map(([g,f])=>{const ks=[...keys].filter(f).sort((a,b)=>suppKeyLabel(a).localeCompare(suppKeyLabel(b)));
+    return ks.length?`<optgroup label="${g}">${ks.map(k=>`<option value="${esc(k)}" ${sel===k?"selected":""}>${esc(suppKeyLabel(k))}</option>`).join("")}</optgroup>`:"";}).join("");
+}
+function suppFilterFields(F,pre){   // the three supporter selects (ids <pre>seff / <pre>spick / <pre>shelp)
+  return`<label>Supporter effect<select class="select" id="${pre}seff">${suppEffectOptions(F.seff)}</select></label>
+      <label>Which leader it picks<select class="select" id="${pre}spick"><option value="">Any</option>${Object.entries(SPICK).map(([k,l])=>`<option value="${k}" ${F.spick===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label>Good for you?<select class="select" id="${pre}shelp">${[["","Any"],["good","Helps your team"],["mixed","Can hit either side"],["bad","Weakens your team"]].map(([v,l])=>`<option value="${v}" ${F.shelp===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
+}
+function suppPass(c,F){
+  if(!F.seff&&!F.spick&&!F.shelp)return true;
+  const i=suppInfo(c);if(!i)return false;
+  return(!F.seff||i.key===F.seff)&&(!F.spick||i.pick===F.spick)&&(!F.shelp||i.help===F.shelp);
+}
+function suppLine(c){
+  const i=suppInfo(c);
+  return c.stext?`<span class="samt ${i?"h_"+i.help:""}">${i&&i.amt?(i.up?"+":"−")+i.amt:"▸"}</span><span>${esc(plainAbility(capFirst(c.stext)))}</span>`:'<span class="faint">No supporter ability</span>';
+}
 const SUPP_GROUPS=[["Helps your team",k=>/^\+\w+:ally|^-\w+:enemy|^x:/.test(k)],["Can hit either side",k=>/:overall$/.test(k)],["Weakens your team",k=>/^-\w+:ally|^\+\w+:enemy/.test(k)]];
 function pageCards(args){
   const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:"rec",lvl:10,view:"lead",seff:"",spick:"",shelp:"",sgroup:false},S.ui.cardsFilters||{});
@@ -3501,10 +3526,7 @@ function pageCards(args){
       <button class="btn sm ${F.more?"":"ghost"}" id="cf_morebtn">${ic("filter")}More filters</button>
     </div>
     <div class="suppfilters" id="cf_sf" style="${F.view==="lead"?"display:none":""}">
-      <label>Supporter effect<select class="select" id="cf_seff"><option value="">Any effect</option>${(()=>{const keys=new Set();for(const id in CARDS){const i=suppInfo(CARDS[id]);if(i)keys.add(i.key);}
-        return SUPP_GROUPS.map(([g,f])=>{const ks=[...keys].filter(f).sort((a,b)=>suppKeyLabel(a).localeCompare(suppKeyLabel(b)));return ks.length?`<optgroup label="${g}">${ks.map(k=>`<option value="${esc(k)}" ${F.seff===k?"selected":""}>${esc(suppKeyLabel(k))}</option>`).join("")}</optgroup>`:"";}).join("");})()}</select></label>
-      <label>Which leader it picks<select class="select" id="cf_spick"><option value="">Any</option>${Object.entries(SPICK).map(([k,l])=>`<option value="${k}" ${F.spick===k?"selected":""}>${l}</option>`).join("")}</select></label>
-      <label>Good for you?<select class="select" id="cf_shelp">${[["","Any"],["good","Helps your team"],["mixed","Can hit either side"],["bad","Weakens your team"]].map(([v,l])=>`<option value="${v}" ${F.shelp===v?"selected":""}>${l}</option>`).join("")}</select></label>
+      ${suppFilterFields(F,"cf_")}
       <label style="justify-content:flex-end"><button class="btn sm ${F.sgroup?"on":"ghost"}" id="cf_sgroup" aria-pressed="${F.sgroup}">${ic("grid")}Best per effect</button></label>
     </div>
     <div class="row tight" id="cf_els" style="margin-bottom:14px"></div>
@@ -3545,10 +3567,7 @@ function pageCards(args){
       if(q&&!c.name.toLowerCase().includes(q)&&!(c.alias||"").toLowerCase().includes(q)&&String(c.id)!==q)return false;
       if(F.view!=="lead"){const i=suppInfo(c);
         if(F.view==="supp"&&!i)return false;
-        if((F.seff||F.spick||F.shelp)&&!i)return false;
-        if(F.seff&&i.key!==F.seff)return false;
-        if(F.spick&&i.pick!==F.spick)return false;
-        if(F.shelp&&i.help!==F.shelp)return false;}
+        if(!suppPass(c,F))return false;}
       return true;});
     if(F.sort==="amt"&&F.view!=="lead"){const A=c=>{const i=suppInfo(c);return i?i.amt:-1;};
       r.sort((a,b)=>A(b)-A(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
@@ -3567,7 +3586,7 @@ function pageCards(args){
         ${F.view!=="supp"&&rolesOf(c.id).length?`<div class="meta">${roleTags(c.id,2)}</div>`:""}
         <div class="statline" style="font-size:11.5px;gap:8px;${F.view==="supp"?"display:none":""}"><span>HP <b>${lc.hp}</b></span><span>ATK <b>${lc.atk}</b></span><span>DEF <b>${lc.def}</b></span><span>SPD <b>${lc.spd}</b></span></div>
         ${F.view!=="supp"?`<div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div>`:""}
-        ${F.view!=="lead"?`<div class="desc sdesc">${(()=>{const i=suppInfo(c);return c.stext?`<span class="samt ${i?"h_"+i.help:""}">${i&&i.amt?(i.up?"+":"−")+i.amt:"▸"}</span><span>${esc(plainAbility(capFirst(c.stext)))}</span>`:'<span class="faint">No supporter ability</span>';})()}</div>`:""}</div>
+        ${F.view!=="lead"?`<div class="desc sdesc">${suppLine(c)}</div>`:""}</div>
       <button class="ownbtn ${OWN.has(c.id)?"on":""}" data-act="toggleOwn" data-own="${c.id}" data-id="${c.id}" aria-pressed="${OWN.has(c.id)}" title="I own this card" aria-label="I own this card">${ic("check")}</button>
     </div>`;
   }
@@ -4340,6 +4359,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
 const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
   `<b>Cards: supporters.</b> A new <b>Leaders / Supporters / Both</b> switch. In the supporter views you can filter by supporter effect, by which leader it picks and by whether it helps your team, sort by <b>strongest supporter effect</b>, and open <b>Best per effect</b>: every supporter effect once, with the cards that do it best. A name search that other filters hide now tells you which filters.`,
+  `<b>Simulator: the supporter picker</b> has the same supporter filters (effect, which leader it picks, good for you) and can sort by strongest effect. It remembers your choice.`,
   `<b>PvP check now fights real ranked teams.</b> Instead of a hand-picked list at level 10, it now fights the 30 best teams of the ranked top 100 at their real levels. The team stats page uses the same teams.`,
 ]],["2026-10-06 · Game update Beta v184",[
   `<b>Updated for Beta v184.</b> No battle changes in this version.`,
