@@ -336,6 +336,17 @@ details.adv>.in{padding:0 16px 16px}
 .tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:0}
 .tblwrap{overflow-x:auto;max-width:100%}
+.seg{flex-wrap:wrap;max-width:100%}
+.rk_when{font-size:18px;font-weight:900;margin-top:2px}
+.rk_facts{display:flex;gap:8px;flex-wrap:wrap}.rk_facts .fact{padding:7px 11px}.rk_facts .v{font-size:15px}
+.rk_tbl td{vertical-align:top}.rk_n{font-weight:900;color:var(--text3)}.rk_rt{font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk_team{display:flex;flex-direction:column;gap:1px;min-width:190px}.rk_m{display:flex;align-items:center;gap:6px;min-width:0}
+.rk_lv{flex:none;font-size:11px;font-weight:900;padding:1px 6px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);color:var(--text2);white-space:nowrap}.rk_lv.lo{color:var(--text3);border-style:dashed}
+.rk_supp{display:grid;grid-template-columns:repeat(2,auto);gap:2px;justify-content:start}.cc.bare{padding:2px}
+.rk_pop{display:inline-flex;align-items:center;gap:2px;margin-right:6px}
+@media (max-width:600px){.rk_tbl thead{display:none}.rk_tbl tbody tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.rk_tbl tbody tr:last-child{border-bottom:0}.rk_tbl td{border:0;padding:0}.rk_tbl td:nth-child(1){grid-area:1/1}.rk_tbl td:nth-child(2){grid-area:1/2}.rk_tbl td:nth-child(5){grid-area:1/3}
+.rk_tbl td:nth-child(3){grid-area:2/1/3/4}.rk_tbl td:nth-child(4){grid-area:3/1/4/4}.rk_team{min-width:0}.rk_supp{grid-template-columns:repeat(4,auto)}.rk_m .cc{flex:0 1 auto}}
 .heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
 .heat .hc{border-radius:9px;padding:7px 9px;background:var(--surface2);border:1px solid var(--line);font-size:12px;cursor:pointer}
 .heat .hc b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
@@ -2264,7 +2275,7 @@ async function simulate(pd,ed,n,onprog,mode){
 // =====================================================================================
 const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["fishing","Fishing","fish"],["guide","Guide","book"]];
 function renderNav(cur){
-  if(cur==="builds")cur="teams";   // community builds live under Teams
+  if(cur==="builds"||cur==="ranked")cur="teams";   // community builds live under Teams
   if(cur==="report"||cur==="share")cur="team";
   const h=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" title="${l}" aria-label="${l}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
   $("#nav").innerHTML=h;
@@ -2289,7 +2300,7 @@ function route(){
   const p=parts[0]||"";
   cancelWork();closeAll();
   const fn={"":pageHome,story:pageStory,team:pageTeam,cards:pageCards,teams:pageTeams,builds:pageBuilds,guide:pageGuide,mycards:pageMyCards,
-    share:pageReport,report:pageReport,fishing:pageFishing}[p]||pageHome;   // #/share/<code>; #/report/ kept so old links still open
+    share:pageReport,report:pageReport,fishing:pageFishing,ranked:pageRanked}[p]||pageHome;   // #/share/<code>; #/report/ kept so old links still open
   PAGE=p;renderNav(p);renderTeamPill();
   SIM_BUSY=false;TOOL_BUSY=false;
   fn(parts.slice(1));
@@ -2349,7 +2360,7 @@ ACT.useTeam=el=>{   // load a team (+ optional chapter) into the simulator and r
 };
 ACT.fightTeam=el=>{
   const j=J(el);if(!j)return;
-  S.opp.kind="pvp";S.opp.pvp={leaders:[j.team[0]??null,j.team[1]??null,j.team[2]??null],supp:(j.supp||[]).filter(id=>!j.team.includes(id)).slice(0,4),levels:{}};
+  S.opp.kind="pvp";S.opp.pvp={leaders:[j.team[0]??null,j.team[1]??null,j.team[2]??null],supp:(j.supp||[]).slice(0,4),levels:j.lv?Object.fromEntries(j.team.map((id,i)=>[id,j.lv[i]])):{}};
   save();
   if(PAGE==="team"){renderOppPanel();renderAdvanced();clearResult(true);if(S.team.leaders.every(x=>x!=null))runSim();else{const op=$("#opp_panel");if(op)op.scrollIntoView({behavior:"smooth",block:"start"});}}
   else{AUTO_RUN=S.team.leaders.every(x=>x!=null)?"sim":false;go("#/team");}
@@ -3132,7 +3143,7 @@ function renderTools(){   // real buttons, one row each: the cards used to read 
     ${row("evalAll","grid","Check every chapter","Run your team, at your levels, against every story fight and see where it wins.")}
     ${row("findBest","search","Find a better team","Search for the best team against the opponent you picked above.")}
     ${row("shareReport","copy","Share","A page with your team's win rate in every chapter, to send to friends or post.")}
-    ${row("pvpCheck","trophy","PvP check",`Fight ${META_TEAMS.length} popular ranked teams (level 10) and find your worst matchups. Needs 4 supporters.`)}
+    ${row("pvpCheck","trophy","PvP check","Fight the 30 best teams of the ranked leaderboard, at their real levels, and find your worst matchups. Needs 4 supporters.")}
   </div>`;
 }
 ACT.evalAll=async el=>{
@@ -3221,7 +3232,9 @@ ACT.pvpCheck=async el=>{
   if(t.leaders.filter(x=>x!=null).length<3){toast("Add 3 leaders first.");return;}
   if(t.supp.length!==4){toast("Ranked uses exactly 4 supporters. Fill all 4 supporter slots first.");return;}
   const {out,live}=toolStart(el),pd=playerDeck(t),stamp=sigLv(t);
-  const jobs=META_TEAMS.map((m,i)=>({k:i,eids:m.t,esupp:pad4(m.s,m.t),elvl:10,seed:99,n:200}));
+  out.innerHTML=`<div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the ranked teams...</div></div>`;showOut(out);
+  const FIELD=await pvpField();if(!live())return;
+  const jobs=FIELD.map((m,i)=>({k:i,ed:m.ed,seed:99,n:200}));
   out.innerHTML=`<div class="card"><div class="small muted row tight"><span class="spin"></span>Fighting ${jobs.length} teams...${stopBtn()}</div><div class="progress" style="margin-top:8px"><i id="pv_pr"></i></div></div>`;
   showOut(out);
   if(el)el.disabled=true;TOOL_BUSY=true;
@@ -3229,14 +3242,15 @@ ACT.pvpCheck=async el=>{
     const res=await runJobs(jobs,{pd},(d,n)=>{const p=$("#pv_pr");if(p)p.style.width=(d/n*100)+"%";},"pvp");
     if(!live())return;
     if(sigLv(S.team)!==stamp){out.innerHTML=`<div class="callout warn">You changed your team while the check was running, so its results were dropped. Run it again.</div>`;return;}
-    const rows=res.map(r=>({m:META_TEAMS[r.k],p:pct3(r.w,r.l,r.d,r.n),net:(r.w-r.l)/r.n})).sort((a,b)=>a.net-b.net);
+    const rows=res.map(r=>({m:FIELD[r.k],p:pct3(r.w,r.l,r.d,r.n),net:(r.w-r.l)/r.n})).sort((a,b)=>a.net-b.net);
+    const ranked=!!FIELD[0].lv;
     const fav=rows.filter(r=>r.net>=.1).length,lose=rows.filter(r=>r.net<=-.1).length;
     out.innerHTML=`<div class="card fadein"><div class="card_head"><div><h3>PvP check</h3>
-      <div class="card_sub"><b class="w_good">${fav} favorable</b> · <b class="w_mid">${rows.length-fav-lose} even</b> · <b class="w_bad">${lose} losing</b>. Worst matchups first. Opponents are at level 10, and a 30-turn timeout counts as a draw.</div></div></div>
+      <div class="card_sub"><b class="w_good">${fav} favorable</b> · <b class="w_mid">${rows.length-fav-lose} even</b> · <b class="w_bad">${lose} losing</b>. Worst matchups first. ${ranked?`Opponents are the best teams of the <a href="#/ranked">ranked top 100</a> (updated ${agoText(RANKED.ts)}), at their real levels.`:"Opponents are at level 10."} A 30-turn timeout counts as a draw.</div></div></div>
       <div class="tblwrap"><table class="tbl"><thead><tr><th>Opponent</th><th>Win</th><th>Loss</th><th>Draw</th><th></th></tr></thead><tbody>
-      ${rows.map(r=>`<tr><td><div class="row tight">${r.m.t.map(id=>av(id,"sm")).join("")}<span>${esc(r.m.n)}</span></div></td>
+      ${rows.map(r=>`<tr><td><div class="row tight">${r.m.rank?`<span class="faint small">#${r.m.rank}</span>`:""}${r.m.t.map(id=>av(id,"sm")).join("")}<span>${esc(r.m.n)}</span></div></td>
         <td><span class="pctpill w_${winInfo(r.p[0]/100).cls}">${r.p[0]}%</span></td><td class="muted">${r.p[1]}%</td><td class="faint">${r.p[2]}%</td>
-        <td><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:r.m.t,supp:pad4(r.m.s,r.m.t)})}">Fight it</button></td></tr>`).join("")}
+        <td><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:r.m.t,supp:r.m.s,lv:r.m.lv})}">Fight it</button></td></tr>`).join("")}
       </tbody></table></div></div>`;
   }catch(e){if(e!=="cancelled"&&live())out.innerHTML=`<div class="callout warn">${esc(e&&e.message||e)}</div>`;}
   finally{if(el)el.disabled=false;if(live())TOOL_BUSY=false;}
@@ -3622,8 +3636,60 @@ ACT.submitBuild=()=>{
 // =====================================================================================
 const OVR=(DATA.recommended||{}).overall||null;
 function teamsSwitch(cur){
-  return`<div class="seg" style="margin-bottom:14px"><a class="${cur==="best"?"on":""}" href="#/teams" role="button">Best overall</a><a class="${cur==="community"?"on":""}" href="#/builds" role="button">Community builds</a></div>`;
+  return`<div class="seg" style="margin-bottom:14px"><a class="${cur==="best"?"on":""}" href="#/teams" role="button">Best overall</a><a class="${cur==="community"?"on":""}" href="#/builds" role="button">Community builds</a><a class="${cur==="ranked"?"on":""}" href="#/ranked" role="button">Ranked top 100</a></div>`;
 }
+// ---------- ranked top 100 (ranked.json: a snapshot of the game's "Decks" Steam leaderboard, no player names) ----------
+let RANKED=null,rankedReq=null;
+function loadRanked(){
+  if(!rankedReq)rankedReq=fetch("ranked.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{
+    if(j&&Array.isArray(j.top)){j.top=j.top.filter(e=>e.t.every(id=>CARDS[id])&&e.s.every(id=>CARDS[id]));RANKED=j;}
+    return RANKED;}).catch(()=>null);
+  return rankedReq;
+}
+const rankedLv=e=>Object.fromEntries(e.t.map((id,i)=>[id,e.lv[i]]));
+const rankedDeck=e=>playerDeck({leaders:e.t,supp:e.s,levels:rankedLv(e)});
+const teamName=t=>t.map(id=>shortName(CARDS[id])).join(" + ");
+function agoText(ts){
+  const m=Math.max(0,Math.round((Date.now()/1000-ts)/60));
+  if(m<60)return m<=1?"just now":`${m} minutes ago`;
+  const h=Math.round(m/60);if(h<48)return`${h} hour${h===1?"":"s"} ago`;
+  return`${Math.round(h/24)} days ago`;
+}
+// the opponents PvP check fights: the 30 best distinct teams of the ranked board (real levels), or the old list
+async function pvpField(){
+  const R=await loadRanked();
+  if(!R||!R.top.length)return META_TEAMS.map(m=>({n:m.n,t:m.t,s:pad4(m.s,m.t),ed:deckIds({ids:m.t,supp:pad4(m.s,m.t),lvl:10})}));
+  const seen=new Set(),out=[];
+  for(const e of R.top){const k=e.t.join()+"|"+e.lv.join()+"|"+e.s.join();if(seen.has(k))continue;seen.add(k);
+    out.push({n:teamName(e.t),t:e.t,s:e.s,lv:e.lv,rank:e.r,ed:rankedDeck(e)});if(out.length>=30)break;}
+  return out;
+}
+function pageRanked(){
+  $("#view").innerHTML=`<div class="fadein">
+    ${teamsSwitch("ranked")}
+    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's ranked board, with their real levels and supporters. Player names are left out on purpose. Tap <b>Fight it</b> to test your team against one.</p></div></div>
+    <div id="rk_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the leaderboard...</div></div></div></div>`;
+  loadRanked().then(R=>{
+    const el=$("#rk_body");if(!el||PAGE!=="ranked")return;
+    if(!R){el.innerHTML=emptyState("trophy","Leaderboard not available","The ranked snapshot couldn't be loaded. Try again later.","");return;}
+    const when=new Date(R.ts*1000).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+    el.innerHTML=`
+      <div class="rk_upd card"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><div class="small muted">Last updated</div><div class="rk_when">${esc(when)} <span class="muted">(${agoText(R.ts)})</span></div></div>
+        <div class="rk_facts">${[["Ranked teams",R.players.toLocaleString()],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
+        <p class="small faint" style="margin-top:10px">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Ratings are calculated by each player's own game, so a few very high ones may be edited. Teams fight with the levels shown.</p></div>
+      <div class="card" style="margin-top:14px"><div class="card_head"><div><h3>Most used in the top 500</h3></div></div>
+        <div class="row tight" style="flex-wrap:wrap">${R.popular.filter(([id])=>CARDS[id]).slice(0,12).map(([id,n])=>`<span class="rk_pop">${cchip(id)}<span class="faint small">${n}×</span></span>`).join("")}</div></div>
+      <div class="card" style="margin-top:14px"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="small muted">Test your simulator team against the 30 best of these at once:</span><button class="btn sm" data-act="rankedCheck">${ic("trophy")}PvP check</button></div>
+        <div class="tblwrap" style="margin-top:10px"><table class="tbl rk_tbl"><thead><tr><th>#</th><th>Rating</th><th>Team</th><th>Supporters</th><th></th></tr></thead><tbody>
+        ${R.top.map(e=>`<tr><td class="rk_n">${e.r}</td><td class="rk_rt">${e.rating.toLocaleString()}</td>
+          <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}<span class="rk_lv${e.lv[i]<20?" lo":""}" title="Level ${e.lv[i]}">Lv ${e.lv[i]}</span></span>`).join("")}</div></td>
+          <td><div class="rk_supp">${e.s.map(id=>`<button type="button" class="cc bare" data-card="${id}" title="${esc(dname(CARDS[id]))}">${av(id,"sm")}</button>`).join("")}</div></td>
+          <td><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}">Fight it</button></td></tr>`).join("")}
+        </tbody></table></div></div>`;
+  });
+}
+ACT.rankedCheck=()=>{AUTO_RUN="pvp";go("#/team");if(S.team.supp.length!==4)setTimeout(()=>toast("PvP check needs a full team with 4 supporters."),300);};
 function pageTeams(args){
   if(args[0]==="community")return go("#/builds");
   const view=["s1","s2","both"].includes(S.ui.ovView)?S.ui.ovView:"both";
@@ -3695,7 +3761,7 @@ async function pageReport(args){
   const lvTxt=id=>`Lv ${t.levels[id]||10}`;
   const link=location.origin+location.pathname+"#/share/"+buildCode(t);
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Team stats</h1><p>How this team does in every story fight, Normal and EXTREME, in both seasons${t.supp.length===4?", plus a check against popular ranked teams":""}. Each fight is simulated ${REPORT_N} times with fixed dice, so anyone who opens this link sees the same numbers.</p></div></div>
+    <div class="page_head"><div><h1>Team stats</h1><p>How this team does in every story fight, Normal and EXTREME, in both seasons${t.supp.length===4?", plus a check against the top ranked teams":""}. Each fight is simulated ${REPORT_N} times with fixed dice, so anyone who opens this link sees the same numbers.</p></div></div>
     <div class="card" style="margin-bottom:14px">
       <div class="row" style="gap:10px">${t.leaders.map(id=>cchip(id,{own:true,sub:lvTxt(id)})).join("")}</div>
       <div class="supps" style="margin-top:10px">${t.supp.length?`Supporters: ${t.supp.map(id=>cchip(id)).join("")}${teamDraws(t.leaders)?"":` <span class="small faint">(no leader draws cards, so supporters never come into play)</span>`}`:"No supporters"}</div>
@@ -3719,10 +3785,11 @@ async function pageReport(args){
     const R={};for(const r of res){const[c,df]=String(r.k).split("|");(R[c]=R[c]||{})[df]=r.w/r.n;}
     let pvp=null;
     if(t.supp.length===4){
-      const pj=META_TEAMS.map((m,i)=>({k:i,eids:m.t,esupp:pad4(m.s,m.t),elvl:10,seed:99,n:200}));
+      const FIELD=await pvpField();if(GEN!==my||!$("#rp_body"))return;
+      const pj=FIELD.map((m,i)=>({k:i,ed:m.ed,seed:99,n:200}));
       const pr=await runJobs(pj,{pd},(a,n)=>{const p=$("#rp_pr");if(p)p.style.width=(80+a/n*20)+"%";},"pvp");
       if(GEN!==my||!$("#rp_body"))return;
-      const rows=pr.map(r=>({m:META_TEAMS[r.k],net:(r.w-r.l)/r.n,w:r.w/r.n})).sort((a,b)=>a.net-b.net);
+      const rows=pr.map(r=>({m:FIELD[r.k],net:(r.w-r.l)/r.n,w:r.w/r.n})).sort((a,b)=>a.net-b.net);
       pvp={fav:rows.filter(r=>r.net>=.1).length,lose:rows.filter(r=>r.net<=-.1).length,n:rows.length,worst:rows.slice(0,3)};
     }
     REPORT={t,R,pvp,link,date:new Date()};
@@ -3752,7 +3819,7 @@ function renderReport(){
     <div class="grid g2">${SEASONS.map(sum).join("")}</div>
     ${st.weak.length?`<div class="card"><h3>Toughest fights</h3><div class="supps" style="margin-top:8px">${st.weak.map(x=>`<a href="${chHref(x.c.id)}">Season ${x.c.season||1} ${chName(x.c)} EXTREME</a> ${pill(x.v)}`).join(" ")}</div></div>`
       :`<div class="callout good">This team wins every EXTREME fight at least 95% of the time.</div>`}
-    ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against ${pvp.n} popular ranked teams (level 10).
+    ${pvp?`<div class="card"><h3>PvP check</h3><p class="muted" style="margin:6px 0 0"><b class="w_good">${pvp.fav} favorable</b> · <b class="w_mid">${pvp.n-pvp.fav-pvp.lose} even</b> · <b class="w_bad">${pvp.lose} losing</b> against the ${pvp.n} best teams of the <a href="#/ranked">ranked top 100</a>.
       Worst: ${pvp.worst.map(r=>`${esc(r.m.n)} (${pct(r.w)} wins)`).join(", ")}.</p></div>`:""}
     <p class="small faint">Generated ${date.toLocaleDateString()} on Linguine Sandbox. N = Normal, E = EXTREME. Like the game, Season 1 fights cap card levels at 15. Simulated estimates, the real game's dice differ.</p></div>`;
   $("#rp_png").disabled=false;$("#rp_txt").disabled=false;
@@ -3766,7 +3833,7 @@ function reportText(){
   const lines=[`Linguine Sandbox team stats`,`Team: ${t.leaders.map(nm).join(" + ")}${t.supp.length?` | Supporters: ${t.supp.map(id=>shortName(CARDS[id])).join(", ")}`:""}`];
   for(const sn of SEASONS){const o=st[sn];lines.push(`Season ${sn}: EXTREME ${o.hard.clears}/${o.hard.n} won 95%+ (avg ${pct(o.hard.mean)}), Normal ${o.normal.clears}/${o.normal.n} (avg ${pct(o.normal.mean)})`);}
   if(st.weak.length)lines.push(`Toughest: ${st.weak.slice(0,3).map(x=>`S${x.c.season||1} Ch ${chNum(x.c)} EXTREME ${pct(x.v)}`).join(", ")}`);
-  if(pvp)lines.push(`PvP vs ${pvp.n} popular teams: ${pvp.fav} favorable, ${pvp.n-pvp.fav-pvp.lose} even, ${pvp.lose} losing`);
+  if(pvp)lines.push(`PvP vs ${pvp.n} top ranked teams: ${pvp.fav} favorable, ${pvp.n-pvp.fav-pvp.lose} even, ${pvp.lose} losing`);
   lines.push(link);
   return lines.join("\n");
 }
@@ -3830,7 +3897,7 @@ function reportPng(copy){
   if(weak.length){tx("Toughest",pad+6,y+24,FN(900,15),C.t2);let wx=pad+90;
     for(const w of weak){const lb=`S${w.c.season||1} EXTREME ${chNum(w.c)}  ${pct(w.v)}`;wx+=chip(wx,y+4,lb,C[winInfo(w.v).cls])+10;}
     y+=52;}
-  if(pvp){let px=pad;tx("PvP vs "+pvp.n+" popular teams",px+6,y+24,FN(900,15),C.t2);px+=230;
+  if(pvp){let px=pad;tx("PvP vs top "+pvp.n+" ranked teams",px+6,y+24,FN(900,15),C.t2);px+=230;
     px+=chip(px,y+4,`${pvp.fav} favorable`,C.good)+10;px+=chip(px,y+4,`${pvp.n-pvp.fav-pvp.lose} even`,C.mid)+10;chip(px,y+4,`${pvp.lose} losing`,C.bad);y+=52;}
   // legend + footnote
   y=H-pad-6;let lx=pad;
@@ -4189,7 +4256,10 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">The simulator copies the game's battle code rule by rule, and players' real results have lined up with it. It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</p>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-06 · Game update Beta v184",[
+const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
+  `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
+  `<b>PvP check now fights real ranked teams.</b> Instead of a hand-picked list at level 10, it now fights the 30 best teams of the ranked top 100 at their real levels. The team stats page uses the same teams.`,
+]],["2026-10-06 · Game update Beta v184",[
   `<b>Updated for Beta v184.</b> No battle changes in this version.`,
 ]],["2026-10-05 · Game update Beta v183",[
   `<b>Updated for Beta v183.</b> The Blood Of Creation boss (Season 2 Chapter 21) can now only attack everyone every other turn (in between it hits your highest-health leader) and is only immune to Stunned, Paralyzed, Tired and Dizzy for the first 3 turns. The last three Season 2 bosses got a bit weaker and lower levels, Supreme Jack drains 9 health per turn instead of 10, and 4 cards lost a little attack. Every recommended team was re-tested: each EXTREME chapter in both seasons still has one that wins 95% or more. Both seasons and the best overall teams are fully recalculated for v183.`,
