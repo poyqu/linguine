@@ -344,6 +344,7 @@ details.adv>.in{padding:0 16px 16px}
 .rk_lv{flex:none;font-size:11px;font-weight:900;padding:1px 6px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);color:var(--text2);white-space:nowrap}.rk_lv.lo{color:var(--text3);border-style:dashed}
 .rk_supp{display:grid;grid-template-columns:repeat(2,auto);gap:2px;justify-content:start}.cc.bare{padding:2px}
 .rk_pop{display:inline-flex;align-items:center;gap:2px;margin-right:6px}
+.rk_btns{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 @media (max-width:600px){.rk_tbl thead{display:none}.rk_tbl tbody tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
 .rk_tbl tbody tr:last-child{border-bottom:0}.rk_tbl td{border:0;padding:0}.rk_tbl td:nth-child(1){grid-area:1/1}.rk_tbl td:nth-child(2){grid-area:1/2}.rk_tbl td:nth-child(5){grid-area:1/3}
 .rk_tbl td:nth-child(3){grid-area:2/1/3/4}.rk_tbl td:nth-child(4){grid-area:3/1/4/4}.rk_team{min-width:0}.rk_supp{grid-template-columns:repeat(4,auto)}.rk_m .cc{flex:0 1 auto}}
@@ -3667,7 +3668,7 @@ async function pvpField(){
 function pageRanked(){
   $("#view").innerHTML=`<div class="fadein">
     ${teamsSwitch("ranked")}
-    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's ranked board, with their real levels and supporters. Player names are left out on purpose. Tap <b>Fight it</b> to test your team against one.</p></div></div>
+    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's ranked board, with their real levels and supporters. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div></div>
     <div id="rk_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the leaderboard...</div></div></div></div>`;
   loadRanked().then(R=>{
     const el=$("#rk_body");if(!el||PAGE!=="ranked")return;
@@ -3685,7 +3686,7 @@ function pageRanked(){
         ${R.top.map(e=>`<tr><td class="rk_n">${e.r}</td><td class="rk_rt">${e.rating.toLocaleString()}</td>
           <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}<span class="rk_lv${e.lv[i]<20?" lo":""}" title="Level ${e.lv[i]}">Lv ${e.lv[i]}</span></span>`).join("")}</div></td>
           <td><div class="rk_supp">${e.s.map(id=>`<button type="button" class="cc bare" data-card="${id}" title="${esc(dname(CARDS[id]))}">${av(id,"sm")}</button>`).join("")}</div></td>
-          <td><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}">Fight it</button></td></tr>`).join("")}
+          <td><div class="rk_btns"><button class="btn xs primary" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (level 20) and run the PvP check">${ic("play")}Try it</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
         </tbody></table></div></div>`;
   });
 }
