@@ -345,6 +345,12 @@ details.adv>.in{padding:0 16px 16px}
 .rk_supp{display:grid;grid-template-columns:repeat(2,auto);gap:2px;justify-content:start}.cc.bare{padding:2px}
 .rk_pop{display:inline-flex;align-items:center;gap:2px;margin-right:6px}
 .rk_btns{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.suppfilters{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:0 0 14px;padding:12px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface2)}
+.suppfilters label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:var(--text3)}
+.desc.sdesc{display:flex;gap:6px;align-items:flex-start}
+.samt{flex:none;font-weight:900;font-size:12px;border-radius:6px;padding:0 6px;background:var(--surface2);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.samt.h_good{background:var(--goodsoft)}.samt.h_bad{background:var(--badsoft)}.samt.h_mixed{background:var(--midsoft)}
+.cgrid.asgroups{display:block}.sgtbl td{vertical-align:middle}
 @media (max-width:600px){.rk_tbl thead{display:none}.rk_tbl tbody tr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
 .rk_tbl tbody tr:last-child{border-bottom:0}.rk_tbl td{border:0;padding:0}.rk_tbl td:nth-child(1){grid-area:1/1}.rk_tbl td:nth-child(2){grid-area:1/2}.rk_tbl td:nth-child(5){grid-area:1/3}
 .rk_tbl td:nth-child(3){grid-area:2/1/3/4}.rk_tbl td:nth-child(4){grid-area:3/1/4/4}.rk_team{min-width:0}.rk_supp{grid-template-columns:repeat(4,auto)}.rk_m .cc{flex:0 1 auto}}
@@ -3452,21 +3458,54 @@ for(const chId in REC){const r=REC[chId];for(const e of[r,r&&r.normal]){if(!e)co
   const teams=(e.cores&&e.cores.length)?e.cores.flatMap(c=>c.alts):(e.team?[e]:[]);
   for(const t of teams){const ids=(t.team||[]).concat(teamDraws(t.team||[])?(t.supp||[]):[]);for(const id of ids)REC_USE[id]=(REC_USE[id]||0)+1;}}}
 let CF_BULK=null;
+// supporter abilities are "raise/lower one stat of a picked leader": parse them so Cards can filter and sort by effect
+const SPICK={lowest_hp:"Lowest health",highest_hp:"Highest health",lowest_atk:"Lowest attack",highest_atk:"Highest attack",lowest_def:"Lowest defense",highest_def:"Highest defense",fastest:"Fastest",slowest:"Slowest"};
+function suppInfo(c){
+  const s=c&&c.supporter;if(!s||!s.effect)return null;
+  const p=s.params||{};
+  if(s.effect==="gain_stat_target"||s.effect==="lose_stat_target"){
+    const m=String(p.target||"").match(/^(.*)_(ally|enemy|overall)$/);
+    const up=s.effect==="gain_stat_target",side=m?m[2]:"overall",pick=m?m[1]:"";
+    const help=side==="overall"?"mixed":(up===(side==="ally"))?"good":"bad";
+    return{up,stat:p.stat,side,pick,amt:+p.amount||0,help,key:`${up?"+":"-"}${p.stat}:${side}`,full:`${up?"+":"-"}${p.stat}:${side}:${pick}`};
+  }
+  const k="x:"+s.effect+":"+(p.status_id||"");
+  return{up:true,stat:"",side:"ally",pick:"",amt:0,help:"good",key:k,full:k};
+}
+function suppKeyLabel(k){
+  if(k.startsWith("x:")){const[,e,st]=k.split(":");return"Other: "+nice(e)+(st?" ("+ST_NAME(st)+")":"");}
+  const up=k[0]==="+",[stat,side]=k.slice(1).split(":");
+  if(stat==="health"){if(side==="ally")return up?"Heal one of your leaders":"Damage one of your own leaders";
+    if(side==="enemy")return up?"Heal an enemy":"Damage an enemy";return up?"Heal anyone (either side)":"Damage anyone (either side)";}
+  if(side==="ally")return`${up?"Raise":"Lower"} your own ${stat}`;
+  if(side==="enemy")return`${up?"Raise":"Lower"} an enemy's ${stat}`;
+  return`${up?"Raise":"Lower"} anyone's ${stat} (either side)`;
+}
+const SUPP_GROUPS=[["Helps your team",k=>/^\+\w+:ally|^-\w+:enemy|^x:/.test(k)],["Can hit either side",k=>/:overall$/.test(k)],["Weakens your team",k=>/^-\w+:ally|^\+\w+:enemy/.test(k)]];
 function pageCards(args){
-  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:"rec",lvl:10},S.ui.cardsFilters||{});
+  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:"rec",lvl:10,view:"lead",seff:"",spick:"",shelp:"",sgroup:false},S.ui.cardsFilters||{});
+  if(F.view==="lead"&&F.sort==="amt")F.sort="rec";
   if(F.mine!==undefined){if(F.mine)F.own="mine";delete F.mine;}   // old saved filter shape
   let limit=90;
   const opts=(set,label,lab=nice)=>`<option value="">${label}</option>`+[...set].filter(Boolean).map(x=>[x,lab(x)]).sort((a,b)=>a[1].localeCompare(b[1])).map(([x,l])=>`<option value="${esc(x)}">${esc(l)}</option>`).join("");
   const T=new Set(),E=new Set(),ST=new Set();for(const id in META){META[id].t.forEach(x=>T.add(x));META[id].e.forEach(x=>E.add(x));META[id].s.forEach(x=>ST.add(x));}
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Cards</h1><p>Every card in the game. Tap one to see what it does. Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div></div>
+    <div class="page_head"><div><h1>Cards</h1><p>Every card in the game. Tap one to see what it does. Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div>
+      <div class="seg" id="cf_view" role="group" aria-label="Show cards as">${[["lead","Leaders"],["supp","Supporters"],["both","Both"]].map(([v,l])=>`<button class="${F.view===v?"on":""}" data-v="${v}">${l}</button>`).join("")}</div></div>
     <div class="filters">
       <div class="search">${ic("search")}<input class="input" id="cf_q" placeholder="Search by name" value="${esc(F.q)}"></div>
       <select class="select" id="cf_own" aria-label="Which cards"><option value="all">All cards</option><option value="mine" ${F.own==="mine"?"selected":""}>My cards</option><option value="missing" ${F.own==="missing"?"selected":""}>Cards I'm missing</option></select>
       <select class="select" id="cf_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option ${F.role===r?"selected":""}>${r}</option>`).join("")}</select>
       <select class="select" id="cf_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.map(k=>`<option value="${k}" ${F.src===k?"selected":""}>${SRC[k][0]}</option>`).join("")}</select>
-      <select class="select" id="cf_sort" aria-label="Sort">${[["rec","Most recommended first"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["id","Newest first"]].map(([v,l])=>`<option value="${v}" ${F.sort===v?"selected":""}>${l}</option>`).join("")}</select>
+      <select class="select" id="cf_sort" aria-label="Sort">${(F.view==="lead"?[]:[["amt","Strongest supporter effect"]]).concat([["rec","Most recommended first"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["id","Newest first"]]).map(([v,l])=>`<option value="${v}" ${F.sort===v?"selected":""}>${l}</option>`).join("")}</select>
       <button class="btn sm ${F.more?"":"ghost"}" id="cf_morebtn">${ic("filter")}More filters</button>
+    </div>
+    <div class="suppfilters" id="cf_sf" style="${F.view==="lead"?"display:none":""}">
+      <label>Supporter effect<select class="select" id="cf_seff"><option value="">Any effect</option>${(()=>{const keys=new Set();for(const id in CARDS){const i=suppInfo(CARDS[id]);if(i)keys.add(i.key);}
+        return SUPP_GROUPS.map(([g,f])=>{const ks=[...keys].filter(f).sort((a,b)=>suppKeyLabel(a).localeCompare(suppKeyLabel(b)));return ks.length?`<optgroup label="${g}">${ks.map(k=>`<option value="${esc(k)}" ${F.seff===k?"selected":""}>${esc(suppKeyLabel(k))}</option>`).join("")}</optgroup>`:"";}).join("");})()}</select></label>
+      <label>Which leader it picks<select class="select" id="cf_spick"><option value="">Any</option>${Object.entries(SPICK).map(([k,l])=>`<option value="${k}" ${F.spick===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label>Good for you?<select class="select" id="cf_shelp">${[["","Any"],["good","Helps your team"],["mixed","Can hit either side"],["bad","Weakens your team"]].map(([v,l])=>`<option value="${v}" ${F.shelp===v?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label style="justify-content:flex-end"><button class="btn sm ${F.sgroup?"on":"ghost"}" id="cf_sgroup" aria-pressed="${F.sgroup}">${ic("grid")}Best per effect</button></label>
     </div>
     <div class="row tight" id="cf_els" style="margin-bottom:14px"></div>
     <div class="morefilters" id="cf_more" style="${F.more?"":"display:none"}">
@@ -3504,7 +3543,15 @@ function pageCards(args){
       if(F.eff&&!m.e.has(F.eff))return false;
       if(F.st&&!m.s.has(F.st))return false;
       if(q&&!c.name.toLowerCase().includes(q)&&!(c.alias||"").toLowerCase().includes(q)&&String(c.id)!==q)return false;
+      if(F.view!=="lead"){const i=suppInfo(c);
+        if(F.view==="supp"&&!i)return false;
+        if((F.seff||F.spick||F.shelp)&&!i)return false;
+        if(F.seff&&i.key!==F.seff)return false;
+        if(F.spick&&i.pick!==F.spick)return false;
+        if(F.shelp&&i.help!==F.shelp)return false;}
       return true;});
+    if(F.sort==="amt"&&F.view!=="lead"){const A=c=>{const i=suppInfo(c);return i?i.amt:-1;};
+      r.sort((a,b)=>A(b)-A(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)||shortName(a).localeCompare(shortName(b)));return r;}
     const key={name:c=>shortName(c).toLowerCase(),id:c=>-c.id,rec:c=>-(REC_USE[c.id]||0)*1e4+c.id}[F.sort];
     if(key)r.sort((a,b)=>{const x=key(a),y=key(b);return x<y?-1:x>y?1:0;});
     else{const L=c=>applyPlayerLevel(c,F.lvl)[F.sort];r.sort((a,b)=>L(b)-L(a));}
@@ -3517,18 +3564,48 @@ function pageCards(args){
     return`<div class="ctile ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0">${av(c.id)}
       <div class="body"><div class="nm">${esc(shortName(c))}</div>
         <div class="meta">${elTag(c)}${srcTags(c,1)}${REC_USE[c.id]?`<span class="tag acc" title="Appears in recommended teams">Recommended</span>`:""}</div>
-        ${rolesOf(c.id).length?`<div class="meta">${roleTags(c.id,2)}</div>`:""}
-        <div class="statline" style="font-size:11.5px;gap:8px"><span>HP <b>${lc.hp}</b></span><span>ATK <b>${lc.atk}</b></span><span>DEF <b>${lc.def}</b></span><span>SPD <b>${lc.spd}</b></span></div>
-        <div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div></div>
+        ${F.view!=="supp"&&rolesOf(c.id).length?`<div class="meta">${roleTags(c.id,2)}</div>`:""}
+        <div class="statline" style="font-size:11.5px;gap:8px;${F.view==="supp"?"display:none":""}"><span>HP <b>${lc.hp}</b></span><span>ATK <b>${lc.atk}</b></span><span>DEF <b>${lc.def}</b></span><span>SPD <b>${lc.spd}</b></span></div>
+        ${F.view!=="supp"?`<div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div>`:""}
+        ${F.view!=="lead"?`<div class="desc sdesc">${(()=>{const i=suppInfo(c);return c.stext?`<span class="samt ${i?"h_"+i.help:""}">${i&&i.amt?(i.up?"+":"−")+i.amt:"▸"}</span><span>${esc(plainAbility(capFirst(c.stext)))}</span>`:'<span class="faint">No supporter ability</span>';})()}</div>`:""}</div>
       <button class="ownbtn ${OWN.has(c.id)?"on":""}" data-act="toggleOwn" data-own="${c.id}" data-id="${c.id}" aria-pressed="${OWN.has(c.id)}" title="I own this card" aria-label="I own this card">${ic("check")}</button>
     </div>`;
   }
   function paint(){
+    if(F.view!=="lead"&&F.sgroup&&cur.length){paintGroups();return;}
+    grid.classList.remove("asgroups");
     grid.innerHTML=cur.slice(0,limit).map(tile).join("")||"";
-    if(!cur.length)grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","No cards match",F.own==="mine"&&!OWN.size?"You haven't marked any cards yet. Switch to \"All cards\", then tap the check on cards you own.":"Try fewer filters.")}</div>`;
+    const q=F.q.toLowerCase(),named=!cur.length&&q?Object.values(CARDS).filter(c=>c.name.toLowerCase().includes(q)||(c.alias||"").toLowerCase().includes(q)||String(c.id)===q).length:0;
+    if(named){grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","Hidden by your filters",`${named} card${named===1?" matches":"s match"} "${esc(F.q)}", but other filters hide ${named===1?"it":"them"}: ${activeFilters().join(", ")||"filters"}.`,`<button class="btn" id="cf_keepq">Clear the other filters</button>`)}</div>`;
+      $("#cf_keepq").onclick=()=>{S.ui.cardsFilters={q:F.q,unob:true,more:F.more,view:F.view==="supp"?"both":F.view};save();pageCards([]);};}
+    else if(!cur.length)grid.innerHTML=`<div style="grid-column:1/-1">${emptyState("search","No cards match",F.own==="mine"&&!OWN.size?"You haven't marked any cards yet. Switch to \"All cards\", then tap the check on cards you own.":"Try fewer filters.")}</div>`;
     moreload.innerHTML=cur.length>limit?`<button class="btn" id="cf_mb">Show more (${cur.length-limit} left)</button>`:"";
     const mb=$("#cf_mb");if(mb)mb.onclick=()=>{limit+=150;paint();};
     $("#cf_count").textContent=`${cur.length} card${cur.length===1?"":"s"}${!F.unob&&F.own!=="mine"&&F.src!=="limited"?" (cards you can't get are hidden; see More filters)":""}`;
+  }
+  function activeFilters(){
+    const a=[];if(F.own!=="all")a.push(F.own==="mine"?"My cards":"Cards I'm missing");if(F.role)a.push("role");if(F.src)a.push("source ("+SRC[F.src][0]+")");if(F.el!=="")a.push("element");
+    if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.rar)a.push("rarity");if(F.apex)a.push("Apex only");
+    if(F.view==="supp")a.push("Supporters view");if(F.view!=="lead"&&(F.seff||F.spick||F.shelp))a.push("supporter filters");
+    if(!F.unob)a.push("cards you can't get are hidden");return a;
+  }
+  function paintGroups(){   // one row per exact supporter effect (stat, side and which leader it picks), strongest cards first
+    const G=new Map();
+    for(const c of cur){const i=suppInfo(c);if(!i)continue;let g=G.get(i.full);if(!g)G.set(i.full,g={i,cards:[]});g.cards.push(c);}
+    const ord=k=>SUPP_GROUPS.findIndex(([,f])=>f(k));
+    const rows=[...G.values()].map(g=>{g.cards.sort((a,b)=>suppInfo(b).amt-suppInfo(a).amt||(OWN.has(b.id)-OWN.has(a.id))||(REC_USE[b.id]||0)-(REC_USE[a.id]||0));g.best=suppInfo(g.cards[0]).amt;return g;})
+      .sort((a,b)=>ord(a.i.key)-ord(b.i.key)||suppKeyLabel(a.i.key).localeCompare(suppKeyLabel(b.i.key))||(SPICK[a.i.pick]||"").localeCompare(SPICK[b.i.pick]||""));
+    grid.classList.add("asgroups");
+    grid.innerHTML=`<div class="card"><div class="small muted" style="margin-bottom:8px">Every supporter effect once, with the cards that do it best.${OWN.size?" Cards you own are marked and come first among equals.":""}</div>
+      <div class="tblwrap"><table class="tbl sgtbl"><thead><tr><th>Effect</th><th>Picks</th><th>Best</th><th>Cards with the best amount</th><th>Weaker</th></tr></thead><tbody>
+      ${rows.map(g=>{const top=g.cards.filter(c=>suppInfo(c).amt===g.best),weak=g.cards.length-top.length;
+        return`<tr><td><b>${esc(suppKeyLabel(g.i.key))}</b></td><td class="muted">${esc(SPICK[g.i.pick]||"-")}</td>
+          <td><span class="samt h_${g.i.help}">${g.best?(g.i.up?"+":"−")+g.best:"▸"}</span></td>
+          <td><div class="row tight" style="flex-wrap:wrap">${top.slice(0,6).map(c=>cchip(c.id,{own:1})).join("")}${top.length>6?`<span class="faint small">+${top.length-6} more</span>`:""}</div></td>
+          <td class="faint small">${weak?`${weak} (${[...new Set(g.cards.slice(top.length).map(c=>suppInfo(c).amt))].join(", ")})`:"-"}</td></tr>`;}).join("")}
+      </tbody></table></div></div>`;
+    moreload.innerHTML="";
+    $("#cf_count").textContent=`${rows.length} effects from ${cur.length} cards`;
   }
   function bulk(){
     const el=$("#cf_bulk");if(!el)return;
@@ -3551,6 +3628,9 @@ function pageCards(args){
   function refresh(){S.ui.cardsFilters=F;save();limit=90;cur=list();paint();bulk();}
   const bind=(id,k,ev="change",fn=x=>x.value)=>{const el=$(id);if(el)el.addEventListener(ev,e=>{F[k]=fn(e.target);refresh();});};
   {const q=$("#cf_q");let tq=null;q.addEventListener("input",()=>{clearTimeout(tq);tq=setTimeout(()=>{F.q=q.value;refresh();},160);});}bind("#cf_src","src");bind("#cf_own","own");bind("#cf_role","role");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");
+  bind("#cf_seff","seff");bind("#cf_spick","spick");bind("#cf_shelp","shelp");
+  $("#cf_sgroup").onclick=()=>{F.sgroup=!F.sgroup;const b=$("#cf_sgroup");b.classList.toggle("on",F.sgroup);b.classList.toggle("ghost",!F.sgroup);b.setAttribute("aria-pressed",F.sgroup);refresh();};
+  $("#cf_view").onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;F.view=b.dataset.v;if(F.view!=="lead"&&F.sort==="rec")F.sort="amt";S.ui.cardsFilters=F;save();pageCards([]);};
   bind("#cf_rar","rar");bind("#cf_sort","sort");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex","change",x=>x.checked);bind("#cf_unob","unob","change",x=>x.checked);
   $("#cf_morebtn").onclick=()=>{F.more=!F.more;$("#cf_more").style.display=F.more?"":"none";$("#cf_morebtn").classList.toggle("ghost",!F.more);S.ui.cardsFilters=F;save();};
   $("#cf_clearmine").onclick=()=>{if(!OWN.size)return;const before=new Set(OWN),lv=S.ownLv;OWN.clear();S.ownLv={};save();$("#owncount").textContent=0;refresh();
@@ -4259,6 +4339,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
+  `<b>Cards: supporters.</b> A new <b>Leaders / Supporters / Both</b> switch. In the supporter views you can filter by supporter effect, by which leader it picks and by whether it helps your team, sort by <b>strongest supporter effect</b>, and open <b>Best per effect</b>: every supporter effect once, with the cards that do it best. A name search that other filters hide now tells you which filters.`,
   `<b>PvP check now fights real ranked teams.</b> Instead of a hand-picked list at level 10, it now fights the 30 best teams of the ranked top 100 at their real levels. The team stats page uses the same teams.`,
 ]],["2026-10-06 · Game update Beta v184",[
   `<b>Updated for Beta v184.</b> No battle changes in this version.`,
