@@ -1,0 +1,46 @@
+name: Steam update watch
+
+# Every few minutes: ask Steam (no login) for the game's current build id and post to Discord when it changes.
+# Runs on GitHub's machines only. The webhook URL is the DISCORD_WEBHOOK repository secret; the optional
+# DISCORD_PING repository variable (e.g. <@123456789>) is put in front of the message to ping someone.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Send a test message to Discord (true / false)"
+        default: "false"
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: steam-watch
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: steam-watch-${{ github.run_id }}
+          restore-keys: steam-watch-
+      - id: w
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_PING: ${{ vars.DISCORD_PING }}
+          TEST: ${{ inputs.test == 'true' && '1' || '' }}
+        run: python3 .github/scripts/steam_watch.py
+      - if: steps.w.outputs.save == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: steam-watch-${{ github.run_id }}
