@@ -359,7 +359,7 @@ details.adv>.in{padding:0 16px 16px}
 .findctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.findctl .select{max-width:100%}
 .findadv{margin-top:6px}.findadv summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--text2)}
 .findadv_in{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface2)}
-.findadv_in label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:var(--text3)}.findadv_in label.check{flex-direction:row;align-items:center;justify-content:flex-start}
+.findadv_in label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;color:var(--text3)}.findadv_in label .faint{font-weight:700}.findadv_in .input{width:100%}.findadv_in label.check{flex-direction:row;align-items:center;justify-content:flex-start}
 .mustchip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:12px;padding-right:2px;background:var(--surface2)}
 .xbtn.sm{width:30px;height:30px}
 @media(max-width:700px){.findctl .seg{width:100%;display:flex}.findctl .seg button{flex:1;padding:7px 8px}.findctl>.select{flex:1 1 100%}}.pk_sf .select{flex:1 1 140px;min-width:0}
@@ -2896,24 +2896,36 @@ function findAllowed(c,src){
   return true;
 }
 // search settings (all pools). R marks the recommended value; the defaults are the recommended ones.
+// search settings (every pool). Free numbers, no maximum: the player decides how long a search may run.
+// [key, label, recommended, minimum, help]
 const FIND_ADV=[
-  ["keep","Cards in the full search",[[20,"20 (fast)"],[30,"30",1],[40,"40"],[50,"50 (slow)"]],"After screening, this many cards go into the full search, where every team of 3 is tried. More cards find rarer combos but the work grows fast."],
-  ["tries","Screening battles per card",[[5,"5"],[10,"10",1],[20,"20"],[40,"40"]],"How often each card is tried in random teams to decide if it makes the full search. More is steadier, mostly matters for Every card."],
-  ["quickN","Quick pass battles per team",[[4,"4"],[8,"8",1],[16,"16"],[32,"32"]],"Every team setup in the full search gets this many battles. More means fewer good teams are missed by bad luck."],
-  ["checkTeams","Teams double-checked",[[25,"25"],[50,"50",1],[100,"100"]],"The best teams from the quick pass are checked again with many more battles."],
-  ["checkN","Battles per double-check",[[100,"100"],[250,"250",1],[500,"500"],[1000,"1000"]],"The final win rates come from these battles. 250 is accurate to about plus or minus 3%."]];
-const findAdvDefault=()=>Object.fromEntries(FIND_ADV.map(([k,,o])=>[k,o.find(x=>x[2])[0]]).concat([["unob",false]]));
-const findAdv=()=>{const a=Object.assign(findAdvDefault(),S.ui.findAdv||{});for(const[k,,o]of FIND_ADV)if(!o.some(x=>x[0]===+a[k]))a[k]=findAdvDefault()[k];return a;};
+  ["keep","Cards in the full search",30,3,"After screening, this many cards go into the full search, where every team of 3 is tried. The number of teams grows with the cube: 30 cards make 4,060 teams, 100 make 161,700, 300 make 4.5 million. Type a number as big as the pool to skip screening and try every team."],
+  ["tries","Screening battles per card",10,1,"How often each card is tried in random teams to decide if it makes the full search. More is steadier."],
+  ["quickN","Quick pass battles per team",8,1,"Every team in the full search gets this many battles. More means fewer good teams are missed by bad luck."],
+  ["checkTeams","Teams double-checked",50,1,"The best teams from the quick pass are checked again with many more battles."],
+  ["checkN","Battles per double-check",250,10,"The final win rates come from these battles. 250 is accurate to about plus or minus 3%, 1000 to about plus or minus 1.5%."],
+  ["polish","Final polish rounds",1,0,"Takes the best teams and tries every allowed card in each of their 3 slots, so every card gets a chance, not just the ones in the full search. Each round starts from the new best teams."],
+  ["polishTeams","Teams to polish",10,1,"How many of the best teams the final polish works on."],
+  ["wild","Random extra cards",0,0,"Adds this many random cards that did NOT make the cut to the full search. Screening tries cards with random partners, so a card that only works with one special partner can be cut; random extras give such combos a chance. Different every search."]];
+const FIND_PKG=[["all","All supporter packages (recommended)"],["best","Best package only"],["none","No supporters"]];
+const findAdvDefault=()=>Object.fromEntries(FIND_ADV.map(([k,,r])=>[k,r]).concat([["unob",false],["pkg","all"]]));
+const findAdv=()=>{const a=Object.assign(findAdvDefault(),S.ui.findAdv||{});
+  for(const[k,,r,min]of FIND_ADV){const v=Math.round(+a[k]);a[k]=Number.isFinite(v)?Math.max(min,v):r;}
+  if(!FIND_PKG.some(x=>x[0]===a.pkg))a.pkg="all";a.unob=!!a.unob;return a;};
 function findPoolSize(pool,src,unob,ch){   // cards the search would start from (for the estimate)
   if(pool==="mine")return OWN.size;
   const ok=id=>{const c=CARDS[id];return c&&(unob||!unobtainable(c))&&findAllowed(c,src)&&!(ch&&rewardLate([id],ch));};
   return(pool==="strong"?strongPool():Object.keys(CARDS).map(Number)).filter(ok).length;
 }
-function findEstimate(pool,src,must,ch){   // rough number of battles (drawing teams try several supporter packages, about 3x)
-  const a=findAdv(),n=findPoolSize(pool,src,a.unob,ch),keep=Math.min(n,a.keep+(must!=null?10:0));
-  let b=0;if(n>120)b+=n*Math.round(a.tries*.6)*3;if(n>keep)b+=Math.min(n,Math.max(90,keep))*a.tries*4;
-  const t=must!=null?keep*(keep-1)/2:keep*(keep-1)*(keep-2)/6;b+=t*3*a.quickN+a.checkTeams*a.checkN;
-  return{n,battles:Math.round(b)};
+function findEstimate(pool,src,must,ch){   // rough number of battles (drawing teams try several supporter packages)
+  const a=findAdv(),n=findPoolSize(pool,src,a.unob,ch);
+  const seeds=ch&&pool!=="mine"?new Set(recTeams(ch,"hard").concat(recTeams(ch,"normal")).flatMap(t=>[t.team,...(t.alts||[]).map(x=>x.team)]).flat()).size:0;   // recommended-team cards always join (upper bound)
+  const keep=Math.min(n,a.keep+(must!=null?10:0)+a.wild+Math.round(seeds*.6));
+  let b=0;if(n>120)b+=n*Math.round(a.tries*.6)*3;if(n>keep)b+=Math.min(n,Math.max(90,keep*3))*a.tries*4;
+  const t=must!=null?keep*(keep-1)/2:keep*(keep-1)*(keep-2)/6,pk=a.pkg==="all"?3:a.pkg==="best"?1.5:1;
+  b+=t*pk*a.quickN+a.checkTeams*a.checkN+a.polish*a.polishTeams*(must!=null?2:3)*n*pk*a.quickN*.5;
+  const secs=b/(S.ui.findBps||15000);
+  return{n,battles:Math.round(b),secs};
 }
 function findControls(pre,lvl,maxLvl){
   const mineOk=OWN.size>=3,FO=Object.assign({pool:mineOk?"mine":"strong",src:""},S.ui.findOpts||{});
@@ -2928,9 +2940,10 @@ function findControls(pre,lvl,maxLvl){
     <p class="small faint" id="${pre}_hint" style="margin-top:6px"></p>
     <details class="findadv" id="${pre}_adv"><summary>Search settings <span class="faint" id="${pre}_est"></span></summary>
       <div class="findadv_in">
-        ${(()=>{const a=findAdv();return FIND_ADV.map(([k,l,o,h])=>`<label title="${esc(h)}">${l}<select class="select" data-adv="${k}">${o.map(([v,t,r])=>`<option value="${v}" ${+a[k]===v?"selected":""}>${t}${r?" (recommended)":""}</option>`).join("")}</select></label>`).join("")
+        ${(()=>{const a=findAdv();return FIND_ADV.map(([k,l,r,min,h])=>`<label title="${esc(h)}">${l} <span class="faint">(recommended ${r})</span><input class="input" type="number" inputmode="numeric" min="${min}" step="1" data-adv="${k}" value="${a[k]}"></label>`).join("")
+          +`<label title="Teams that draw supporters are tried with several supporter packages (heals, attack boosts, enemy debuffs...). Fewer packages make big searches faster.">Supporters to try<select class="select" data-adv="pkg">${FIND_PKG.map(([v,t])=>`<option value="${v}" ${a.pkg===v?"selected":""}>${t}</option>`).join("")}</select></label>`
           +`<label class="check" title="Cards from past events that can't be obtained anymore, and the developer-only card. Only for Strong cards and Every card."><input type="checkbox" data-adv="unob" ${a.unob?"checked":""}> Include cards you can't get anymore</label>`;})()}
-        <div class="row tight" style="grid-column:1/-1"><button class="btn sm ghost" data-advreset="1">Back to recommended</button><span class="small faint">Hover a setting to see what it does. Bigger settings find more, but take longer.</span></div>
+        <div class="row tight" style="grid-column:1/-1"><button class="btn sm ghost" data-advreset="1">Back to recommended</button><span class="small faint">Hover a setting to see what it does. There is no limit: bigger numbers find more but take longer, and you can stop a search at any time.</span></div>
       </div></details>`;
 }
 function wireFindControls(pre,onGo,ctxCh){   // ctxCh: chapter id (story rewards from later chapters are left out)
@@ -2939,8 +2952,8 @@ function wireFindControls(pre,onGo,ctxCh){   // ctxCh: chapter id (story rewards
   const pool=$("#"+pre+"_pool"),hint=$("#"+pre+"_hint");
   const cur=()=>pool.querySelector(".on").dataset.p;
   const setHint=()=>{const p=cur();hint.innerHTML=p==="mine"?"Searches teams built only from the cards you marked as yours."
-    :p==="strong"?"Starts from the cards in recommended, ranked and community teams, then keeps the 30 that work best against this fight."
-    :`Screens every card you can get against this fight first, then searches the best 30. Slower, but finds unusual picks.${OWN.size<3?` Tip: <a href="#/cards">mark the cards you own</a> to search only teams you can build.`:""}`;};
+    :p==="strong"?"Starts from the cards in recommended, ranked and community teams, screens them against this fight and searches the best ones (see Search settings). Cards from this fight's recommended teams always take part."
+    :`Screens every card you can get against this fight, then tries every team of 3 from the best ones (see Search settings). Cards from this fight's recommended teams always take part, and Final polish tries every card in the best teams.${OWN.size<3?` Tip: <a href="#/cards">mark the cards you own</a> to search only teams you can build.`:""}`;};
   const paintMust=()=>{$("#"+pre+"_must").innerHTML=must?`<span class="mustchip">${cchip(must)}<button class="xbtn sm" data-mx="1" aria-label="Remove the must-use card">${ic("x")}</button></span>`
     :`<button class="btn ghost sm" data-mp="1" title="Only show teams that include this card">${ic("plus")}Must use a card</button>`;};
   $("#"+pre+"_must").addEventListener("click",e=>{
@@ -2949,8 +2962,11 @@ function wireFindControls(pre,onGo,ctxCh){   // ctxCh: chapter id (story rewards
   pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));S.ui.findOpts=Object.assign(FO,{pool:b.dataset.p});save();setHint();});
   $("#"+pre+"_src").addEventListener("change",e=>{S.ui.findOpts=Object.assign(FO,{src:e.target.value});save();});
   const adv=$("#"+pre+"_adv"),est=()=>{const e=findEstimate(cur(),$("#"+pre+"_src").value,must,ctxCh);
-    $("#"+pre+"_est").textContent=`(${e.n} card${e.n===1?"":"s"}, about ${e.battles>=1e6?(e.battles/1e6).toFixed(1)+" million":Math.max(1,Math.round(e.battles/1000))+" thousand"} battles)`;};
-  adv.addEventListener("change",e=>{const k=e.target.dataset.adv;if(!k)return;const a=findAdv();a[k]=k==="unob"?e.target.checked:+e.target.value;S.ui.findAdv=a;save();est();});
+    const tm=e.secs<60?`${Math.max(5,Math.round(e.secs/5)*5)} seconds`:e.secs<3600?`${Math.round(e.secs/60)} minute${Math.round(e.secs/60)===1?"":"s"}`:`${(e.secs/3600).toFixed(1)} hours`;
+    $("#"+pre+"_est").textContent=`(${e.n} card${e.n===1?"":"s"}, about ${e.battles>=1e6?(e.battles/1e6).toFixed(1)+" million":Math.max(1,Math.round(e.battles/1000))+" thousand"} battles, roughly ${tm}${S.ui.findBps?" on this device":""})`;};
+  const advSet=e=>{const k=e.target.dataset.adv;if(!k)return;const a=findAdv();a[k]=k==="unob"?e.target.checked:k==="pkg"?e.target.value:+e.target.value;S.ui.findAdv=a;save();est();};
+  adv.addEventListener("change",e=>{advSet(e);const k=e.target.dataset.adv;if(k&&e.target.type==="number")e.target.value=findAdv()[k];});   // show the cleaned value (whole number, at least the minimum)
+  adv.addEventListener("input",e=>{if(e.target.type==="number"&&e.target.value!=="")advSet(e);});
   adv.addEventListener("click",e=>{if(!e.target.closest("[data-advreset]"))return;S.ui.findAdv=findAdvDefault();save();
     adv.querySelectorAll("[data-adv]").forEach(x=>{const v=S.ui.findAdv[x.dataset.adv];if(x.type==="checkbox")x.checked=v;else x.value=v;});est();});
   pool.addEventListener("click",()=>setTimeout(est,0));$("#"+pre+"_src").addEventListener("change",est);$("#"+pre+"_must").addEventListener("click",()=>setTimeout(est,400));
@@ -3031,29 +3047,69 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
       const sc={};for(const r of res)sc[r.k]=(sc[r.k]||0)+(r.w+(mode==="pvp"?r.d*.5:0))/r.n;
       return list.slice().sort((a,b)=>(sc[b]||0)-(sc[a]||0)).slice(0,keepN);
     };
+    const P0=P.slice();
     if(P.length>120)P=await screen(P,Math.max(3,Math.round(adv.tries*.6)),3,Math.max(90,keep*3),0,.12);
     if(P.length>keep)P=await screen(P,adv.tries,4,keep,.12,.13);
+    // cards from this fight's recommended teams are proven winners: they always join, so screening luck can't cut them
+    if(ctx&&ctx.ch&&pool!=="mine"){const inP=new Set(P);
+      for(const t of recTeams(ctx.ch,ctx.diff||"hard"))for(const tm of[t.team,...(t.alts||[]).map(a=>a.team)])for(const id of tm||[])
+        if(!inP.has(id)&&allowed.has(id)&&id!==must){P.push(id);inP.add(id);}}
+    if(adv.wild>0){const inP=new Set(P),rest=P0.filter(id=>!inP.has(id));   // random extras from the cards that were cut
+      for(let i=0;i<adv.wild&&rest.length;i++)P.push(rest.splice(Math.floor(Math.random()*rest.length),1)[0]);}
     if(GEN!==my)return;
     if(P.length<(must!=null?2:3)){out.innerHTML=`<div class="callout">Not enough cards to search with these options. ${pool==="mine"?"Mark more cards as yours, or":"Try"} a wider source option.</div>`;return;}
-    const jobs=[];let k=0;
-    const trios=[];
-    if(must!=null){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)trios.push([must,P[i],P[j]]);}
-    else for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)for(let m=j+1;m<P.length;m++)trios.push([P[i],P[j],P[m]]);
-    for(const team of trios){
-      const use=teamDraws(team)?pkgs:[[]];   // supporters can't matter if no leader draws them
-      for(const pk of use)jobs.push({k:k++,team,ids:team,supp:pk.filter(id=>!team.includes(id)),lvl,seed:5,n:adv.quickN});
+    // full search, streamed in batches: teams are generated as they run and only the best results are kept,
+    // so memory stays flat however many cards the player puts in
+    const nT=must!=null?P.length*(P.length-1)/2:P.length*(P.length-1)*(P.length-2)/6;
+    const pk=adv.pkg==="none"?[[]]:adv.pkg==="best"?[pkgs[0]||[]]:pkgs;
+    function* teams(){
+      if(must!=null){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)yield[must,P[i],P[j]];return;}
+      for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)for(let m=j+1;m<P.length;m++)yield[P[i],P[j],P[m]];
     }
-    const coarse=await runJobs(jobs,{ed},(d,t)=>prog(`Trying ${jobs.length.toLocaleString()} team setups...`,.25+d/t*.55),mode);
+    const KEEP_BEST=3000,BATCH=60000,tq=performance.now();
+    let scored=[],done=0,tDone=0,tPend=0,batch=[];   // done = battles setups run; tDone/tPend = teams finished / in this batch
+    const fmtT=x=>x<60?`${Math.max(1,Math.round(x))} s`:x<3600?`${Math.round(x/60)} min`:`${(x/3600).toFixed(1)} h`;
+    const flush=async()=>{
+      const res=await runJobs(batch,{ed},(d,t)=>{const el=(performance.now()-tq)/1000,cnt=tDone+Math.round(d/t*tPend),f=Math.min(1,cnt/Math.max(1,nT));
+        prog(`Trying every team of 3: ${cnt.toLocaleString()} of ${Math.round(nT).toLocaleString()}${el>3&&cnt?`, about ${fmtT(el/cnt*Math.max(0,nT-cnt))} left`:""}...`,.25+f*.5);},mode);
+      if(GEN!==my)throw"cancelled";
+      for(const r of res){const j=batch[r.k];const wr=(r.w+(mode==="pvp"?r.d*.5:0))/r.n;if(wr>0)scored.push({team:j.team,supp:j.supp,wr});}
+      if(scored.length>KEEP_BEST*2){scored.sort((a,b)=>b.wr-a.wr);scored.length=KEEP_BEST;}
+      done+=batch.length;tDone+=tPend;tPend=0;batch=[];
+    };
+    for(const team of teams()){
+      const use=teamDraws(team)?pk:[[]];   // supporters can't matter if no leader draws them
+      for(const p of use)batch.push({k:batch.length,team,ids:team,supp:p.filter(id=>!team.includes(id)),lvl,seed:5,n:adv.quickN});
+      tPend++;
+      if(batch.length>=BATCH)await flush();
+    }
+    if(batch.length)await flush();
     if(GEN!==my)return;
-    const byK={};for(const j of jobs)byK[j.k]=j;
-    const scored=coarse.map(r=>({team:byK[r.k].team,supp:byK[r.k].supp,wr:(r.w+(mode==="pvp"?r.d*.5:0))/r.n})).sort((a,b)=>b.wr-a.wr);
+    {const sec=(performance.now()-tq)/1000;if(sec>1){const bps=done*adv.quickN/sec;S.ui.findBps=Math.round(S.ui.findBps?S.ui.findBps*.5+bps*.5:bps);save();}}   // for the time estimate
+    scored.sort((a,b)=>b.wr-a.wr);
     const seen=new Set(),uniq=[];
     for(const r of scored){if(r.wr<=0)break;const key=r.team.slice().sort((a,b)=>a-b).join(",");if(seen.has(key))continue;seen.add(key);uniq.push(r);if(uniq.length>=300)break;}
+    if(adv.polish>0&&uniq.length){   // final polish: try every allowed card in each slot of the 10 best teams
+      const A=[...allowed],key=t=>t.slice().sort((a,b)=>a-b).join(","),known=new Set(uniq.map(r=>key(r.team)));
+      let base=uniq.slice(0,adv.polishTeams);
+      for(let round=1;round<=adv.polish&&base.length;round++){
+        const pj=[];
+        for(const t of base)for(let sl=0;sl<3;sl++){if(must!=null&&t.team[sl]===must)continue;
+          for(const id of A){if(t.team.includes(id))continue;const team=t.team.slice();team[sl]=id;const kk=key(team);if(known.has(kk))continue;known.add(kk);
+            const sp=teamDraws(team)?((t.supp&&t.supp.length?t.supp:pkgs[0])||[]).filter(x=>!team.includes(x)):[];
+            pj.push({k:pj.length,team,ids:team,supp:sp,lvl,seed:5,n:adv.quickN});}}
+        const pr=await runJobs(pj,{ed},(d,t)=>prog(`Final polish${adv.polish>1?` (round ${round} of ${adv.polish})`:""}: every card in every slot of the best ${base.length} teams, ${pj.length.toLocaleString()} teams...`,.75+(round-1+d/t)/adv.polish*.1),mode);
+        if(GEN!==my)return;
+        const found=pr.map(r=>({team:pj[r.k].team,supp:pj[r.k].supp,wr:(r.w+(mode==="pvp"?r.d*.5:0))/r.n})).filter(x=>x.wr>0).sort((a,b)=>b.wr-a.wr).slice(0,80);
+        uniq.push(...found);uniq.sort((a,b)=>b.wr-a.wr);
+        const cut=uniq[Math.min(uniq.length,adv.polishTeams)-1];base=found.filter(f=>f.wr>=cut.wr).slice(0,adv.polishTeams);   // next round starts from new teams that reach the top
+      }
+    }
     if(!uniq.length){out.innerHTML=`<div class="callout warn"><b>Nothing won in the quick pass.</b> This fight is very hard for these cards${pool==="mine"?". Try \"Strong cards\" or \"Every card\" to see what would work":pool==="strong"?". Try \"Every card\" for unusual picks":""}, or raise the card level.</div>`;return;}
     const val=[],vs=new Set();
     for(const g of groupByPair(uniq,Math.ceil(adv.checkTeams/5),5))for(const r of g.members){const key=r.team.slice().sort((a,b)=>a-b).join(",");if(!vs.has(key)){vs.add(key);val.push(r);}}
     const vjobs=val.map((r,i)=>({k:i,ids:r.team,supp:r.supp,lvl,seed:(1+Math.floor(Math.random()*2e9))>>>0,n:adv.checkN}));
-    const fin=await runJobs(vjobs,{ed},(d,t)=>prog(`Double-checking the best ${val.length} teams...`,.8+d/t*.2),mode);
+    const fin=await runJobs(vjobs,{ed},(d,t)=>prog(`Double-checking the best ${val.length} teams...`,.85+d/t*.15),mode);
     if(GEN!==my)return;
     const res=rankTeams(fin.map(r=>({...val[r.k],wr:mode==="pvp"?(r.w+r.d*.5)/r.n:r.w/r.n})).sort((a,b)=>b.wr-a.wr));
     const groups=groupByPair(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,lead:g.pair,alts:g.members.slice(1)}));
@@ -3948,7 +4004,7 @@ function pageRanked(){
       <div class="rk_upd card"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div><div class="small muted">Last updated</div><div class="rk_when">${esc(when)} <span class="muted">(${agoText(R.ts)})</span></div></div>
         <div class="rk_facts">${[["Ranked teams",R.players.toLocaleString()],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
-        <p class="small faint" style="margin-top:10px">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Ratings are calculated by each player's own game, so a few very high ones may be edited. Teams fight with the levels shown.</p></div>
+        <p class="small faint" style="margin-top:10px">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Players on the game's own ban lists are left out. Ratings are calculated by each player's own game and uploaded unchecked, so the order can include players who edited their rating; treat it as "teams people really use", not a verified ranking. Teams fight with the levels shown.</p></div>
       <div class="card" style="margin-top:14px"><div class="card_head"><div><h3>Most used in the top 500</h3></div></div>
         <div class="row tight" style="flex-wrap:wrap">${R.popular.filter(([id])=>CARDS[id]).slice(0,12).map(([id,n])=>`<span class="rk_pop">${cchip(id)}<span class="faint small">${n}×</span></span>`).join("")}</div></div>
       <div class="card" style="margin-top:14px"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="small muted">Test your simulator team against the 30 best of these at once:</span><button class="btn sm" data-act="rankedCheck">${ic("trophy")}PvP check</button></div>
@@ -4531,6 +4587,8 @@ const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>New: <a href="#/ranked">Ranked top 100</a></b> (under Teams). The highest-rated teams on the game's ranked board, with their real levels and supporters, and a <b>Fight it</b> button to test your team against any of them. Player names are left out on purpose. It's a snapshot, so the page shows when it was last updated.`,
   `<b>Cards: Leaders / Supporters switch.</b> Each mode shows only the filters that matter for it. <b>Supporters</b> filters by what the supporter ability does (grants or lowers, which stat, teammate or enemy, which leader it picks), sorts the strongest first (helpful effects before harmful ones) or shows the <b>best card per effect</b>. The filter area takes about half the space it did on phones. A name search that other filters hide now tells you which filters.`,
   `<b>Simulator: the supporter picker</b> has the same supporter filters and sorts the strongest first. Role and element filters are gone there, since they only matter for leaders. It remembers your choice.`,
+  `<b>Team finder: no limits.</b> Every search setting is now a number you type, with the recommended value shown and no maximum. The full search runs in batches, so even hundreds of cards work (the estimate shows how long). New: <b>Final polish</b> tries every allowed card in each slot of the best teams, <b>Random extra cards</b> adds cards that missed the screening cut, and you choose which supporter packages to try. Cards from the fight's recommended teams now always take part, so screening luck can't cut a proven winner.`,
+  `<b>Ranked top 100:</b> players on the game's own ban lists are left out. Ratings are calculated by each player's game and can't be verified, so read the list as "teams people really use".`,
   `<b>Card texts now describe what the battle code really does.</b> About 250 abilities used to show the game's own description, and on 19 cards that description is wrong. Examples: Graduation Hat and Blue Scuba Goggles give their status to the whole team, not just themselves. Green Scarf blesses the team already on turn 1. Cyan Straw Hat, Blue Sparkle Eyes and Teal-Purple Fur also gain attack. Explorer Hat and Pirate Sword list a second effect that never happens because of a mistake in the game's data. Every wording was checked against the game's battle code.`,
   `<b>Team finder: full control.</b> A new <b>Search settings</b> panel sets how many cards go into the full search, the screening and quick-pass battles, and how many teams get double-checked with how many battles. The recommended values are marked, with a live estimate of the work and a button back to recommended. "Include cards you can't get anymore" makes <b>Every card</b> really every card.`,
   `<b>Data fixes</b> after checking the site against the game's code. Anti-Gambling Hat (casino milestone) and Eye Scarf (Faded Scar) (credits secret after Season 2 Chapter 21) are obtainable. Fancy Green Sunglasses is not a Spring crate card (a typo in the game's data means it never drops there). Confused and Very Confused hurt themselves by part of their own attack, not of the damage. Soul Bound's last 300 HP loss also stops at 1 HP, so it can't kill by itself. Several card texts were fixed: cleanse effects naming [None], missing immunities, and "per other ally" effects.`,
