@@ -58,7 +58,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ---------- header / nav ---------- */
 .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topbar_in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 20px}
+.topbar_in{max-width:1340px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 20px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:var(--text);white-space:nowrap}
 .brand:hover{text-decoration:none}
 .logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--acc),#ff9d5c);display:grid;place-items:center;color:var(--accink);box-shadow:0 3px 12px #f4c35b40}
@@ -82,7 +82,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .iconbtn:hover{color:var(--text);border-color:var(--line2)}
 .iconbtn svg{width:18px;height:18px}
 .tabbar{display:none}
-@media(max-width:1180px){.brand .btxt{display:none}.nav a{padding:8px 9px;gap:6px;font-size:14px}.teampill .lbl{display:none}}
+/* the top bar needs ~1330px with the full brand + game version badge + team label; compact it below that */
+@media(max-width:1380px){.teampill .lbl{display:none}}
+@media(max-width:1260px){.brand .btxt{display:none}}
+@media(max-width:1180px){.nav a{padding:8px 9px;gap:6px;font-size:14px}}
+@media(max-width:1100px){.topbar_in{gap:10px}.nav a{padding:8px 7px;gap:5px}}
 .pillempty{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);padding:3px 4px;white-space:nowrap}
 footer.site{max-width:1180px;margin:0 auto;padding:0 20px 30px;font-size:13px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between}
 footer.site a{color:var(--text2)}
@@ -2510,7 +2514,7 @@ function pickCard(title,onPick,o={}){
     <div class="modal_head">
       <div class="row between"><h3>${esc(title)}</h3><button class="xbtn" data-act="closeLayer" aria-label="Close">${ic("x")}</button></div>
       ${o.hint?`<div class="small muted">${o.hint}</div>`:""}
-      <div class="row"><div class="search">${ic("search")}<input class="input" id="pk_q" placeholder="Search by name" autofocus></div></div>
+      <div class="row"><div class="search">${ic("search")}<input class="input" id="pk_q" placeholder="Search by name" aria-label="Search cards by name" autofocus></div></div>
       <div class="row tight" id="pk_els" ${o.supp?'style="display:none"':""}></div>
       <div class="row tight">
         <label class="check"><input type="checkbox" id="pk_mine" ${st.mine?"checked":""}> Only my cards <span class="faint">(${OWN.size})</span></label>
@@ -2557,6 +2561,7 @@ function pickCard(title,onPick,o={}){
   }
   grid.addEventListener("click",e=>{const t=e.target.closest("[data-pick]");if(!t)return;e.stopPropagation();const id=+t.dataset.pick;closeLayer();onPick(id);},true);
   el.querySelector("#pk_q").addEventListener("input",e=>{st.q=e.target.value;st.limit=80;renderGrid();});
+  el.querySelector("#pk_q").addEventListener("keydown",e=>{if(e.key!=="Enter")return;const t=grid.querySelector("[data-pick]");if(t){e.preventDefault();closeLayer();onPick(+t.dataset.pick);}});   // Enter picks the first result
   el.querySelector("#pk_mine").addEventListener("change",e=>{st.mine=e.target.checked;st.limit=80;renderGrid();});
   el.querySelector("#pk_src").addEventListener("change",e=>{st.src=e.target.value;st.limit=80;renderGrid();});
   const pr=el.querySelector("#pk_role");if(pr)pr.addEventListener("change",e=>{st.role=e.target.value;st.limit=80;renderGrid();});
@@ -3477,7 +3482,7 @@ function renderAdvanced(){
   const names=Object.keys(S.saved||{});
   el.innerHTML=`<div class="grid g2">
     <div class="stack"><h4>Saved teams</h4>
-      <div class="row tight"><input class="input" id="sv_name" placeholder="Name this team" style="flex:1"><button class="btn sm" data-act="saveTeam">${ic("save")}Save current</button></div>
+      <div class="row tight"><input class="input" id="sv_name" placeholder="Name this team" aria-label="Name for the saved team" style="flex:1"><button class="btn sm" data-act="saveTeam">${ic("save")}Save current</button></div>
       ${names.length?`<div class="stack" style="gap:6px">${names.map(n=>{const t=S.saved[n];const L=(t.leaders||[]).filter(id=>CARDS[id]),sp=(t.supp||[]).filter(id=>CARDS[id]);
         return`<div class="teamrow savedrow" style="padding:8px 10px"><div style="flex:1;min-width:0"><b>${esc(n)}</b>
           <div class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(L.map(id=>shortName(CARDS[id])).join(" + "))}${sp.length?` <span class="faint">+${sp.length} supporter${sp.length===1?"":"s"}</span>`:""}</div></div>
@@ -3485,7 +3490,7 @@ function renderAdvanced(){
     </div>
     <div class="stack"><h4>Team code</h4>
       <p class="small muted" style="margin:0">Paste the code from the game's "Copy Team ID" button, or copy your team's code to share it.</p>
-      <input class="input code" id="code_in" placeholder="Paste a team code">
+      <input class="input code" id="code_in" placeholder="Paste a team code" aria-label="Team code">
       <div class="row tight"><button class="btn sm" data-act="codeLoad" data-as="you">Load as my team</button><button class="btn sm" data-act="codeLoad" data-as="opp">Load as opponent</button><button class="btn sm" data-act="codeCopy">${ic("copy")}Copy my code</button></div>
       <h4 style="margin-top:10px">Battle settings</h4>
       <label class="small muted row tight">Battles per run <select class="select" id="adv_n">${[200,500,1000,2000,5000].map(x=>`<option ${x===S.simN?"selected":""}>${x}</option>`).join("")}</select></label>
@@ -3607,7 +3612,7 @@ ACT.importSave=()=>{
         <p class="small muted">Easiest: import on your PC first, then press <b>Share my cards</b> there and open the link on your phone.</p>
         <p class="small muted">Or copy the file's text on your PC with this PowerShell command and paste it below:</p>
         <div class="row tight"><code class="code" style="font-size:11.5px;word-break:break-all">${esc(PS_CMD)}</code><button class="btn xs" id="imp_cp2">${ic("copy")}Copy</button></div>
-        <textarea class="input" id="imp_txt" rows="4" placeholder="Paste the file's text here" style="width:100%;margin-top:8px"></textarea></details>
+        <textarea class="input" id="imp_txt" rows="4" placeholder="Paste the file's text here" aria-label="Save file text" style="width:100%;margin-top:8px"></textarea></details>
       <div id="imp_prev"></div>
     </div></div>`,"modal");
   const copy=(t,msg)=>{if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast(msg),()=>toast("Select it and copy it by hand."));else toast("Select it and copy it by hand.");};
@@ -3734,7 +3739,7 @@ function pageCards(args){
     <div class="page_head"><div><h1>Cards</h1><p>Every card in the game. Tap one to see what it does. Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div></div>
     <div class="filters">
       <div class="seg modeseg" id="cf_view" role="group" aria-label="Browse cards as">${[["lead","Leaders"],["supp","Supporters"]].map(([v,l])=>`<button class="${F.view===v?"on":""}" data-v="${v}" aria-pressed="${F.view===v}">${l}</button>`).join("")}</div>
-      <div class="search">${ic("search")}<input class="input" id="cf_q" placeholder="Search by name" value="${esc(F.q)}"></div>
+      <div class="search">${ic("search")}<input class="input" id="cf_q" placeholder="Search by name" aria-label="Search cards by name" value="${esc(F.q)}"></div>
       <select class="select" id="cf_own" aria-label="Which cards"><option value="all">All cards</option><option value="mine" ${F.own==="mine"?"selected":""}>My cards</option><option value="missing" ${F.own==="missing"?"selected":""}>Cards I'm missing</option></select>
       ${SUP?suppSelects(F,"cf_")
         :`<select class="select" id="cf_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option ${F.role===r?"selected":""}>${r}</option>`).join("")}</select>${srcSel}`}
@@ -3901,7 +3906,7 @@ function pageBuilds(){
     <div class="card" style="margin-top:22px">
       <div class="card_head"><div><h3>Submit your team</h3><div class="card_sub">Shares the team currently in your simulator.</div></div></div>
       ${nL===3?`<div class="teamrow" style="margin-bottom:12px"><div class="members">${t.leaders.map(id=>cchip(id)).join("")}</div><div class="supps">${t.supp.length?`Supporters: ${t.supp.map(id=>cchip(id)).join("")}`:"No supporters"}</div></div>
-      <div class="row"><input class="input" id="b_user" placeholder="Your username" maxlength="24" value="${esc(S.user||"")}">
+      <div class="row"><input class="input" id="b_user" placeholder="Your username" aria-label="Your username" maxlength="24" value="${esc(S.user||"")}">
         <select class="select" id="b_for"><option value="story">For story</option><option value="pvp" ${view==="pvp"?"selected":""}>For PvP</option><option value="both">For both</option></select>
         <button class="btn primary" data-act="submitBuild">${ic("github")}Submit on GitHub</button></div>
       <p class="small faint" style="margin-top:8px">This opens a pre-filled GitHub issue. Press "Submit new issue" there to finish. You need a free GitHub account.</p>`
@@ -4564,7 +4569,7 @@ function gStatuses(){
   return`<h2>Statuses</h2>
   <p class="muted" style="margin-top:8px">Statuses are the green and red words in abilities. Hover or tap one anywhere on the site to see this description. Putting a status on again restarts its timer instead of stacking it.</p>
   <p class="muted">Timing: statuses count down at the start of each turn and wear off at the end of a turn, so one that lands during a turn also lasts through the next one. Stunned, Paralyzed and Tired are the exception: they only last the turn they land on.</p>
-  <div class="search" style="max-width:340px;margin:12px 0">${ic("search")}<input class="input" id="gs_q" placeholder="Search statuses"></div>
+  <div class="search" style="max-width:340px;margin:12px 0">${ic("search")}<input class="input" id="gs_q" placeholder="Search statuses" aria-label="Search statuses"></div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Status</th><th>What it does</th><th>Lasts</th></tr></thead><tbody id="gs_list">
   ${ids.map(id=>`<tr><td>${stChip(id)}</td><td class="muted">${esc(statusDesc(id).replace(/ Lasts [^.]*\.$/,""))}</td><td class="faint">${stLasts(id)}</td></tr>`).join("")}</tbody></table></div>`;
 }
@@ -4588,6 +4593,7 @@ const SITE_UPDATES=[["2026-10-06 · Ranked leaderboard",[
   `<b>Cards: Leaders / Supporters switch.</b> Each mode shows only the filters that matter for it. <b>Supporters</b> filters by what the supporter ability does (grants or lowers, which stat, teammate or enemy, which leader it picks), sorts the strongest first (helpful effects before harmful ones) or shows the <b>best card per effect</b>. The filter area takes about half the space it did on phones. A name search that other filters hide now tells you which filters.`,
   `<b>Simulator: the supporter picker</b> has the same supporter filters and sorts the strongest first. Role and element filters are gone there, since they only matter for leaders. It remembers your choice.`,
   `<b>Team finder: no limits.</b> Every search setting is now a number you type, with the recommended value shown and no maximum. The full search runs in batches, so even hundreds of cards work (the estimate shows how long). New: <b>Final polish</b> tries every allowed card in each slot of the best teams, <b>Random extra cards</b> adds cards that missed the screening cut, and you choose which supporter packages to try. Cards from the fight's recommended teams now always take part, so screening luck can't cut a proven winner.`,
+  `<b>Fixes:</b> the top bar no longer runs off the right edge on desktop screens (the theme button was cut off). Enter in the card picker's search picks the first result. Search boxes have labels for screen readers.`,
   `<b>Ranked top 100: cheat checks.</b> Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (the skin data the game uploads with the pet score). Teams using cards their player doesn't own, or ownership the real game can't produce (like the developer-only skin), are left out too. In this snapshot all 100 teams passed. Ratings themselves can't be verified, so read the order as "teams people really use".`,
   `<b>Card texts now describe what the battle code really does.</b> About 250 abilities used to show the game's own description, and on 19 cards that description is wrong. Examples: Graduation Hat and Blue Scuba Goggles give their status to the whole team, not just themselves. Green Scarf blesses the team already on turn 1. Cyan Straw Hat, Blue Sparkle Eyes and Teal-Purple Fur also gain attack. Explorer Hat and Pirate Sword list a second effect that never happens because of a mistake in the game's data. Every wording was checked against the game's battle code.`,
   `<b>Team finder: full control.</b> A new <b>Search settings</b> panel sets how many cards go into the full search, the screening and quick-pass battles, and how many teams get double-checked with how many battles. The recommended values are marked, with a live estimate of the work and a button back to recommended. "Include cards you can't get anymore" makes <b>Every card</b> really every card.`,
