@@ -19,7 +19,7 @@
 :root{
   --bg:#13141a;--bg2:#181a22;--surface:#1f222c;--surface2:#272a36;--surface3:#30344257;
   --line:#2f3341;--line2:#3b4050;
-  --text:#e9ebf2;--text2:#b4b9c7;--text3:#838a9c;
+  --text:#e9ebf2;--text2:#b4b9c7;--text3:#959cae;
   --acc:#f4c35b;--acc2:#ffd985;--accink:#241a03;--accsoft:#f4c35b1f;
   --good:#5fd38a;--goodsoft:#5fd38a1f;--ok:#9ccf5a;--mid:#f0b847;--midsoft:#f0b8471f;--bad:#f0705f;--badsoft:#f0705f1f;
   --info:#7fb2ff;--infosoft:#7fb2ff1a;
@@ -46,8 +46,8 @@ a{color:var(--acc);text-decoration:none}
 a:hover{text-decoration:underline}
 h1,h2,h3,h4{margin:0;font-weight:800;line-height:1.2;color:var(--text)}
 h1{font-size:30px;letter-spacing:-.3px}
-h2{font-size:21px}
-h3{font-size:17px}
+h2{font-size:23px;letter-spacing:-.2px}
+h3{font-size:18.5px}
 p{margin:0 0 10px}
 small,.small{font-size:13px}
 .muted{color:var(--text2)}
@@ -220,7 +220,7 @@ label.check input{accent-color:var(--acc);width:17px;height:17px}
 .w_good{color:var(--good)}.w_ok{color:var(--ok)}.w_mid{color:var(--mid)}.w_bad{color:var(--bad)}
 .b_good{background:var(--good)}.b_ok{background:var(--ok)}.b_mid{background:var(--mid)}.b_bad{background:var(--bad)}
 .pctpill{display:inline-flex;align-items:center;gap:5px;font-weight:900;font-size:13px;border-radius:var(--r3);padding:2px 9px;font-variant-numeric:tabular-nums}
-.pctpill.w_good{background:var(--goodsoft)}.pctpill.w_ok{background:var(--goodsoft)}.pctpill.w_mid{background:var(--midsoft)}.pctpill.w_bad{background:var(--badsoft)}
+.pctpill.w_good{background:var(--goodsoft)}.pctpill.w_ok{background:color-mix(in srgb,var(--ok) 14%,transparent)}.pctpill.w_mid{background:var(--midsoft)}.pctpill.w_bad{background:var(--badsoft)}
 
 /* ---------- home ---------- */
 .hero{position:relative;overflow:hidden;border-radius:22px;padding:40px 36px;background:
@@ -244,7 +244,7 @@ label.check input{accent-color:var(--acc);width:17px;height:17px}
 .steps{counter-reset:s;display:grid;gap:12px}
 .step{display:flex;gap:14px;align-items:flex-start}
 .step::before{counter-increment:s;content:counter(s);flex:none;width:30px;height:30px;border-radius:50%;background:var(--accsoft);color:var(--acc);display:grid;place-items:center;font-weight:900}
-.step b{display:block}
+.step>div>b{display:block}
 .step span{color:var(--text2);font-size:14px}
 .spotlink{background:none;border:0;padding:0;font:inherit;font-weight:800;color:var(--text);cursor:pointer;text-align:left;text-decoration:underline dotted var(--text3);text-underline-offset:3px}
 .spotlink:hover{color:var(--acc);text-decoration-color:var(--acc)}
@@ -336,8 +336,8 @@ details.adv>.in{padding:0 16px 16px}
 
 /* ---------- tables ---------- */
 .tbl{width:100%;border-collapse:collapse;font-size:14px}
-.tbl th{text-align:left;font-size:12px;color:var(--text3);font-weight:800;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);font-weight:800;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface2)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:0}
 .tblwrap{overflow-x:auto;max-width:100%}
 .seg{flex-wrap:wrap;max-width:100%}
@@ -456,6 +456,58 @@ a.hc{color:var(--text);text-decoration:none}
   .ownbtn{width:38px;height:38px}
   .bigpct{font-size:44px}
 }
+
+/* ---- readability: shared patterns (tools, key numbers, verdicts, labelled callouts, prose, tables) ---- */
+.prose{font-weight:500}
+.prose>p,.prose>ul,.prose>ol{max-width:76ch;line-height:1.65}
+.prose b,.prose strong{color:var(--text);font-weight:800}
+.prose h3{display:flex;align-items:center;gap:10px;font-size:19px;margin:30px 0 8px;padding-top:20px;border-top:1px solid var(--line)}
+.prose h3::before{content:"";flex:none;width:4px;height:18px;border-radius:2px;background:var(--acc)}
+.prose>h2{font-size:26px;margin-bottom:6px}
+.prose ul.tight{margin:6px 0 10px;padding-left:20px}.prose ul.tight li{margin:3px 0}
+.lead{font-size:16.5px;color:var(--text);font-weight:600;max-width:70ch}
+.tool{margin:18px 0 24px;padding:16px 18px 18px;border-radius:var(--r);background:linear-gradient(180deg,var(--accsoft),transparent 75%),var(--surface2);border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line));box-shadow:inset 4px 0 0 var(--acc);font-weight:600}
+.tool_head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.tool_title{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:900;line-height:1.2;color:var(--text)}
+.tool_title .ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--acc);color:var(--accink)}
+.tool_title .ic svg{width:18px;height:18px}
+.eyebrow{display:block;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.jump{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:var(--acc);background:var(--accsoft);border-radius:var(--r3);padding:4px 11px;cursor:pointer;border:0;font-family:inherit}
+.jump:hover{filter:brightness(1.1)}
+.hl{font-weight:900;color:var(--text);font-variant-numeric:tabular-nums;background:var(--accsoft);padding:0 5px;border-radius:5px;white-space:nowrap}
+.hl.good{color:var(--good);background:var(--goodsoft)}.hl.bad{color:var(--bad);background:var(--badsoft)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.stat{padding:12px 14px;border-radius:var(--r2);background:var(--surface2);border:1px solid var(--line);min-width:0}
+.stat .v{font-size:24px;font-weight:900;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .k{font-size:13px;font-weight:700;color:var(--text2);margin-top:4px;line-height:1.4}
+.stat.good{border-color:color-mix(in srgb,var(--good) 45%,var(--line));background:linear-gradient(0deg,var(--goodsoft),var(--goodsoft)),var(--surface2)}.stat.good .v{color:var(--good)}
+.stat.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--line));background:linear-gradient(0deg,var(--badsoft),var(--badsoft)),var(--surface2)}.stat.bad .v{color:var(--bad)}
+.vbox{display:flex;align-items:center;gap:16px;margin-top:12px;padding:14px 16px;border-radius:var(--r2);border:1px solid;font-size:15px;line-height:1.45}
+.vbox.good{background:var(--goodsoft);border-color:color-mix(in srgb,var(--good) 50%,transparent)}
+.vbox.warn{background:var(--midsoft);border-color:color-mix(in srgb,var(--mid) 50%,transparent)}
+.vbox.bad{background:var(--badsoft);border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
+.vbox .big{flex:none;font-size:28px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.vbox.good .big,.vbox.good .lbl{color:var(--good)}.vbox.warn .big,.vbox.warn .lbl{color:var(--mid)}.vbox.bad .big,.vbox.bad .lbl{color:var(--bad)}
+.vbox .lbl{display:block;font-size:11.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
+.callout{border-left-width:4px;border-left-color:var(--info);line-height:1.55}
+.callout.warn{border-left-color:var(--mid)}.callout.good{border-left-color:var(--good)}
+.callout.bad{background:var(--badsoft);border-color:color-mix(in srgb,var(--bad) 40%,transparent);border-left-color:var(--bad)}
+.callout[data-k]::before{content:attr(data-k);display:block;font-size:11.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--info);margin-bottom:3px}
+.callout.warn[data-k]::before{color:var(--mid)}.callout.good[data-k]::before{color:var(--good)}.callout.bad[data-k]::before{color:var(--bad)}
+.tbl tr.grp td{padding-top:16px;font-size:11.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--text2);background:none;border-bottom:1px solid var(--line)}
+.tbl tr.grp.good td{color:var(--good)}.tbl tr.grp.mid td{color:var(--mid)}.tbl tr.grp.bad td{color:var(--bad)}
+.tbl tr.best td{background:var(--accsoft);font-weight:800}
+.tbl tr.best td:first-child{box-shadow:inset 3px 0 0 var(--acc)}
+.tbl tr.rowgood td:first-child{box-shadow:inset 3px 0 0 var(--good)}.tbl tr.rowbad td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.tbl td.v_good{color:var(--good);font-weight:900}.tbl td.v_bad{color:var(--bad);font-weight:900}
+.rule{display:flex;gap:8px;align-items:baseline;font-weight:800;color:var(--text);margin:6px 0 6px}
+.rule::before{content:"→";color:var(--acc);font-weight:900}
+
+.teamrow.best .wm_pct{font-size:30px;letter-spacing:-.5px}
+.teamrow.best .wm_word{font-size:13.5px}
+.teamrow.best .wm_bar{height:9px}
+.besttag{flex-basis:100%;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);margin-bottom:-4px}
+.card.result{box-shadow:inset 4px 0 0 var(--rescol,var(--line))}
 </style>
 </head>
 <body>
@@ -1856,7 +1908,7 @@ function winInfo(p){
   if(p==null||isNaN(p))return{cls:"",word:"Not tested"};
   if(p>=.95)return{cls:"good",word:"Almost always wins"};
   if(p>=.75)return{cls:"ok",word:"Usually wins"};
-  if(p>=.55)return{cls:"ok",word:"Wins more often than not"};
+  if(p>=.55)return{cls:"mid",word:"Wins more often than not"};
   if(p>=.40)return{cls:"mid",word:"About a coin flip"};
   if(p>=.15)return{cls:"bad",word:"Usually loses"};
   return{cls:"bad",word:"Almost never wins"};
@@ -2804,10 +2856,10 @@ function teamRowHtml(t,o){
   const third=t.lead?t.team.find(id=>!t.lead.includes(id)):null;
   const sameSupp=a=>!teamDraws(a.team)||(a.supp||[]).slice().sort().join()===supp.slice().sort().join();
   return`<div class="teamrow ${o.best?"best":""}">
-    <div class="members">${t.team.map(id=>cchip(id,{own:true})).join("")}</div>
+    ${o.best?`<div class="besttag">Best team</div>`:""}<div class="members">${t.team.map(id=>cchip(id,{own:true})).join("")}</div>
     ${wmeter(t.wr,{none:o.none})}
     <div class="acts">
-      <button class="btn sm primary" data-act="useTeam" data-j="${jattr({team:t.team,supp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">${ic("play")}Use</button>
+      <button class="btn sm${o.best?" primary":""}" data-act="useTeam" data-j="${jattr({team:t.team,supp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">${ic("play")}Use</button>
     </div>
     <div class="supps" style="width:100%">${supp.length?suppBox(supp,t.wr,t.wr_ns):`<span title="None of these leaders draw supporters, so supporters would never come into play">No supporters needed</span>`}
       <span class="spacer"></span>${lvTag(t.min,t.wr,t)} ${myLvTag(t.team,t.min,t.wr,t)} ${teamEaseTags(t.team.concat(supp))} ${rewardTags(t.team.concat(supp))}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
@@ -3185,7 +3237,7 @@ function renderTeamPanel(){
   let suppNote;
   if(!nL)suppNote="Supporters are optional. They only do something if one of your leaders draws cards during battle.";
   else if(drawers.length)suppNote=`<b>${esc(shortName(CARDS[drawers[0]]))}</b> draws supporters, so supporter abilities will fire in battle.`;
-  else suppNote="None of your leaders draw cards, so supporters won't do anything for this team. You can leave these empty.";
+  else suppNote=t.supp.length?`<div class="callout warn" data-k="Watch out"><b>Your supporters never come into play.</b> None of your leaders draw cards, so you can leave these empty.</div>`:"None of your leaders draw cards, so supporters won't do anything for this team. You can leave these empty.";
   const st=!nL?starterTeam():null;
   el.innerHTML=`<div class="card_head"><div><h3>Your team</h3><div class="card_sub">3 leaders fight. Tap a name to see what it does.</div></div>
       <div class="row tight">${nL?`<select class="select" id="setall" aria-label="Set every level" style="padding:6px 10px"><option value="">Set all levels</option>${Object.keys(S.ownLv).length?'<option value="mine">My levels</option>':""}${[1,5,10,15,20].map(x=>`<option>${x}</option>`).join("")}</select>
@@ -3284,7 +3336,9 @@ function renderResult(r,mode,label,stamp,pd,ed){
   const deaths=Object.entries(r.deaths).sort((a,b)=>b[1]-a[1]),firsts=Object.entries(r.firsts||{}).sort((a,b)=>b[1]-a[1]),nFirst=firsts.reduce((a,x)=>a+x[1],0);
   const lossN=r.n-r.w;
   const stale=stamp&&stamp!==sigLv(S.team)+JSON.stringify(S.opp);
-  el.innerHTML=`<div class="card result fadein">
+  const resCol={good:"--good",ok:"--ok",mid:"--mid",bad:"--bad"}[w.cls];
+  const deadSupp=S.team.supp.length&&!S.team.leaders.some(id=>id!=null&&drawsSupporters(id));
+  el.innerHTML=`<div class="card result fadein"${resCol?` style="--rescol:var(${resCol})"`:""}>
     ${stale?`<div class="callout warn">You changed the team or opponent while this was running. These numbers are for the previous setup. Press Run again.</div>`:""}
     <div class="row" style="gap:22px;align-items:center">
       <div><div class="bigpct w_${w.cls}">${pct(r.w/r.n)}</div><div class="small faint" style="margin-top:4px">${ci>=.005?`give or take ${pct(ci)}`:`over ${r.n} battles`}</div></div>
@@ -3300,7 +3354,8 @@ function renderResult(r,mode,label,stamp,pd,ed){
       ${nFirst?`<div class="fact" style="grid-column:span 2" title="In the battles you lost, which of your leaders was defeated first"><div class="k">First to fall in losses</div><div class="v fallers">${firsts.slice(0,3).map(([nm,n])=>`<span>${esc(shortName(Object.values(CARDS).find(c=>c.name===nm)||{name:nm}))} <b class="w_${n/nFirst>=.6?"bad":n/nFirst>=.3?"mid":"ok"}">${pct(n/nFirst)}</b></span>`).join("")}</div></div>`
         :deaths.length?`<div class="fact"><div class="k">Your leader that falls most in losses</div><div class="v" style="font-size:15px">${esc(shortName(Object.values(CARDS).find(c=>c.name===deaths[0][0])||{name:deaths[0][0]}))}</div></div>`:""}
     </div>
-    ${mode!=="pvp"&&r.d>lossN*.5&&lossN>0?`<div class="callout warn">Most losses are <b>timeouts</b>: your team survives but can't finish the enemies within 30 turns. You need more damage, not more defense.</div>`:""}
+    ${deadSupp?`<div class="callout warn" data-k="Watch out" style="margin-top:12px"><b>Your supporters never came into play.</b> None of your leaders draw cards, so this result is the same without them.</div>`:""}
+    ${mode!=="pvp"&&r.d>lossN*.5&&lossN>0?`<div class="callout warn" data-k="Watch out">Most losses are <b>timeouts</b>: your team survives but can't finish the enemies within 30 turns. You need more damage, not more defense.</div>`:""}
     ${p<.95&&mode!=="pvp"&&S.opp.kind==="chapter"?`<div class="reshint">Want better odds? <a href="${chHref(S.opp.ch)}">See the recommended teams for this chapter</a>, or use "Find a better team" below.</div>`:""}
     ${mode!=="pvp"&&DATA.game_version?`<div class="reshint">Real fights go differently? Check that your game says <button type="button" class="linkish" data-act="verInfo">${esc(DATA.game_version)}</button> (tap to see where). An older game version can have different cards and enemies.</div>`:""}
     <div id="watch_out"></div>
@@ -3504,9 +3559,9 @@ function renderAdvanced(){
       <label class="small muted row tight">Battles per run <select class="select" id="adv_n">${[200,500,1000,2000,5000].map(x=>`<option ${x===S.simN?"selected":""}>${x}</option>`).join("")}</select></label>
       <label class="check"><input type="checkbox" id="adv_fixed" ${S.fixedSeed?"checked":""}> Same dice every run (seed <input class="input" id="adv_seed" type="number" value="${S.seed}" style="width:80px;padding:4px 8px">)</label>
       <p class="small faint" style="margin:0">Off: each run uses new random battles, so the number moves a little between runs. That's normal.</p>
-      ${S.opp.kind==="chapter"?`<h4 style="margin-top:10px">Enemy supporters</h4><p class="small muted" style="margin:0">The site computes the enemy's 4 supporters from the game's code. If the game shows different ones, set them here.</p>
+      ${S.opp.kind==="chapter"?`<h4 style="margin-top:10px">Enemy supporters</h4><p class="small muted" style="margin:0">These are the enemy's 4 supporters. If the game shows different ones, set them here.</p>
         ${(()=>{const ov=S.opp.suppOv[S.opp.ch+S.opp.diff]||[],cur=enemySupp();
-          return`<div class="small faint">${ov.length?"Your choice:":"Computed from the game's code:"}</div>
+          return`<div class="small faint">${ov.length?"Your choice:":"Computed:"}</div>
           <div class="row tight" style="flex-wrap:wrap">${cur.map((id,i)=>`<span class="mustchip">${cchip(id)}<button class="btn xs ghost" data-act="suppOvOne" data-i="${i}" title="Replace this supporter">Change</button></span>`).join("")}</div>
           ${ov.length?'<div class="row tight"><button class="btn sm ghost" data-act="suppOvClear">Back to the computed set</button></div>':""}`;})()}`:""}
     </div></div>`;
@@ -4311,7 +4366,7 @@ function pageFishing(args){
   const sec=args[0]||"start";
   const SECS=[["start","How it works"],["spots","Best spots"],["value","Fish value"],["rods","Rods"],["games","Minigame tips"],["levels","Levels & journal"],["fish","Every fish"]];
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Fishing</h1><p>How fishing works, where to fish, what makes a fish worth more, which rod to use, and tricks for every minigame. Everything here comes straight from the game's files.</p></div></div>
+    <div class="page_head"><div><h1>Fishing</h1><p>How fishing works, where to fish, what makes a fish worth more, which rod to use, and tricks for every minigame.</p></div></div>
     <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/fishing/${k}">${l}</a>`).join("")}</div>
     <div id="fi_body"></div></div>`;
   const f={start:fStart,spots:fSpots,value:fValue,rods:fRods,games:fGames,levels:fLevels,fish:fFish}[sec]||fStart;
@@ -4428,7 +4483,7 @@ function fRods(){
     <p class="small faint">Each crate rolls a rarity, then any rod of that rarity with equal chance.</p></div>
   <div class="card"><h3>Gear crates</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>Crate</th><th>Price</th>${RAR_KEYS.map(k=>`<th>${RAR_NAME[k]}</th>`).join("")}</tr></thead><tbody>
     ${C.map(([n,pr,o])=>{const t=o.reduce((a,b)=>a+b,0);return`<tr><td>${esc(n)}</td><td>${fnum(pr)} FL</td>${o.map(x=>{const p=x/t*100;return`<td>${p<1?p.toFixed(1):Math.round(p)}%</td>`;}).join("")}</tr>`;}).join("")}</tbody></table></div>
-    <p class="small faint">The game stopped showing these odds in the shop on October 4; they come straight from its files.</p></div>
+    <p class="small faint">The game stopped showing these odds in the shop on October 4.</p></div>
   <div class="card"><h3>Every rod effect</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>Effect</th><th>What it does</th><th>Values by level</th></tr></thead><tbody>
     ${Object.entries(E).map(([k,e])=>`<tr><td><b>${esc(e.label)}</b></td><td class="small muted">${esc(descOf(k))}</td><td class="small">${e.vals.map((v,i)=>`${ROMAN[i]}: ${v}`).join(" · ")}</td></tr>`).join("")}</tbody></table></div></div>
   </div>`;
@@ -4549,7 +4604,7 @@ function pageGuide(args){
   $("#view").innerHTML=`<div class="fadein">
     <div class="page_head"><div><h1>Guide</h1><p>Everything you need to read the rest of the site, in plain words.</p></div></div>
     <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/guide/${k}">${l}</a>`).join("")}</div>
-    <div class="card" id="g_body"></div></div>`;
+    <div class="card prose" id="g_body"></div></div>`;
   $("#g_body").innerHTML=({basics:gBasics,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,ranked:gRanked,gambling:gGambling,numbers:gNumbers,updates:gUpdates}[sec]||gBasics)();
   if(sec==="ranked")wireRankCalc();
   if(sec==="gambling")renderRacePicker();
@@ -4564,8 +4619,8 @@ const gBasics=()=>`<h2>How a battle works</h2>
     <div class="step"><div><b>End of turn</b><span>End-of-turn abilities fire and one-turn statuses wear off.</span></div></div>
   </div>
   <h3>How you win</h3>
-  <p class="muted" style="margin-top:6px"><b style="color:var(--text)">Story:</b> defeat every enemy within 30 turns. If the clock runs out, you lose, even if your whole team is still standing.
-  <b style="color:var(--text)">Ranked PvP:</b> running out of time is a draw.</p>
+  <div class="callout warn" data-k="The 30-turn clock" style="margin:8px 0"><b>Story:</b> defeat every enemy within 30 turns. If the clock runs out, you lose, even if your whole team is still standing.
+  <b style="color:var(--text)">Ranked PvP:</b> running out of time is a draw.</div>
   <h3 style="margin-top:16px">Damage in one line</h3>
   <p class="muted" style="margin-top:6px">Damage is the attacker's attack, times the element bonus, plus any flat bonuses. There's a 10% crit chance for +5 damage (20% when Lucky). The defender then gets one roll: a <b style="color:var(--text)">dodge</b> (defense ÷ 4 percent) takes no damage, a <b style="color:var(--text)">block</b> (defense ÷ 2 percent) halves it. Defense stops at 50, so the best you can get is a 12.5% dodge and 25% block.</p>
   <h3 style="margin-top:16px">Normal vs EXTREME</h3>
@@ -4584,7 +4639,7 @@ function gElements(){
   <div class="tblwrap" style="margin:14px 0"><table class="tbl echart">${head}${rows}</table></div>
   <p class="muted"><b style="color:var(--text)">Apex</b> cards (a small gold dot on their badge) cancel their small elemental weakness, the ×1.05 to ×1.25 hits. The big multipliers like ×1.8 still apply to them.</p>
   <p class="muted">One extra rule: when a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes 30% of its attack back as recoil.</p>
-  <p class="muted">Elements come from each card's name, using the same calculation the game uses, and were checked against the game.</p>`;
+  <p class="muted">A card's element comes from its name.</p>`;
 }
 function gStatuses(){
   const ids=Object.keys(typeof STA!=="undefined"?STA:{}).sort((a,b)=>ST_NAME(a).localeCompare(ST_NAME(b)));
@@ -4627,20 +4682,22 @@ function gCrates(){
   <div class="tblwrap" style="margin:8px 0;max-width:560px"><table class="tbl"><thead><tr><th>Upgrade</th><th class="num">Daily-only card chance</th><th class="num">Price</th><th class="num">Shop level</th></tr></thead><tbody>
     ${d.up.map(([t,h,p,l])=>`<tr><td>${t}</td><td class="num">${h}%</td><td class="num">${p!=null?p.toLocaleString()+" SL$":"-"}</td><td class="num">${l??"-"}</td></tr>`).join("")}</tbody></table></div>
   <details class="adv" style="margin-top:14px"><summary>Fishing gear crates</summary><div class="in"><div class="tblwrap"><table class="tbl crtbl">${head}<tbody>${gear.map(row).join("")}</tbody></table></div></div></details>
-  <p class="small faint" style="margin-top:10px">From the game's code (${esc(GD.version||"")}).</p>`;
+`;
 }
 const gRanked=()=>`<h2>Ranked</h2>
-  <p class="muted" style="margin-top:8px">How online battles pick your opponent and change your rating, from the game's code. The current best teams are on the <a href="#/ranked">Ranked top 100</a>.</p>
-  <div class="grid g2" style="gap:16px;margin-top:14px">
-    <div class="stack" style="gap:8px">
-      <p style="margin:0"><b>Ranked</b> picks a random team from the 30 places above or below you on the ranked board. <b>Random</b> picks from the top 500 and doesn't change your rating. A <b>team code</b> battle fights exactly that team and doesn't change your rating either.</p>
-      <p style="margin:0">Everyone starts at <b>1000</b>. A win gives <b>25 + (their rating - yours) / 10</b>, at least 10 and at most 50. A loss costs <b>15 + (your rating - theirs) / 10</b>, at least 5 and at most 40. A draw (30 turns run out) changes nothing. Closing the game in the middle of a ranked battle counts as a loss.</p>
-      <p class="muted" style="margin:0">Only the battles you start change your rating. When others fight your team, their game runs the battle and only their rating moves.</p>
-    </div>
-    <div class="stack" style="gap:8px"><b>Rating calculator</b>
-      <div class="row tight"><label class="small muted row tight">Yours <input class="input" type="number" id="rk_me" value="1000" style="width:100px"></label><label class="small muted row tight">Theirs <input class="input" type="number" id="rk_op" value="1200" style="width:100px"></label></div>
-      <div id="rk_calc" class="row tight" style="gap:14px"></div>
-    </div></div>`;
+  <p class="lead" style="margin-top:6px">How online battles pick your opponent and change your rating. The current best teams are on the <a href="#/ranked">Ranked top 100</a>.</p>
+  <ul class="tight">
+    <li><b>Ranked</b> picks a random team from the 30 places above or below you on the ranked board.</li>
+    <li><b>Random</b> picks from the top 500 and doesn't change your rating. A <b>team code</b> battle fights exactly that team and doesn't change it either.</li>
+    <li>Only the battles you start change your rating. When others fight your team, only their rating moves.</li></ul>
+  <div class="tblwrap" style="margin:10px 0;max-width:620px"><table class="tbl"><thead><tr><th>Result</th><th>Rating change</th><th class="num">Smallest</th><th class="num">Biggest</th></tr></thead><tbody>
+    <tr class="rowgood"><td><b>Win</b></td><td>+ (25 + (their rating - yours) / 10)</td><td class="num">+10</td><td class="num">+50</td></tr>
+    <tr class="rowbad"><td><b>Loss</b></td><td>- (15 + (your rating - theirs) / 10)</td><td class="num">-5</td><td class="num">-40</td></tr>
+    <tr><td><b>Draw</b> (30 turns run out)</td><td>No change</td><td class="num">0</td><td class="num">0</td></tr></tbody></table></div>
+  <div class="callout warn" data-k="Watch out" style="margin:12px 0">Closing the game in the middle of a ranked battle counts as a loss. Everyone starts at <b>1000</b>.</div>
+  <section class="tool"><div class="tool_head"><div class="tool_title"><span class="ic">${ic("trophy")}</span><div><span class="eyebrow">Try it</span>Rating calculator</div></div></div>
+    <div class="row tight"><label class="small muted row tight">Yours <input class="input" type="number" id="rk_me" value="1000" style="width:100px"></label><label class="small muted row tight">Theirs <input class="input" type="number" id="rk_op" value="1200" style="width:100px"></label></div>
+    <div id="rk_calc" class="row tight" style="gap:14px;margin-top:10px"></div></section>`;
 // gambling odds (DATA.guide.gambling, computed from the game's scripts by gambling_odds.py)
 function gGambling(){
   const G=GD&&GD.gambling;
@@ -4650,38 +4707,68 @@ function gGambling(){
   const DAY=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const pl=G.plinko,lt=G.lottery,sl=G.slots,cr=G.crash,hl=G.hilo,cf=G.coinflip&&G.coinflip.rtp?G.coinflip:null,rc=G.race,bj=G.blackjack;
   const best=lt?lt.tickets.filter(t=>t.rtp).sort((a,b)=>b.rtp-a.rtp)[0]:null;
-  const groups=[["Worth playing",[
-      rc&&["Race","Bet on a clearly faster racer","<b>more than you bet</b>","About 80 of 100 when all racers are the same level"],
+  const jump=`<button class="jump" data-act="jumpTo" data-t="rp">${ic("arrow",'width="14" height="14"')}Pick for me</button>`;
+  const groups=[["good","Worth playing",[
+      rc&&["Race",`Bet on a clearly faster racer ${jump}`,"<b>more than you bet</b>","About 80 of 100 when all racers are the same level"],
       cf&&["Coin Flip",`Cash out by the ${cf.cap_wins}th win`,back(cf.rtp),"Exactly fair: no cut at all"]]],
-    ["A small cut",[
+    ["","A small cut",[
       ...(pl?pl.levels.slice().sort((x,y)=>y.rtp-x.rtp).map(l=>["Plinko",`${l.risk} risk`,back(l.rtp),l.risk==="High"?"Biggest swings: most balls lose about a third":l.risk==="Low"?`Steady: ${P(l.p_back)}% of balls pay back at least your bet`:"Skip it: Low and High both pay more"]):[]),
       best&&["Lottery",esc(best.name)+" ticket",back(best.rtp),"Best ticket. The other SL$ tickets pay back 99 to 99.5"],
       bj&&["Blackjack","Any play",back(bj.rtp),"In the long run"],
       hl&&["Higher or Lower","One guess, then cash out",back(hl.rtp_one_guess),"Each extra guess costs about 2 more"],
       cr&&["Crash","Any cash-out point",back(cr.rtp),"Same for every target"],
       G.mines&&["Mines","Any number of mines",back(G.mines.rtp),"Same for every choice"]]],
-    ["Avoid",[sl&&["Slots","Any bet",back(sl.rtp),"The biggest cut of the fixed-odds games"]]]];
-  const table=groups.map(([h,rows])=>{rows=rows.filter(Boolean);return rows.length?`<tr><th colspan="4" style="padding-top:14px">${h}</th></tr>`+rows.map(([g,b,v,n])=>`<tr><td><b>${g}</b></td><td>${b}</td><td class="num">${v}</td><td class="small muted">${n}</td></tr>`).join(""):"";}).join("");
+    ["bad","Avoid",[sl&&["Slots","Any bet",back(sl.rtp),"The biggest cut of the fixed-odds games"]]]];
+  const table=groups.map(([cls,h,rows])=>{rows=rows.filter(Boolean);return rows.length?`<tr class="grp ${cls}"><td colspan="4">${h}</td></tr>`+rows.map(([g,b,v,n])=>`<tr class="${cls==="good"?"rowgood":cls==="bad"?"rowbad":""}"><td><b>${g}</b></td><td>${b}</td><td class="num">${v}</td><td class="small muted">${n}</td></tr>`).join(""):"";}).join("");
+  const sec=(title,rule,items)=>`<h3>${title}</h3><p class="rule">${rule}</p><ul class="tight">${items.filter(Boolean).map(x=>`<li>${x}</li>`).join("")}</ul>`;
   return`<h2>Gambling</h2>
-  <p class="muted" style="margin-top:8px">Almost every gambling game keeps a small cut, so over many rounds you lose a little. The numbers below are how much you get back on average for every 100 SL$ you bet. Your bet size and the Anti-Gambling Hat don't change them, apart from the small rounding losses mentioned below.${rc&&cf?` Only two games don't lose: Race when one racer is clearly faster than the rest, and Coin Flip if you cash out by the ${cf.cap_wins}th win.`:""}</p>
-  <div class="tblwrap" style="margin:12px 0"><table class="tbl"><thead><tr><th>Game</th><th>Best setting</th><th class="num">You get back</th><th>Note</th></tr></thead><tbody>${table}</tbody></table></div>
-  <div class="callout" style="margin:14px 0">Leaving a game in the middle of a round loses your bet: the payout only happens once the round finishes (the plinko ball lands, every lottery tile is scratched, the slots stop).${cf?" Coin Flip is the only exception: leaving cashes out for you.":""}</div>
-  ${rc?`<h3>Race</h3><p class="muted" style="margin-top:6px">The four racers are your own skins, and a higher level makes a skin faster. Look at the lineup before you bet and pick the racer that's clearly the highest level. With equal levels you get back only about 80 of 100, but a level 3 skin against three level 1 skins already makes a profit on average, and a level 19 against three level 1 skins wins about 19 races in 20. If no racer stands out, leave and come back for a new lineup. The help text says every racer has the same chance. That's wrong. Bet an even amount: with an odd bet, a win loses the half SL$.</p>
-  <p class="muted">The race screen only shows the racers' names, not their levels. Pick them below and the site works out which one to bet on.</p>
-  <div id="rp" style="margin:10px 0 6px;padding:14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface2)"></div>`:""}
-  ${cf?`<h3>Coin Flip</h3><p class="muted" style="margin-top:6px">A true 50/50 that doubles your payout with each correct guess, so on average you get back every SL$ you bet, as long as you cash out by the ${cf.cap_wins}th win. The doubling stops at ${cf.cap}× after ${cf.cap_wins} wins, which the game doesn't say: flipping again after that risks everything for nothing. Leaving the screen mid-streak cashes out for you.</p>`:""}
-  ${pl?`<h3>Plinko</h3><p class="muted" style="margin-top:6px"><b style="color:var(--text)">High</b> pays back the most, but only ${P(pl.levels[2].p_back)}% of balls win anything and a losing ball loses about a third of the bet. <b style="color:var(--text)">Low</b> is nearly as good and much steadier. Skip Medium. Bet a multiple of 10 (every button except 25): with any other amount, payouts get rounded down and you lose a little more.</p>`:""}
-  ${lt?`<h3>Lottery</h3><p class="muted" style="margin-top:6px">Your prize is decided the moment you buy the ticket; scratching only reveals it.</p>
+  <p class="lead" style="margin-top:6px">Most games keep a small cut, so over many rounds you lose a little. Two don't.</p>
+  <div class="stats">
+    ${rc?`<div class="stat good"><div class="v">Race</div><div class="k">Beatable: bet on a racer that's clearly a higher level. ${jump}</div></div>`:""}
+    ${cf?`<div class="stat good"><div class="v">Coin Flip</div><div class="k">Exactly fair if you cash out by the ${cf.cap_wins}th win.</div></div>`:""}
+    ${sl?`<div class="stat bad"><div class="v">Slots</div><div class="k">The biggest cut: you get back ${one(sl.rtp)} of every 100 SL$.</div></div>`:""}
+  </div>
+  ${rc?`<section class="tool" id="rp"></section>`:""}
+  <div class="callout warn" data-k="Watch out" style="margin:14px 0">Leaving a game in the middle of a round loses your bet: the payout only happens once the round finishes (the plinko ball lands, every lottery tile is scratched, the slots stop).${cf?" Coin Flip is the only exception: leaving cashes out for you.":""}</div>
+  <h3>Every game</h3>
+  <p class="muted" style="margin:0 0 8px">How much you get back on average for every 100 SL$ you bet. Your bet size and the Anti-Gambling Hat don't change it, apart from small rounding losses.</p>
+  <div class="tblwrap" style="margin:4px 0 12px"><table class="tbl"><thead><tr><th>Game</th><th>Best setting</th><th class="num">You get back</th><th>Note</th></tr></thead><tbody>${table}</tbody></table></div>
+  ${rc?sec("Race","Bet on the racer that's clearly the highest level, or skip the lineup.",[
+    "The four racers are your own skins, and a higher level makes a skin faster. The race screen only shows names, so use the picker above.",
+    `With equal levels you get back only about <span class="hl">80 of 100</span>. One level 3 skin against three level 1 skins already makes a profit, and a level 19 against level 1s wins about <span class="hl good">19 races in 20</span>.`,
+    "No racer stands out? Leave and reopen the race for a new lineup.",
+    "The help text says every racer has the same chance. That's wrong.",
+    "Bet an even amount: with an odd bet, a win loses the half SL$."]):""}
+  ${cf?sec("Coin Flip",`Cash out by the ${cf.cap_wins}th win.`,[
+    "A true 50/50 that doubles your payout with each correct guess, so on average you get back every SL$ you bet.",
+    `The doubling stops at <span class="hl">${cf.cap}×</span> after ${cf.cap_wins} wins, which the game doesn't say. Flipping again after that risks everything for nothing.`,
+    "Leaving the screen mid-streak cashes out for you."]):""}
+  ${pl?sec("Plinko","Play High or Low, skip Medium, and bet a multiple of 10.",[
+    `<b>High</b> pays back the most, but only ${P(pl.levels[2].p_back)}% of balls win anything and a losing ball loses about a third of the bet.`,
+    "<b>Low</b> is nearly as good and much steadier.",
+    "Every bet button except 25 is a multiple of 10. With any other amount, payouts get rounded down and you lose a little more."]):""}
+  ${lt?`<h3>Lottery</h3><p class="rule">Holy Moly is the best ticket. Never buy Crazy Crates for value.</p>
+  <ul class="tight"><li>Your prize is decided the moment you buy the ticket; scratching only reveals it.</li><li>Crazy Crates pays in crates that cost far less than the ticket in the SL$ shop.</li></ul>
   <div class="tblwrap" style="margin:8px 0"><table class="tbl"><thead><tr><th>Ticket</th><th class="num">Price</th><th class="num">You get back</th><th class="num">Chance to win more than the price</th><th class="num">Top prize</th><th>When</th></tr></thead><tbody>
-    ${lt.tickets.filter(t=>t.rtp).sort((a,b)=>b.rtp-a.rtp).map(t=>`<tr><td><b>${esc(t.name)}</b></td><td class="num">${t.price.toLocaleString()} SL$</td><td class="num">${back(t.rtp)}</td><td class="num">${P(t.p_profit)}%</td><td class="num">${t.top.toLocaleString()} <span class="faint small">(1 in ${t.top_odds.toLocaleString()})</span></td><td class="small">${t.vip?"Supporter DLC":t.days.length?t.days.slice().sort((x,y)=>(x||7)-(y||7)).map(d=>DAY[d]).join(" and "):"Any day"}</td></tr>`).join("")}</tbody></table></div>
-  <p class="muted">The <b style="color:var(--text)">Crazy Crates</b> ticket pays in crates that cost far less than the ticket in the SL$ shop, so it's the worst buy here.</p>`:""}
-  ${bj?`<h3>Blackjack</h3><p class="muted" style="margin-top:6px">In the long run blackjack pays back <b style="color:var(--text)">${one(bj.rtp)}</b> of every 100 SL$, however you play: the game adjusts the cards the dealer draws to keep it there. Each round uses a fresh deck, so counting cards doesn't help. Bet an even amount: with an odd bet, a blackjack loses the half SL$.</p>`:""}
-  ${hl?`<h3>Higher or Lower</h3><p class="muted" style="margin-top:6px">Make one guess and cash out. Each guess pays back ${one(hl.per_guess)} of 100, so every extra guess costs about 2 more. The multiplier for the first guess isn't shown, but every guess pays back the same, so pick the side by how much risk you want.</p>`:""}
-  ${cr?`<h3>Crash</h3><p class="muted" style="margin-top:6px">Every cash-out point pays back ${one(cr.rtp)} of 100, so pick one for the risk you like. ${P(cr.instant_bust)}% of rounds crash before 1.00× (shown as ×0.97 to ×0.99). With small bets, cashing out very early pays your bet back with no profit, because payouts round down.</p>`:""}
-  ${G.mines?`<h3>Mines</h3><p class="muted" style="margin-top:6px">Every number of mines and every number of picks pays back ${one(G.mines.rtp)} of 100. Mines are decided at the moment you click a tile, so there's no pattern and no safe corner to learn.</p>`:""}
-  ${sl?`<h3>Slots</h3><p class="muted" style="margin-top:6px">Slots pays back ${one(sl.rtp)} of 100, the biggest cut of the fixed-odds games. The last free spin of each batch pays only 1×, not the batch's 2× or 3×.</p>`:""}
+    ${lt.tickets.filter(t=>t.rtp).sort((a,b)=>b.rtp-a.rtp).map((t,i)=>`<tr${i===0?' class="best"':""}><td><b>${esc(t.name)}</b></td><td class="num">${t.price.toLocaleString()} SL$</td><td class="num">${back(t.rtp)}</td><td class="num">${P(t.p_profit)}%</td><td class="num">${t.top.toLocaleString()} <span class="faint small">(1 in ${t.top_odds.toLocaleString()})</span></td><td class="small">${t.vip?"Supporter DLC":t.days.length?t.days.slice().sort((x,y)=>(x||7)-(y||7)).map(d=>DAY[d]).join(" and "):"Any day"}</td></tr>`).join("")}</tbody></table></div>`:""}
+  ${bj?sec("Blackjack",`Pays back ${one(bj.rtp)} of 100 in the long run, however you play.`,[
+    "The game adjusts the cards the dealer draws to keep it there.",
+    "Each round uses a fresh deck, so counting cards doesn't help.",
+    "Bet an even amount: with an odd bet, a blackjack loses the half SL$."]):""}
+  ${hl?sec("Higher or Lower","Make one guess, then cash out.",[
+    `Each guess pays back ${one(hl.per_guess)} of 100, so every extra guess costs about 2 more.`,
+    "The multiplier for the first guess isn't shown, but every guess pays back the same, so pick the side by how much risk you want."]):""}
+  ${cr?sec("Crash",`Any cash-out point pays back ${one(cr.rtp)} of 100, so pick one for the risk you like.`,[
+    `${P(cr.instant_bust)}% of rounds crash before 1.00× (shown as ×0.97 to ×0.99).`,
+    "With small bets, cashing out very early pays your bet back with no profit, because payouts round down."]):""}
+  ${G.mines?sec("Mines",`Every choice pays back ${one(G.mines.rtp)} of 100.`,[
+    "Mines are decided at the moment you click a tile, so there's no pattern and no safe corner to learn."]):""}
+  ${sl?sec("Slots",`The biggest cut: ${one(sl.rtp)} of 100.`,[
+    "The last free spin of each batch pays only 1×, not the batch's 2× or 3×."]):""}
   <h3>Bans and stats</h3>
-  <p class="muted" style="margin-top:6px">Gambling bans don't come from playing. You only get one if you restore a save backup (or the game recovers your SL$) within an hour of losing a bet. The closer to the loss, the longer the ban, and a second one on the same day lasts twice as long. The Profit and Loss stats count wins and losses separately, so profit titles don't mean you're ahead.</p>`;
+  <ul class="tight"><li>Gambling bans don't come from playing. You only get one if you restore a save backup (or the game recovers your SL$) within an hour of losing a bet.</li>
+  <li>The closer to the loss, the longer the ban, and a second one on the same day lasts twice as long.</li>
+  <li>The Profit and Loss stats count wins and losses separately, so profit titles don't mean you're ahead.</li></ul>`;
 }
 // Race picker: which lane to bet on, from the racers' skin levels. Same race as linguine_race.gd: start speeds,
 // the planned winner (your lane 22%, the others share the rest), bursts, the planned winner's extra top speed and
@@ -4722,26 +4809,28 @@ function renderRacePicker(){
   const L=S.ui.race,hasLv=Object.keys(S.ownLv||{}).length>0;
   const lvOf=x=>x.lv||(S.ownLv||{})[x.id]||1;
   const spdOf=lv=>(RC.speed_levels||[]).reduce((s,[l,v])=>lv>=l?s+v:s,0);
+  const firstEmpty=L.findIndex(x=>!x);
   const lanes=L.map((x,i)=>`<div class="stack" style="gap:6px;min-width:0">
-      <div class="small faint">Lane ${i+1}</div>
+      <span class="eyebrow" style="color:var(--text2)">Lane ${i+1}</span>
       ${x&&ALLC[x.id]?cchip(x.id):`<span class="small muted">Not picked yet</span>`}
-      <div class="row tight" style="flex-wrap:wrap"><button class="btn sm" data-act="racePick" data-i="${i}">${x?"Change":"Pick racer"}</button>
+      <div class="row tight" style="flex-wrap:wrap"><button class="btn sm${i===firstEmpty?" primary":""}" data-act="racePick" data-i="${i}">${x?"Change":"Pick racer"}</button>
       ${x?`<label class="small muted row tight">Level <select class="select" data-rlv="${i}" aria-label="Lane ${i+1} level">${Array.from({length:20},(_,k)=>`<option value="${k+1}" ${k+1===lvOf(x)?"selected":""}>${k+1}</option>`).join("")}</select></label>`:""}</div></div>`).join("");
   let res="";
   if(L.every(x=>x&&ALLC[x.id])){
     const spd=L.map(x=>spdOf(lvOf(x))),P=L.map((_,i)=>raceWinChance(RC,spd,i,3000,1234+i)),back=P.map(p=>p*RC.payout*100);
     const best=back.indexOf(Math.max(...back));
     res=`<div class="tblwrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>If you bet on</th><th class="num">It wins</th><th class="num">You get back</th></tr></thead><tbody>
-      ${L.map((x,i)=>`<tr${i===best?' style="font-weight:800"':""}><td>Lane ${i+1}: ${esc(shortName(ALLC[x.id]))} <span class="faint small">Lv ${lvOf(x)}</span></td><td class="num">${Math.round(P[i]*100)}%</td><td class="num">${Math.round(back[i])} <span class="faint small">of 100</span></td></tr>`).join("")}</tbody></table></div>
-      <div class="callout ${back[best]>=100?"good":"warn"}" style="margin-top:10px">${back[best]>=100
-        ?`Bet on <b>Lane ${best+1}</b>. It wins about ${Math.round(P[best]*100)}% of these races, so on average you get back about ${Math.round(back[best])} for every 100 SL$.`
-        :`Skip this lineup. Even the best pick only gets back about ${Math.round(back[best])} of every 100 SL$. Leave and reopen the race for new racers.`}</div>`;
+      ${L.map((x,i)=>`<tr${i===best?' class="best"':""}><td>Lane ${i+1}: ${esc(shortName(ALLC[x.id]))} <span class="faint small">Lv ${lvOf(x)}</span></td><td class="num">${Math.round(P[i]*100)}%</td><td class="num">${Math.round(back[i])} <span class="faint small">of 100</span></td></tr>`).join("")}</tbody></table></div>
+      ${back[best]>=100
+        ?`<div class="vbox good"><div class="big">Lane ${best+1}</div><div><span class="lbl">Bet on this racer</span>It wins about ${Math.round(P[best]*100)}% of these races, so on average you get back about ${Math.round(back[best])} for every 100 SL$.</div></div>`
+        :`<div class="vbox warn"><div class="big">Skip</div><div><span class="lbl">No racer stands out</span>Even the best pick only gets back about ${Math.round(back[best])} of every 100 SL$. Leave and reopen the race for new racers.</div></div>`}`;
   }
-  box.innerHTML=`<div class="row between" style="flex-wrap:wrap;gap:8px"><b>Which racer should I bet on?</b>${hasLv?"":`<button class="btn sm primary" data-act="importSave">${ic("download")}Import your cards</button>`}</div>
-    <p class="small muted" style="margin:6px 0 12px">Pick the four racers in the order the race screen lists them. ${hasLv?"Levels come from your imported cards; change one if it's wrong.":"Import your cards so their levels fill in by themselves, or set each level by hand."}</p>
+  box.innerHTML=`<div class="tool_head"><div class="tool_title"><span class="ic">${ic("arrow")}</span><div><span class="eyebrow">Try it</span>Which racer should I bet on?</div></div>${hasLv?"":`<button class="btn sm" data-act="importSave">${ic("download")}Import your cards</button>`}</div>
+    <p class="small muted" style="margin:0 0 12px">Pick the four racers in the order the race screen lists them. ${hasLv?"Levels come from your imported cards; change one if it's wrong.":"Import your cards so their levels fill in by themselves, or set each level by hand."}</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">${lanes}</div>${res}`;
   box.querySelectorAll("select[data-rlv]").forEach(sel=>sel.onchange=()=>{const x=L[+sel.dataset.rlv];if(x){x.lv=+sel.value;save();renderRacePicker();}});
 }
+ACT.jumpTo=el=>{const t=document.getElementById(el.dataset.t);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});};
 ACT.racePick=el=>{const i=+el.dataset.i,L=S.ui.race;
   pickCard(`Lane ${i+1} racer`,id=>{L[i]={id,lv:null};save();renderRacePicker();},{exclude:L.filter(Boolean).map(x=>x.id),hint:`Pick the skin the race screen shows in Lane ${i+1}.`});};
 const gNumbers=()=>`<h2>About the numbers</h2>
@@ -4749,10 +4838,12 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">Why it changes a little between runs</h3>
   <p class="muted" style="margin-top:6px">Each run uses new random battles, so the result moves by a few percent. The "give or take" number shows how much. Run more battles (Advanced settings) for a steadier number.</p>
   <h3 style="margin-top:14px">How accurate is it?</h3>
-  <p class="muted" style="margin-top:6px">The simulator copies the game's battle code rule by rule, and players' real results have lined up with it. It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</p>
+  <p class="muted" style="margin-top:6px">The simulator follows the game's battle rules exactly, and players' real results have lined up with it. It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</p>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-08 · Gambling guide",[
+const SITE_UPDATES=[["2026-10-08 · Easier to read",[
+  `<b>Important things stand out now.</b> Tools like the race picker and the rating calculator sit in a gold frame, verdicts show as a big colored box, warnings have a label, and the best team on each chapter page is marked. Guide pages use shorter lines and clearer headings, and win rates between 55% and 75% now show in amber instead of green.`,
+]],["2026-10-08 · Gambling guide",[
   `<b>New: <a href="#/guide/gambling">Gambling</a></b> in the Guide. Every gambling game ranked by how much you get back per 100 SL$, the best setting for each, and the traps the game doesn't mention: which two games don't lose, the race tip the help text gets wrong, when Coin Flip stops doubling, and why leaving mid-round costs your bet.`,
   `<b>Race picker</b> (in <a href="#/guide/gambling">Gambling</a>): pick the four racers the race screen shows, and it tells you which lane to bet on, or to skip the lineup. Levels come from your imported cards, or set them by hand.`,
 ]],["2026-10-06 · Ranked leaderboard",[
