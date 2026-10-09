@@ -508,6 +508,126 @@ a.hc{color:var(--text);text-decoration:none}
 .teamrow.best .wm_bar{height:9px}
 .besttag{flex-basis:100%;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);margin-bottom:-4px}
 .card.result{box-shadow:inset 4px 0 0 var(--rescol,var(--line))}
+/* round2 teams_ranked */
+.teamrow.ovrow .wm_pct{font-size:27px;letter-spacing:-.4px;line-height:1.1}
+.teamrow.ovrow.best .wm_pct{font-size:30px}
+.ov_stat{min-width:210px}
+.ov_mini{display:grid;grid-template-columns:auto auto 1fr;gap:1px 10px;margin-top:5px;font-size:12.5px;color:var(--text3);font-variant-numeric:tabular-nums;align-items:baseline}
+.ov_mini .k{font-weight:800;color:var(--text2)}.ov_mini b{text-align:right;font-weight:900}
+.ov_more{width:100%}.ov_more>summary{cursor:pointer;color:var(--acc);font-weight:800;font-size:13px;margin-top:4px}
+.ov_weak{margin-top:8px;gap:6px 12px}.ov_w{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.rk_rbar{position:relative;display:inline-block;min-width:110px;padding:2px 0 7px;text-align:right}
+.rk_rbar::before{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:2px;background:var(--line)}
+.rk_rbar span{position:relative;font-size:15px}
+.rk_rbar i{position:absolute;left:0;bottom:0;height:4px;border-radius:2px;background:color-mix(in srgb,var(--acc) 55%,transparent)}
+.rk_tbl tr.rk_p1 td:first-child{box-shadow:inset 3px 0 0 var(--acc)}.rk_tbl tr.rk_p1 .rk_n{color:var(--acc)}
+.rk_tbl tr.rk_p2 td:first-child{box-shadow:inset 3px 0 0 var(--text2)}.rk_tbl tr.rk_p2 .rk_n{color:var(--text2)}
+.rk_tbl tr.rk_p3 td:first-child{box-shadow:inset 3px 0 0 var(--text3)}
+.rk_tbl tr.rk_p1 td{background:var(--accsoft)}
+.rk_tbl tr.rk_p1 .rk_rbar span{font-size:17px}
+.rk_lv.lvlow{color:var(--mid);background:var(--midsoft);border-color:color-mix(in srgb,var(--mid) 45%,var(--line))}
+.rk_how{margin-top:6px}.rk_how>summary{cursor:pointer;font-size:12.5px;font-weight:800;color:var(--text2)}.rk_how p{margin-top:6px}
+@media (max-width:600px){.rk_tbl td.rk_rt{text-align:left}.rk_rbar{text-align:left;min-width:90px}
+  .rk_tbl tr.rk_p1,.rk_tbl tr.rk_p2,.rk_tbl tr.rk_p3{padding-left:10px}.rk_tbl tr.rk_p1{box-shadow:inset 3px 0 0 var(--acc);background:var(--accsoft)}
+  .rk_tbl tr.rk_p2{box-shadow:inset 3px 0 0 var(--text2)}.rk_tbl tr.rk_p3{box-shadow:inset 3px 0 0 var(--text3)}
+  .rk_tbl tr.rk_p1 td,.rk_tbl tr[class] td:first-child{box-shadow:none;background:none}}
+/* round2 home_story */
+.homenow{margin-top:18px}
+.homenow .stats{margin-top:6px}
+a.stat{color:var(--text);transition:border-color .15s}
+a.stat:hover{border-color:var(--acc);text-decoration:none}
+a.stat .tag{font-size:12px}
+.chtile.chodd{box-shadow:inset 3px 0 var(--mid)}
+.chtile .chbest{align-items:flex-end}
+.chtile .chbest>span:first-child{display:flex;align-items:baseline;gap:8px;min-width:0}
+.chtile .chlab{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chtile .chv{font-size:22px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+/* round2 cards_fishing */
+.ct_rec{color:var(--acc);font-size:13px;margin-left:5px;cursor:help}
+.ct_team{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;color:var(--good);white-space:nowrap}
+.ct_meta{margin-top:3px;font-size:12.5px;font-weight:700;color:var(--text2);line-height:1.45}
+.ct_meta i{font-style:normal;color:var(--text3);margin:0 1px}
+.ct_meta .elname{font-size:12.5px}
+.ct_src{margin-top:5px;font-size:11.5px;font-weight:600;color:var(--text3)}
+.ct_stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px;font-size:12px;color:var(--text3);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ct_stats b{color:var(--text);font-weight:800}
+.ct_stats .on,.ct_stats .on b{color:var(--acc)}
+.ct_stats .on b{font-weight:900}
+.ctile.ct2 .desc{font-size:13.5px;color:var(--text2);line-height:1.4;-webkit-line-clamp:3}
+.ctile.ct2 .desc b{color:var(--text);font-weight:800}
+.fi_dec{margin:12px 0 14px}
+.fi_dec .v{font-size:22px}
+.fi_dec .k b{color:var(--text)}
+.fi_dec .k a{font-weight:800}
+
+/* collapsible tool panel: the title bar is the toggle */
+.tool_fold>summary{list-style:none;cursor:pointer;margin-bottom:0}
+.tool_fold>summary::-webkit-details-marker{display:none}
+.tool_fold[open]>summary{margin-bottom:8px}
+.tool_chev{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accsoft);color:var(--acc);transform:rotate(90deg);transition:transform .15s}
+.tool_fold[open] .tool_chev{transform:rotate(-90deg)}
+.tool_fold>summary:focus-visible{outline:2px solid var(--acc);outline-offset:4px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){.tool_chev{transition:none}}
+/* round2 simulator */
+.stepn{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;margin-right:8px;vertical-align:2px;background:var(--accsoft);border:1px solid color-mix(in srgb,var(--acc) 50%,transparent);color:var(--acc);font-size:12.5px;font-weight:900;line-height:1}
+#runbtn:disabled:not(.busy){background:var(--surface3);border-color:var(--line2);color:var(--text3);opacity:1;filter:grayscale(1);box-shadow:none}
+#runbtn.busy:disabled{opacity:.8}
+.runcard .card_sub.needs{color:var(--mid);font-weight:800}
+@media(min-width:1001px){.runcard .card_sub.needs{font-size:14px}}
+.card.result{background:var(--surface2);border-color:var(--line2)}
+.card.result .btn:not(.ghost):not(.primary){background:var(--surface)}
+.card.result .btn.ghost:hover{background:var(--surface3)}
+.card.result .bturn{background:var(--surface)}
+.card.result .res_for{font-size:13px;font-weight:800;color:var(--text2);margin-bottom:-6px;overflow-wrap:anywhere}
+.card.result .res_for span{color:var(--text3);font-weight:700;margin:0 2px}
+.res_num{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+.res_pm{font-size:14px;font-weight:600;color:var(--text3);white-space:nowrap}
+.card.result .factgrid{display:flex;flex-wrap:wrap;gap:10px 34px;padding-top:12px;border-top:1px solid var(--line)}
+.card.result .factgrid:not(:has(.fact)){display:none}
+.card.result .fact{padding:0;background:none;border:0;border-radius:0;min-width:0}
+.card.result .fact .k{font-size:12px;color:var(--text3);font-weight:800}
+.card.result .fact .v{font-size:19px;margin-top:1px;font-variant-numeric:tabular-nums}
+.card.result .reshint.res_foot{font-size:12.5px;color:var(--text3);line-height:1.45;margin-top:2px}
+.card.result .res_foot .linkish{font-weight:700}
+#advanced.adv{border:0;background:none;border-radius:0}
+#advanced.adv>summary{display:inline-flex;padding:4px 0;font-size:14px;color:var(--acc)}
+#advanced.adv>summary:hover{color:var(--acc2);text-decoration:underline;text-underline-offset:3px}
+#advanced.adv>summary:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+#advanced.adv>.in{margin-top:10px;padding:16px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface)}
+/* round2 fishing_tabs */
+.fi_list{line-height:1.7;padding-left:20px;margin:8px 0 12px}
+.fi_list b{color:var(--text)}
+.fi_spot .v{font-size:19px}
+.fi_spot .v .spotlink{font-size:inherit;font-weight:900}
+.fi_spot .eyebrow{margin-bottom:4px}
+.fi_top{background:var(--accsoft);border-radius:8px;padding:6px 10px!important;margin:0 -10px}
+.fi_top .mono{font-weight:900;color:var(--acc)}
+.fi_more{margin-top:12px}
+.tbl th.fi_np,.tbl td.fi_np{color:var(--acc);font-weight:900}
+.tbl.fi_fish td.fi_np{font-size:15px}
+.fi_list .w_good b,.fi_list .w_mid b,.fi_list .w_bad b{color:inherit}
+/* round2 guide_rest */
+.prose>.stats{max-width:860px}
+.prose .stats.gk .v{font-size:22px}
+.prose>.rule{max-width:76ch}
+.crtbl th.crL{color:var(--acc)}
+.crtbl td.crL{background:var(--accsoft);font-weight:900;color:var(--text)}
+.crtbl tr.best td.crL{background:color-mix(in srgb,var(--acc) 26%,transparent)}
+.crtbl tr.best .tag{margin-left:6px;vertical-align:1px}
+.crtbl td.faint{color:var(--text3)}
+.crtbl tr.best td.small{font-weight:600}
+.gcol{font-weight:800}
+.gblock{margin:22px 0 6px;padding:4px 18px 18px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface2)}
+.prose .gblock>h3{margin-top:12px;padding-top:0;border-top:0}
+.gblock>p{max-width:76ch;line-height:1.65}
+.gblock .stats{max-width:860px}
+.gblock .stat{background:var(--surface)}
+.gstbl td.gs_chip{white-space:nowrap}
+.gstbl td.gs_last{white-space:nowrap;font-weight:800;color:var(--text)}
+.gstbl td.gs_last.short{color:var(--mid)}
+.lvtbl .lvend{background:var(--accsoft);font-weight:900;color:var(--text)}
+.cktbl .ckr{display:inline-flex;flex-wrap:wrap;gap:4px}
+@media (max-width:600px){.gblock{padding:2px 12px 14px}}
 </style>
 </head>
 <body>
@@ -2630,6 +2750,32 @@ function pickCard(title,onPick,o={}){
 // =====================================================================================
 // HOME
 // =====================================================================================
+// round2 home_story: "Right now" strip under the hero (best overall team, hardest EXTREME chapter, ranked #1)
+function homeNowRanked(R){
+  const e=R&&R.top&&R.top[0];if(!e)return"";
+  return`<div class="v">${e.rating.toLocaleString()}</div><div class="k">Top ranked rating, ${esc(e.t.map(id=>shortName(CARDS[id])).join(" + "))}</div>`;
+}
+function homeNowStrip(){
+  const tiles=[];
+  // (a) best overall team: same average as the Teams page (both seasons, EXTREME)
+  const ov=OVR&&OVR.both?OVR.both.find(r=>r.team.every(id=>CARDS[id])):null;
+  if(ov){
+    const chs=[1,2].flatMap(sn=>CH_BY_SEASON[sn]||[]).filter(c=>c.hard.length&&ov.per&&ov.per[c.id]!=null);
+    const avg=chs.length?chs.reduce((a,c)=>a+ov.per[c.id],0)/chs.length:null;
+    if(avg!=null)tiles.push(`<a class="stat good" href="#/teams"><div class="v">${pct(avg)}</div><div class="k">Best team overall, ${esc(ov.team.map(id=>shortName(CARDS[id])).join(" + "))}</div></a>`);
+  }
+  // (b) hardest EXTREME chapter: lowest best win rate, then highest level needed
+  let hard=null;
+  for(const sn of[1,2])for(const c of(CH_BY_SEASON[sn]||[])){
+    if(!c.hard.length)continue;const t=bestRecTeam(c.id,"hard");if(!t||t.wr==null)continue;
+    const mn=t.min!=null&&t.wr>=.5?t.min:0;
+    if(!hard||t.wr<hard.wr-1e-9||(Math.abs(t.wr-hard.wr)<1e-9&&mn>hard.mn))hard={c,wr:t.wr,mn};
+  }
+  if(hard)tiles.push(`<a class="stat" href="${chHref(hard.c.id)}"><div class="v">${pct(hard.wr)}${hard.mn>1?` <span class="tag mid" style="vertical-align:middle">Lv ${hard.mn}+</span>`:""}</div><div class="k">Hardest EXTREME: Season ${hard.c.season||1} ${chName(hard.c)}, ${esc(hard.c.title)}</div></a>`);
+  // (c) ranked #1: shown right away if loaded, otherwise filled in when ranked.json arrives
+  tiles.push(RANKED&&RANKED.top&&RANKED.top.length?`<a class="stat" id="home_rk" href="#/ranked">${homeNowRanked(RANKED)}</a>`:`<a class="stat" id="home_rk" href="#/ranked" hidden></a>`);
+  return`<div class="homenow"><span class="eyebrow">Right now</span><div class="stats">${tiles.join("")}</div></div>`;
+}
 function pageHome(){
   const nS1=(CH_BY_SEASON[1]||[]).length,nS2=(CH_BY_SEASON[2]||[]).length,nCards=Object.keys(CARDS).length;
   const hasTeam=S.team.leaders.some(x=>x!=null);
@@ -2642,6 +2788,7 @@ function pageHome(){
       <a class="btn lg" href="#/team">${ic("swords")}${hasTeam?"Open my team":"Test my own team"}</a>
     </div>
   </section>
+  ${homeNowStrip()}
   <div class="grid g3">
     <a class="path" href="#/story"><span class="ic">${ic("story")}</span><h3>Beat a chapter</h3>
       <p>See who you're up against and copy a team that wins. Missing a card? Each team lists swaps.</p><span class="go">Story chapters ${ic("arrow",'width="16" height="16"')}</span></a>
@@ -2664,7 +2811,7 @@ function pageHome(){
       <a class="teamrow" href="#/teams" style="color:var(--text)"><span class="av el4">${ic("people",'width="18" height="18"')}</span><div style="flex:1"><b>Best teams overall</b><div class="small muted">The teams that win the most story fights on their own, per season and for the whole story.</div></div>${ic("arrow",'width="18" height="18"')}</a>
       <a class="teamrow" href="#/builds" style="color:var(--text)"><span class="av el5">${ic("trophy",'width="18" height="18"')}</span><div style="flex:1"><b>Community builds</b><div class="small muted">Teams other players found, checked and ranked automatically.</div></div>${ic("arrow",'width="18" height="18"')}</a>
       <a class="teamrow" href="#/guide" style="color:var(--text)"><span class="av el2">${ic("book",'width="18" height="18"')}</span><div style="flex:1"><b>Guide</b><div class="small muted">How battles work, elements, statuses and levels, in plain words.</div></div>${ic("arrow",'width="18" height="18"')}</a>
-      <div class="small faint">${nCards} cards · ${nS1+nS2} story chapters across ${SEASONS.length} seasons</div>
+      <div class="small faint" style="font-size:12px">${nCards} cards · ${nS1+nS2} story chapters across ${SEASONS.length} seasons</div>
     </div>
   </div>
   ${OWN.size>=3?(()=>{const hasLv=Object.keys(S.ownLv||{}).length>0;const per=SEASONS.map(sn=>{const L=(CH_BY_SEASON[sn]||[]).filter(c=>c.hard.length&&REC[c.id]);const n=L.filter(c=>{const m=myTeamFor(c.id,"hard");return m&&m.ok!==false;}).length;return`Season ${sn}: <b>${n} of ${L.length}</b>`;});
@@ -2672,6 +2819,7 @@ function pageHome(){
   ${S.migrated&&!S.ui.migratedSeen?`<div class="callout" style="margin-top:14px">Your team and saved teams from the old version of the site were carried over. <a href="#/team">Open the simulator</a>.</div>`:""}
   </div>`;
   if(S.migrated&&!S.ui.migratedSeen){S.ui.migratedSeen=true;save();}
+  if(!(RANKED&&RANKED.top&&RANKED.top.length))loadRanked().then(R=>{const el=$("#home_rk");if(!el||PAGE!==""||!R||!R.top||!R.top.length)return;el.innerHTML=homeNowRanked(R);el.hidden=false;});
 }
 
 // =====================================================================================
@@ -2745,6 +2893,7 @@ function pageStory(args){
   let evalOk=S.lastEval&&S.lastEval.sig===sigOf(S.team)?S.lastEval.res:null;
   if(evalOk&&!list.some(ch=>evalOk[ch.id]))evalOk=null;
   const anyRec=list.some(ch=>REC[ch.id]);
+  const allRel=anyRec&&list.every(ch=>{const r=bestRec(ch.id,"hard");return r!=null&&r>=.95;});   // then a per-card "Reliable clear" says nothing
   $("#view").innerHTML=`<div class="fadein">
   <div class="page_head"><div><h1>Story chapters</h1>
     <p>Each chapter is one fight. <b>Normal</b> is a single boss. <b>EXTREME</b> adds two helpers and gives extra rewards. Pick a chapter to see the enemies and the teams that beat them.</p></div>
@@ -2752,15 +2901,20 @@ function pageStory(args){
   ${staleNote(s)}
   ${!anyRec?`<div class="callout warn" style="margin-bottom:16px"><b>No recommended teams for Season ${s} yet.</b> It's still new, so the site hasn't calculated answers for it. You can open any chapter and search for a team yourself, or test your own team in the simulator.</div>`:""}
   ${evalOk?`<div class="callout good" style="margin-bottom:14px">Showing <b>your team's</b> EXTREME results from your last full check next to each chapter.</div>`:""}
+  ${anyRec?`<p class="small muted" style="margin:0 0 12px">${allRel?"Every chapter has a team that almost always wins. ":""}Teams win at any card level unless a level tag says otherwise.</p>`:""}
   <div class="chgrid">${list.map(ch=>{
     const bh=bestRecTeam(ch.id,"hard"),bn=bestRecTeam(ch.id,"normal"),r=bh?bh.wr:null,mine=evalOk&&evalOk[ch.id]?evalOk[ch.id].hard:null;
-    const line=(lab,t)=>`<div class="foot"><span class="faint">${lab}</span><span class="row tight" style="gap:6px">${t.min!=null&&t.wr>=.5?`<span class="small faint">${t.min<=1?"any level":`Lv ${t.min}+`}</span>`:""}${pill(t.wr)}</span></div>`;
-    return`<a class="chtile" href="${chHref(ch.id)}">
-      <div class="row between"><span class="num">${chName(ch)}</span>${difficultyTag(r)}</div>
+    // round2 home_story: only flag what's unusual (a level above 1, or a best rate under 100%)
+    const lvT=t=>t.min!=null&&t.wr>=.5?(t.min<=1?"":`<span class="tag mid" title="The lowest level (all 3 leaders) at which this team still wins about this often">Lv ${t.min}+</span>`):"";
+    const odd=t=>!!t&&t.wr!=null&&((t.min!=null&&t.wr>=.5&&t.min>1)||pct(t.wr)!=="100%");
+    const wcls=w=>pct(w)==="100%"?"":w>=.75?"w_mid":"w_"+winInfo(w).cls;
+    const line=(lab,t)=>`<div class="foot"><span class="faint">${lab}</span><span class="row tight" style="gap:6px">${lvT(t)}${pct(t.wr)==="100%"?`<span class="small faint" style="font-weight:800">100%</span>`:pill(t.wr)}</span></div>`;
+    return`<a class="chtile${odd(bh)?" chodd":""}" href="${chHref(ch.id)}">
+      <div class="row between"><span class="num">${chName(ch)}</span>${r!=null&&r<.95?difficultyTag(r):""}</div>
       <div class="ttl">${esc(ch.title)}</div>
       <div class="foes">${(ch.hard.length?ch.hard:ch.normal).map(([id])=>av(id,"sm",true)).join("")}</div>
-      ${bh?line("Best team, EXTREME",bh):`<div class="foot"><span class="faint">No recommendation yet</span></div>`}
-      ${bn?`<div style="margin-top:-4px">${line("Best team, Normal",bn)}</div>`:""}
+      ${bh?`<div class="foot chbest"><span><span class="chv ${bh.wr!=null?wcls(bh.wr):""}">${bh.wr!=null?pct(bh.wr):"?"}</span><span class="faint chlab">best team, EXTREME</span></span>${lvT(bh)}</div>`:`<div class="foot"><span class="faint">No recommendation yet</span></div>`}
+      ${bn?`<div style="margin-top:-4px">${line("Normal",bn)}</div>`:""}
       ${(()=>{const m=myTeamFor(ch.id,"hard");return m?`<div class="foot" style="margin-top:0"><span class="tag ${m.ok===false?"mid":"good"}" title="Based on the recommended teams for this chapter and the cards${Object.keys(S.ownLv||{}).length?" and levels":""} you marked">${m.ok===false?"Your recommended team needs higher levels":m.ok?"Ready with your cards":"You own a winning team"}</span></div>`:"";})()}
       ${mine!=null?`<div class="foot" style="margin-top:0"><span class="faint">Your team on EXTREME</span>${pill(mine)}</div>`:""}
     </a>`;}).join("")}</div>
@@ -3239,11 +3393,11 @@ function renderTeamPanel(){
   else if(drawers.length)suppNote=`<b>${esc(shortName(CARDS[drawers[0]]))}</b> draws supporters, so supporter abilities will fire in battle.`;
   else suppNote=t.supp.length?`<div class="callout warn" data-k="Watch out"><b>Your supporters never come into play.</b> None of your leaders draw cards, so you can leave these empty.</div>`:"None of your leaders draw cards, so supporters won't do anything for this team. You can leave these empty.";
   const st=!nL?starterTeam():null;
-  el.innerHTML=`<div class="card_head"><div><h3>Your team</h3><div class="card_sub">3 leaders fight. Tap a name to see what it does.</div></div>
+  el.innerHTML=`<div class="card_head"><div><h3><span class="stepn">1</span>Your team</h3><div class="card_sub">3 leaders fight. Tap a name to see what it does.</div></div>
       <div class="row tight">${nL?`<select class="select" id="setall" aria-label="Set every level" style="padding:6px 10px"><option value="">Set all levels</option>${Object.keys(S.ownLv).length?'<option value="mine">My levels</option>':""}${[1,5,10,15,20].map(x=>`<option>${x}</option>`).join("")}</select>
       <button class="btn sm ghost" data-act="clearTeam">Clear</button>`:""}</div></div>
     ${st?`<div class="callout" style="margin-bottom:12px"><div class="row between"><span>Not sure where to start? Load ${st.why}.</span>
-      <button class="btn sm primary" data-act="useTeam" data-j="${jattr({team:st.team,supp:st.supp,lvl:10,auto:"none"})}">${ic("plus")}Load a starter team</button></div></div>`:""}
+      <button class="btn sm" data-act="useTeam" data-j="${jattr({team:st.team,supp:st.supp,lvl:10,auto:"none"})}">${ic("plus")}Load a starter team</button></div></div>`:""}
     <div class="slots">${t.leaders.map((id,i)=>slotHtml(t,id,"L",i,"you")).join("")}</div>
     <h3 style="margin-top:18px">Supporters <span class="faint" style="font-weight:700;font-size:14px">(optional, up to 4)</span></h3>
     <p class="small muted" style="margin:4px 0 10px">${suppNote}</p>
@@ -3289,7 +3443,7 @@ function renderOppPanel(){
     <details style="margin-top:10px" id="opp_supp" ${S.ui.oppSuppOpen?"open":""}><summary class="small" style="cursor:pointer;color:var(--text2);font-weight:800">Their supporters (${t.supp.length}/4)</summary>
       <div class="slots" style="margin-top:8px">${t.supp.map((id,i)=>slotHtml(t,id,"S",i,"opp")).join("")}${t.supp.length<4?slotHtml(t,null,"S",0,"opp"):""}</div></details>`;
   }
-  el.innerHTML=`<div class="card_head"><div><h3>Opponent</h3></div>
+  el.innerHTML=`<div class="card_head"><div><h3><span class="stepn">2</span>Opponent</h3></div>
     <div class="seg"><button class="${o.kind==="chapter"?"on":""}" data-act="oppKind" data-k="chapter">Story chapter</button><button class="${o.kind==="pvp"?"on":""}" data-act="oppKind" data-k="pvp">Player team</button></div></div>${body}`;
   const sel=$("#opp_ch");if(sel)sel.addEventListener("change",e=>{S.opp.ch=e.target.value;if(!CHM[S.opp.ch].hard.length)S.opp.diff="normal";save();renderOppPanel();renderAdvanced();clearResult();});
   const ds=$("#opp_supp");if(ds)ds.addEventListener("toggle",()=>{S.ui.oppSuppOpen=ds.open;save();});
@@ -3300,8 +3454,8 @@ let SIM_BUSY=false;
 function renderRunPanel(){
   const el=$("#run_panel");if(!el)return;
   const ready=S.team.leaders.every(x=>x!=null);
-  el.innerHTML=`<div class="row between"><div><h3>Run the battles</h3><div class="card_sub ${ready?"":"needs"}">${ready?`${S.simN} battles, each with fresh dice rolls.`:`Add ${3-S.team.leaders.filter(x=>x!=null).length} more leader${S.team.leaders.filter(x=>x!=null).length===2?"":"s"} to start.`}</div></div>
-    <button class="btn primary lg" id="runbtn" data-act="runSim" ${ready&&!SIM_BUSY?"":"disabled"}>${ic("play")}${SIM_BUSY?"Running...":"Simulate"}</button></div>
+  el.innerHTML=`<div class="row between"><div><h3><span class="stepn">3</span>Run the battles</h3><div class="card_sub ${ready?"":"needs"}">${ready?`${S.simN} battles, each with fresh dice rolls.`:`Add ${3-S.team.leaders.filter(x=>x!=null).length} more leader${S.team.leaders.filter(x=>x!=null).length===2?"":"s"} to start.`}</div></div>
+    <button class="btn primary lg${SIM_BUSY?" busy":""}" id="runbtn" data-act="runSim" ${ready&&!SIM_BUSY?"":"disabled"}>${ic("play")}${SIM_BUSY?"Running...":"Simulate"}</button></div>
     <div id="run_prog" style="margin-top:12px;${SIM_BUSY?"":"display:none"}" class="progress"><i></i></div>`;
 }
 ACT.runSim=()=>runSim();
@@ -3338,14 +3492,16 @@ function renderResult(r,mode,label,stamp,pd,ed){
   const stale=stamp&&stamp!==sigLv(S.team)+JSON.stringify(S.opp);
   const resCol={good:"--good",ok:"--ok",mid:"--mid",bad:"--bad"}[w.cls];
   const deadSupp=S.team.supp.length&&!S.team.leaders.some(id=>id!=null&&drawsSupporters(id));
+  const tnames=(pd?pd.slice(0,3).filter(Boolean):S.team.leaders.filter(id=>id!=null&&CARDS[id]).map(id=>CARDS[id])).map(c=>shortName(c)).join(" + ");
   el.innerHTML=`<div class="card result fadein"${resCol?` style="--rescol:var(${resCol})"`:""}>
     ${stale?`<div class="callout warn">You changed the team or opponent while this was running. These numbers are for the previous setup. Press Run again.</div>`:""}
+    <div class="res_for">${esc(tnames)} <span>vs</span> ${esc(label||oppLabel())}</div>
     <div class="row" style="gap:22px;align-items:center">
-      <div><div class="bigpct w_${w.cls}">${pct(r.w/r.n)}</div><div class="small faint" style="margin-top:4px">${ci>=.005?`give or take ${pct(ci)}`:`over ${r.n} battles`}</div></div>
+      <div class="res_num"><span class="bigpct w_${w.cls}">${pct(r.w/r.n)}</span><span class="res_pm">${ci>=.005?`give or take ${pct(ci)}`:`over ${r.n} battles`}</span></div>
       <div style="flex:1;min-width:220px"><div class="verdict w_${w.cls}">${w.word}</div>
-        <div class="muted">Your team won <b style="color:var(--text)">${r.w}</b> of <b style="color:var(--text)">${r.n}</b> battles against ${esc(label||oppLabel())}.</div>
+        <div class="muted">Your team won <b style="color:var(--text)">${r.w}</b> of <b style="color:var(--text)">${r.n}</b> battles.</div>
         <div class="wm_bar" style="margin-top:10px;height:10px"><i class="b_${w.cls}" style="width:${Math.max(1,r.w/r.n*100)}%"></i></div></div>
-      <div class="row tight"><button class="btn" data-act="watch">${ic("eye")}Watch a battle</button><button class="btn ghost" data-act="runSim">${ic("refresh")}Run again</button><button class="btn ghost" data-act="shareReport" title="A page with this team's win rate in every chapter">${ic("copy")}Share</button></div>
+      <div class="row tight"><button class="btn" data-act="watch">${ic("eye")}Watch a battle</button><button class="btn ghost" data-act="runSim">${ic("refresh")}Run again</button></div>
     </div>
     <div class="factgrid">
       ${r.w?`<div class="fact"><div class="k">Wins take</div><div class="v">${(r.tw/r.w).toFixed(1)} turns</div></div>`:""}
@@ -3357,8 +3513,8 @@ function renderResult(r,mode,label,stamp,pd,ed){
     ${deadSupp?`<div class="callout warn" data-k="Watch out" style="margin-top:12px"><b>Your supporters never came into play.</b> None of your leaders draw cards, so this result is the same without them.</div>`:""}
     ${mode!=="pvp"&&r.d>lossN*.5&&lossN>0?`<div class="callout warn" data-k="Watch out">Most losses are <b>timeouts</b>: your team survives but can't finish the enemies within 30 turns. You need more damage, not more defense.</div>`:""}
     ${p<.95&&mode!=="pvp"&&S.opp.kind==="chapter"?`<div class="reshint">Want better odds? <a href="${chHref(S.opp.ch)}">See the recommended teams for this chapter</a>, or use "Find a better team" below.</div>`:""}
-    ${mode!=="pvp"&&DATA.game_version?`<div class="reshint">Real fights go differently? Check that your game says <button type="button" class="linkish" data-act="verInfo">${esc(DATA.game_version)}</button> (tap to see where). An older game version can have different cards and enemies.</div>`:""}
     <div id="watch_out"></div>
+    ${mode!=="pvp"&&DATA.game_version?`<div class="reshint res_foot">Real fights go differently? Check that your game says <button type="button" class="linkish" data-act="verInfo">${esc(DATA.game_version)}</button> (tap to see where). An older game version can have different cards and enemies.</div>`:""}
   </div>`;
 }
 // one battle, readable; "want" = "win"/"loss" re-rolls the dice (up to 300 tries) until the result matches
@@ -3869,18 +4025,20 @@ function pageCards(args){
   let cur=[];
   const grid=$("#cf_grid"),moreload=$("#cf_moreload");
   const ownBtn=c=>`<button class="ownbtn ${OWN.has(c.id)?"on":""}" data-act="toggleOwn" data-own="${c.id}" data-id="${c.id}" aria-pressed="${OWN.has(c.id)}" title="I own this card" aria-label="I own this card">${ic("check")}</button>`;
+  // tile text, light to heavy: name (+ small markers), one meta line, a 4-column stat row, then the ability
+  const SORT_STAT={hp:"hp",hplow:"hp",atk:"atk",def:"def",spd:"spd",spdlow:"spd"};
+  const tSrc=c=>{const x=srcList(c)[0];return x?`<div class="ct_src" title="${esc(x[2])}">${esc(x[0])}</div>`:"";};
+  const tAbil=t=>esc(plainAbility(t)).replace(/^((?:When|Each turn|On)\b[^:<>&]{0,40}):/,"<b>$1:</b>");
   function tile(c){
-    if(SUP)return`<div class="ctile ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0">${av(c.id)}
-      <div class="body"><div class="nm">${esc(shortName(c))}</div>
-        <div class="meta">${srcTags(c,1)}${S.team.supp.includes(c.id)?`<span class="tag good">Your supporter</span>`:""}</div>
-        <div class="desc sdesc">${suppLine(c)}</div></div>${ownBtn(c)}</div>`;
-    const lc=applyPlayerLevel(c,F.lvl);
-    return`<div class="ctile ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0">${av(c.id)}
-      <div class="body"><div class="nm">${esc(shortName(c))}</div>
-        <div class="meta">${elTag(c)}${srcTags(c,1)}${REC_USE[c.id]?`<span class="tag acc" title="Appears in recommended teams">Recommended</span>`:""}${S.team.leaders.includes(c.id)?`<span class="tag good">In your team</span>`:""}</div>
-        ${rolesOf(c.id).length?`<div class="meta">${roleTags(c.id,2)}</div>`:""}
-        <div class="statline" style="font-size:11.5px;gap:8px"><span>HP <b>${lc.hp}</b></span><span>ATK <b>${lc.atk}</b></span><span>DEF <b>${lc.def}</b></span><span>SPD <b>${lc.spd}</b></span></div>
-        <div class="desc">${esc(plainAbility((c.atext||[])[0]||"No abilities"))}</div></div>${ownBtn(c)}</div>`;
+    if(SUP)return`<div class="ctile ct2 ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0">${av(c.id)}
+      <div class="body"><div class="nm">${esc(shortName(c))}${S.team.supp.includes(c.id)?`<span class="ct_team">Your supporter</span>`:""}</div>
+        <div class="desc sdesc">${suppLine(c)}</div>${tSrc(c)}</div>${ownBtn(c)}</div>`;
+    const lc=applyPlayerLevel(c,F.lvl),hs=SORT_STAT[F.sort],roles=rolesOf(c.id).slice(0,2);
+    return`<div class="ctile ct2 ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0">${av(c.id)}
+      <div class="body"><div class="nm">${esc(shortName(c))}${REC_USE[c.id]?`<span class="ct_rec" title="Recommended: appears in recommended teams" aria-label="Recommended">★</span>`:""}${S.team.leaders.includes(c.id)?`<span class="ct_team">In your team</span>`:""}</div>
+        <div class="ct_meta">${elTag(c)}${roles.map(r=>` <i>·</i> <span title="${esc(ROLE_HELP[r]||"")}">${r}</span>`).join("")}</div>
+        <div class="ct_stats">${[["hp","HP"],["atk","ATK"],["def","DEF"],["spd","SPD"]].map(([k,l])=>`<span class="${k===hs?"on":""}">${l} <b>${lc[k]}</b></span>`).join("")}</div>
+        <div class="desc ct_desc">${tAbil((c.atext||[])[0]||"No abilities")}</div>${tSrc(c)}</div>${ownBtn(c)}</div>`;
   }
   function activeFilters(){
     const a=[];if(F.own!=="all")a.push(F.own==="mine"?"My cards":"Cards I'm missing");if(F.src)a.push("source ("+SRC[F.src][0]+")");if(F.rar)a.push("rarity");
@@ -4065,25 +4223,27 @@ async function pvpField(){
 function pageRanked(){
   $("#view").innerHTML=`<div class="fadein">
     ${teamsSwitch("ranked")}
-    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's ranked board, with their real levels and supporters. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div></div>
+    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's ranked board, with their supporters. A level shows only when it is below 20. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div></div>
     <div id="rk_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the leaderboard...</div></div></div></div>`;
   loadRanked().then(R=>{
     const el=$("#rk_body");if(!el||PAGE!=="ranked")return;
     if(!R){el.innerHTML=emptyState("trophy","Leaderboard not available","The ranked snapshot couldn't be loaded. Try again later.","");return;}
     const when=new Date(R.ts*1000).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+    const rkMax=Math.max(1,...R.top.map(e=>e.rating||0));
     el.innerHTML=`
       <div class="rk_upd card"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div><div class="small muted">Last updated</div><div class="rk_when">${esc(when)} <span class="muted">(${agoText(R.ts)})</span></div></div>
-        <div class="rk_facts">${[["Ranked teams",R.players.toLocaleString()],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
-        <p class="small faint" style="margin-top:10px">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (from the skin data the game uploads with the pet score): teams using cards their player doesn't own, or ownership the game can't produce, are left out too.${R.checks?` For this snapshot: ${R.checks.checked} of ${R.top.length} teams checked, ${R.checks.banned+R.checks.ownership} removed from the top.`:""} Ratings themselves are calculated by each player's own game and can't be verified, so read the order as "teams people really use", not a verified ranking. Teams fight with the levels shown.</p></div>
+        <div class="rk_facts">${[["Ranked teams",R.players],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(x=>[x[0],Number(x[1]).toLocaleString()]).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
+        <p class="small faint" style="margin-top:10px">Updated by hand, so it can lag behind. Ratings can't be verified, so read the order as "teams people really use".</p>
+        <details class="rk_how"><summary>How this list is made</summary><p class="small faint">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (from the skin data the game uploads with the pet score): teams using cards their player doesn't own, or ownership the game can't produce, are left out too.${R.checks?` For this snapshot: ${R.checks.checked.toLocaleString()} of ${R.top.length.toLocaleString()} teams checked, ${(R.checks.banned+R.checks.ownership).toLocaleString()} removed from the top.`:""} Ratings themselves are calculated by each player's own game and can't be verified, so read the order as "teams people really use", not a verified ranking. Teams fight at level 20 unless a lower level is shown.</p></details></div>
       <div class="card" style="margin-top:14px"><div class="card_head"><div><h3>Most used in the top 500</h3></div></div>
         <div class="row tight" style="flex-wrap:wrap">${R.popular.filter(([id])=>CARDS[id]).slice(0,12).map(([id,n])=>`<span class="rk_pop">${cchip(id)}<span class="faint small">${n}×</span></span>`).join("")}</div></div>
       <div class="card" style="margin-top:14px"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="small muted">Test your simulator team against the 30 best of these at once:</span><button class="btn sm" data-act="rankedCheck">${ic("trophy")}PvP check</button></div>
-        <div class="tblwrap" style="margin-top:10px"><table class="tbl rk_tbl"><thead><tr><th>#</th><th>Rating</th><th>Team</th><th>Supporters</th><th></th></tr></thead><tbody>
-        ${R.top.map(e=>`<tr><td class="rk_n">${e.r}</td><td class="rk_rt">${e.rating.toLocaleString()}</td>
-          <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}<span class="rk_lv${e.lv[i]<20?" lo":""}" title="Level ${e.lv[i]}">Lv ${e.lv[i]}</span></span>`).join("")}</div></td>
+        <div class="tblwrap" style="margin-top:10px"><table class="tbl rk_tbl"><thead><tr><th>#</th><th class="num">Rating</th><th>Team</th><th>Supporters</th><th></th></tr></thead><tbody>
+        ${R.top.map(e=>`<tr class="${e.r<=3?`rk_p${e.r}`:""}"><td class="rk_n">${e.r.toLocaleString()}</td><td class="rk_rt num"><div class="rk_rbar"><i style="width:${Math.max(2,Math.min(100,e.rating/rkMax*100)).toFixed(1)}%"></i><span>${e.rating.toLocaleString()}</span></div></td>
+          <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}${e.lv[i]<20?`<span class="rk_lv lvlow" title="Level ${e.lv[i]} (below 20)">Lv ${e.lv[i]}</span>`:""}</span>`).join("")}</div></td>
           <td><div class="rk_supp">${e.s.map(id=>`<button type="button" class="cc bare" data-card="${id}" title="${esc(dname(CARDS[id]))}">${av(id,"sm")}</button>`).join("")}</div></td>
-          <td><div class="rk_btns">${rankedBuildable(e)?`<button class="btn xs primary" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (your imported levels, else level 20) and run the PvP check">${ic("play")}Try it</button>`:`<span class="tag bad" title="Uses the developer-only card or the same leader more than once">Can't be built</span>`}<button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
+          <td><div class="rk_btns">${rankedBuildable(e)?`<button class="btn xs${e.r<=3?" primary":""}" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (your imported levels, else level 20) and run the PvP check">${ic("play")}Try it</button>`:`<span class="tag bad" title="Uses the developer-only card or the same leader more than once">Can't be built</span>`}<button class="btn xs" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
         </tbody></table></div></div>`;
   });
 }
@@ -4130,20 +4290,20 @@ function ovRow(r,i,view){
   const weak=chs.filter(c=>r.per[c.id]<.95).sort((a,b)=>r.per[a.id]-r.per[b.id]);
   // the same score as community builds: average EXTREME win over the fights shown, plus how many it wins 95%+
   const avg=chs.length?chs.reduce((a,c)=>a+r.per[c.id],0)/chs.length:null;
-  const clr=sn=>{const x=r["s"+sn];return x?`${seasons.length>1?`Season ${sn} `:""}${pct(x.mean)}, ${x.clears} of ${x.n} won 95%+`:"";};
-  const stat=()=>avg==null?"":`<div style="min-width:180px"><div class="wm_top"><span class="wm_pct w_${winInfo(avg).cls}">${pct(avg)}</span><span class="small faint">${seasons.length>1?"average EXTREME win":`Season ${seasons[0]} EXTREME`}</span></div><div class="small faint" style="margin-top:3px">${seasons.map(clr).filter(Boolean).join(" · ")}</div></div>`;
+  const clr=sn=>{const x=r["s"+sn];return x?`<span class="k">Season ${sn}</span><b class="w_${winInfo(x.mean).cls}">${pct(x.mean)}</b><span>${x.clears} of ${x.n} won 95%+</span>`:"";};
+  const stat=()=>avg==null?"":`<div class="ov_stat"><div class="wm_top"><span class="wm_pct w_${winInfo(avg).cls}">${pct(avg)}</span><span class="small faint">${seasons.length>1?"average EXTREME win":`Season ${seasons[0]} EXTREME`}</span></div><div class="ov_mini">${seasons.map(clr).join("")}</div></div>`;
   const L=r.team.map(id=>S.ownLv&&S.ownLv[id]).filter(Boolean);
   const lvNote=L.length===3?`<span class="tag ${Math.min(...L)>=(view==="s1"?15:20)?"good":"mid"}" title="Rated at level ${view==="s1"?15:20}">Your levels: ${L.join(" / ")}</span>`:"";
   const evalSeason=view==="s2"?2:1;
-  return`<div class="teamrow ${i===0?"best":""}">
+  return`<div class="teamrow ovrow ${i===0?"best":""}">
     <span class="tag ${i<3?"acc":""}" style="font-size:13px;min-width:34px;justify-content:center">#${i+1}</span>
     <div class="members">${r.team.map(id=>cchip(id,{own:true})).join("")}</div>
     ${stat()}
     <div class="acts"><button class="btn sm primary" data-act="useTeam" data-j="${jattr({team:r.team,supp,lvl:view==="s1"?15:20,auto:"eval",season:evalSeason})}" title="Load it and check it on every chapter at your levels">${ic("play")}Try it</button></div>
     <div class="supps" style="width:100%">${supp.length?`Supporters: ${supp.map(id=>cchip(id)).join("")}`:"No supporters needed"}<span class="spacer"></span>${teamEaseTags(r.team.concat(supp))} ${rewardTags(r.team.concat(supp))} ${lvNote}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
-    <details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Every fight${weak.length?` (${weak.length} below 95%)`:""}</summary>
+    <details class="ov_more"><summary>${weak.length?`${weak.length} fight${weak.length===1?"":"s"} where another team is better`:"Every fight"}</summary>
+      ${weak.length?`<div class="supps ov_weak">Use another team for: ${weak.map(c=>`<span class="ov_w"><a href="${chHref(c.id)}">${seasons.length>1?`S${c.season||1} `:""}${chName(c)}</a> ${pill(r.per[c.id])}</span>`).join("")}</div><div class="small faint" style="margin-top:10px">Every fight:</div>`:""}
       <div class="heat" style="margin-top:8px">${chs.map(c=>`<a class="hc" href="${chHref(c.id)}" title="${esc(c.title)}"><span class="faint">${seasons.length>1?`S${c.season||1} `:""}${chName(c).replace("Chapter","Ch.")}</span><b class="w_${winInfo(r.per[c.id]).cls}">${pct(r.per[c.id])}</b></a>`).join("")}</div></details>
-    ${weak.length?`<div class="supps" style="width:100%">Use another team for: ${weak.slice(0,8).map(c=>`<a href="${chHref(c.id)}">${seasons.length>1?`S${c.season||1} `:""}${chName(c)}</a> ${pill(r.per[c.id])}`).join(" ")}${weak.length>8?` and ${weak.length-8} more`:""}</div>`:""}
   </div>`;
 }
 
@@ -4378,13 +4538,16 @@ function fStart(){
   const H=FI.hook;
   return`<div class="stack">
   <div class="card"><h2>Quick wins</h2>
-    <ul class="muted" style="line-height:1.7;padding-left:20px;margin:10px 0 0">
-      <li><b style="color:var(--text)">Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away. It's not in the game settings: open your <b style="color:var(--text)">Backpack</b> (from the fishing menu, or while fishing) and press the <b style="color:var(--text)">Warnings: ON</b> button at the top, next to Shop, so it says OFF.</li>
+    <div class="stats fi_dec">
+      <div class="stat"><div class="v">Difficulty 8</div><div class="k"><b>Feeding?</b> One minigame per catch makes catches much faster, and with a Time Acceleration rod you get the most NP per hour. <a href="#/fishing/spots">Best spots</a></div></div>
+      <div class="stat"><div class="v">Difficulty 10</div><div class="k"><b>Selling?</b> More minigames mean more upgrades, so each fish sells for several times more.</div></div>
+      <div class="stat"><div class="v">Time Acceleration IV</div><div class="k"><b>Best rod: IV or higher.</b> It cuts the bite wait to the minimum. <a href="#/fishing/rods">Rods</a></div></div>
+    </div>
+    <div class="callout" data-k="Tip"><b>Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away. It's not in the game settings: open your <b>Backpack</b> (from the fishing menu, or while fishing) and press the <b>Warnings: ON</b> button at the top, next to Shop, so it says OFF.</div>
+    <h3 style="margin-top:16px">Minigame tips</h3>
+    <ul class="muted" style="line-height:1.7;padding-left:20px;margin:6px 0 0">
       <li><b style="color:var(--text)">Letters: mash L, I, N, G, U, E, but only on easier spots.</b> Only those six letters ever appear. Up to difficulty 8 wrong keys are ignored, so hitting all six over and over gets every letter at the earliest moment (GREAT). <b style="color:var(--text)">On difficulty 10, and on about 6 in 10 catches at difficulty 9, a wrong key is an instant BAD</b>: type only the letter you see.</li>
       <li><b style="color:var(--text)">Tiles: never spam.</b> Pressing a lane while its tile is still far from the line counts as a Bad hit, which costs about as much as 1.7 GREATs.</li>
-      <li><b style="color:var(--text)">Feeding? Fish difficulty 8.</b> One minigame per catch makes catches much faster, and with a Time Acceleration rod you get the most NP per hour. <a href="#/fishing/spots">Best spots</a></li>
-      <li><b style="color:var(--text)">Selling? Fish difficulty 10.</b> More minigames mean more upgrades, so each fish sells for several times more.</li>
-      <li><b style="color:var(--text)">Get a Time Acceleration IV or higher rod.</b> It cuts the bite wait to the minimum. <a href="#/fishing/rods">Rods</a></li>
     </ul></div>
   <div class="card"><h2>One catch, step by step</h2>
     <div class="steps" style="margin:14px 0 4px">
@@ -4406,55 +4569,81 @@ function fSpots(){
   const RK=FI.rank;
   const top=(rows,key,n=5)=>rows.slice().sort((a,b)=>b[key]-a[key]).slice(0,n);
   const card=(title,rows,key,unit,note)=>`<div class="card"><h3>${title}</h3><p class="small muted" style="margin:4px 0 10px">${note}</p>
-    <div class="stack" style="gap:6px">${top(rows,key).map((r,i)=>`<div class="row between" style="padding:6px 0;border-top:${i?"1px solid var(--line)":"0"}"><span>${spotLink(r.spot)} <span class="small faint">difficulty ${r.d}</span>${SPOT_BY[r.spot]?`<div class="small faint">${spotWhere(SPOT_BY[r.spot])}</div>`:""}</span><span class="mono">${fnum(r[key])} ${unit}</span></div>`).join("")}</div></div>`;
+    <div class="stack" style="gap:6px">${top(rows,key).map((r,i)=>`<div class="row between${i?"":" fi_top"}" style="padding:6px 0;border-top:${i?"1px solid var(--line)":"0"}"><span>${spotLink(r.spot)} <span class="small faint">difficulty ${r.d}</span>${SPOT_BY[r.spot]?`<div class="small faint">${spotWhere(SPOT_BY[r.spot])}</div>`:""}</span><span class="mono">${fnum(r[key])} ${unit}</span></div>`).join("")}</div></div>`;
+  const tile=(rows,key,unit,lbl,sub,cls)=>{const r=top(rows,key,1)[0];return r?`<div class="stat${cls}"><div class="eyebrow">${lbl}</div><div class="v">${spotLink(r.spot)}</div><div class="k">Difficulty ${r.d}, <span class="hl">${fnum(r[key])} ${unit}</span>. ${sub}</div></div>`:"";};
   return`<div class="stack">
-  ${RK?`<div class="callout">Hourly numbers assume quick, accurate play (every minigame hit a GREAT). Real numbers will be lower, but the <b>order</b> of the spots stays the same. <b>Tap a spot's name</b> to see how to find it on the fishing map.</div>
+  ${RK?`<div class="card"><h2>Where to fish</h2>
+    <div class="stats fi_dec fi_spot">
+      ${tile(RK.ta,"np_h","NP/h","Feeding"," With a Time Acceleration rod."," good")}
+      ${tile(RK.ta,"fl_h","FL/h","Selling"," With a Time Acceleration rod."," good")}
+      ${tile(RK.default,"np_h","NP/h","Feeding, default rod","","")}
+      ${tile(RK.default,"fl_h","FL/h","Selling, default rod","","")}
+    </div>
+    <div class="callout warn" data-k="Watch out">Hourly numbers assume quick, accurate play (every minigame hit a GREAT). Real numbers will be lower, but the <b>order</b> of the spots stays the same.</div>
+    <p class="small faint" style="margin:10px 0 0"><b>Tap a spot's name</b> to see how to find it on the fishing map.</p></div>
   <div class="grid g2">
     ${card("Most NP per hour (feeding)",RK.ta,"np_h","NP/h","With a Time Acceleration rod. Difficulty 8 spots win: one minigame per catch.")}
     ${card("Most FL per hour (selling)",RK.ta,"fl_h","FL/h","With a Time Acceleration rod. Difficulty 10 spots win: more minigames, more upgrades.")}
     ${card("Most NP per hour, default rod",RK.default,"np_h","NP/h","Without Time Acceleration the bite wait matters more, so difficulty 9 edges ahead.")}
     ${card("Most FL per hour, default rod",RK.default,"fl_h","FL/h","Difficulty 10 stays best for selling.")}
   </div>`:""}
-  <div class="card"><div class="card_head"><div><h3>Every spot</h3><div class="card_sub">Tap a column to sort, tap a spot for the way there. "Local fish" only live at that kind of water.</div></div>
+  <div class="card"><div class="card_head"><div><h3>Every spot</h3><div class="card_sub">Tap a column to sort, tap a spot for the way there. "Local fish" only live at that kind of water.${RK?` <span class="w_good"><b>Green</b></span> numbers are a top 5 spot.`:""}</div></div>
     <div class="row tight"><select class="select" id="sp_d"><option value="">Any difficulty</option>${[1,2,3,4,5,6,7,8,9,10].map(d=>`<option value="${d}">Difficulty ${d}</option>`).join("")}</select>
     <select class="select" id="sp_w"><option value="">Any water</option><option value="lake">Lakes</option><option value="ocean">Ocean</option></select></div></div>
     <div class="tblwrap"><table class="tbl" id="sp_tbl"><thead><tr>
       <th data-k="name" style="cursor:pointer">Spot</th><th data-k="diff" style="cursor:pointer">Difficulty</th><th>Where</th><th>Water</th>
       ${RK?`<th data-k="np" style="cursor:pointer">NP/h*</th><th data-k="fl" style="cursor:pointer">FL/h*</th>`:""}<th>Local fish</th></tr></thead><tbody></tbody></table></div>
     <p class="small faint">* with a Time Acceleration rod, quick accurate play.</p></div>
-  <div class="card"><h3>Secret fish</h3><p class="muted" style="margin:6px 0 0">${(()=>{const sec=FI.fish.filter(x=>x.where==="coldlake");return`${sec.length} fish only bite at ${spotLink("Cold Lake")} and stay hidden in your journal until you catch one: ${sec.map(x=>`${esc(x.name)} <span class="faint">(${RAR_NAME[x.rarity]})</span>`).join(", ")}. Cold Lake is difficulty 8, so it's also one of the best feeding spots.`;})()}</p></div>
+  <div class="card"><h3>Secret fish</h3>${(()=>{const sec=FI.fish.filter(x=>x.where==="coldlake");return`<div class="rule"><span><span class="hl">${sec.length} fish</span> only bite at ${spotLink("Cold Lake")}.</span></div>
+    <p class="muted" style="margin:4px 0 0">They stay hidden in your journal until you catch one: ${sec.map(x=>`${esc(x.name)} <span class="faint">(${RAR_NAME[x.rarity]})</span>`).join(", ")}. Cold Lake is difficulty 8, so it's also one of the best feeding spots.</p>`;})()}</div>
   </div>`;
 }
 let SP_SORT={k:"diff",dir:-1};
 function wireSpots(){
   const RK=FI.rank,by={};if(RK)for(const r of RK.ta)by[r.spot]=r;
+  const t5=k=>RK?RK.ta.map(r=>r[k]).sort((a,b)=>b-a)[Math.min(4,RK.ta.length-1)]:Infinity,n5=t5("np_h"),f5=t5("fl_h");
   const paint=()=>{
     const d=$("#sp_d").value,w=$("#sp_w").value;
     let rows=FI.spots.filter(s=>(!d||s.diff===+d)&&(!w||(w==="lake")===s.lake));
     const key={name:s=>s.name.toLowerCase(),diff:s=>s.diff,np:s=>(by[s.name]||{}).np_h||0,fl:s=>(by[s.name]||{}).fl_h||0}[SP_SORT.k];
     rows.sort((a,b)=>{const x=key(a),y=key(b);return(x<y?-1:x>y?1:0)*SP_SORT.dir;});
     $("#sp_tbl tbody").innerHTML=rows.map(s=>{const r=by[s.name];return`<tr><td>${spotLink(s.name)}</td><td>${s.diff}</td><td class="small muted">${spotWhere(s)}</td><td class="small">${esc(spotWater(s.tags))}</td>
-      ${RK?`<td class="mono">${r?fnum(r.np_h):"-"}</td><td class="mono">${r?fnum(r.fl_h):"-"}</td>`:""}<td class="small muted">${s.local.length?esc(s.local.join(", ")):"-"}</td></tr>`;}).join("");
+      ${RK?`<td class="mono${r&&r.np_h>=n5?" v_good":""}">${r?fnum(r.np_h):"-"}</td><td class="mono${r&&r.fl_h>=f5?" v_good":""}">${r?fnum(r.fl_h):"-"}</td>`:""}<td class="small muted">${s.local.length?esc(s.local.join(", ")):"-"}</td></tr>`;}).join("");
   };
   $("#sp_d").onchange=paint;$("#sp_w").onchange=paint;
   $$("#sp_tbl th[data-k]").forEach(th=>th.onclick=()=>{SP_SORT=SP_SORT.k===th.dataset.k?{k:th.dataset.k,dir:-SP_SORT.dir}:{k:th.dataset.k,dir:th.dataset.k==="name"?1:-1};paint();});
   paint();
 }
 function fValue(){
-  const Q=FI.quality,qt=Q.reduce((a,q)=>a+q[2],0),rows=[];
+  const Q=FI.quality,qt=Q.reduce((a,q)=>a+q[2],0);
+  const qrow=q=>`<tr><td>${esc(q[0])}</td><td class="${q[1]>0?"v_good":q[1]<0?"v_bad":""}">${q[1]>0?"+":""}${q[1]}%</td><td class="faint">${(q[2]/qt*100).toFixed(q[2]/qt<.01?2:1)}%</td></tr>`;
+  const qhead=`<thead><tr><th>Tier</th><th>Bonus</th><th>Chance when caught</th></tr></thead>`;
+  const common=Q.filter(q=>q[2]/qt>=.01),rare=Q.filter(q=>q[2]/qt<.01);
   return`<div class="stack">
   <div class="card"><h2>What a fish sells for</h2>
-    <p class="muted" style="margin-top:8px"><b style="color:var(--text)">Price = the species' base price × (1 + all bonuses ÷ 100).</b> The bonuses are the fish's quality plus its 7 traits (age, size, weight, condition, coloration, mutation, behavior). A Celestial fish (+2000%) sells for 21 times its base price.</p>
-    <p class="muted"><b style="color:var(--text)">NP never changes:</b> it's fixed per species, so for feeding only the species matters, not the quality.</p></div>
+    <div class="stats fi_dec">
+      <div class="stat good"><div class="v">21×</div><div class="k"><b>Celestial fish (+2000%)</b> sells for 21 times its base price.</div></div>
+      <div class="stat"><div class="v">${FI.upgrade_cost} points</div><div class="k"><b>= 1 upgrade.</b> Your total minigame score buys upgrade rolls.</div></div>
+      <div class="stat"><div class="v">+1.05</div><div class="k"><b>Per GREAT at difficulty 10.</b> Only +0.15 at difficulty 1.</div></div>
+      <div class="stat"><div class="v">NP is fixed</div><div class="k"><b>Per species.</b> For feeding only the species matters, not the quality.</div></div>
+    </div>
+    <div class="rule"><span>Price = the species' base price × (1 + all bonuses ÷ 100)</span></div>
+    <p class="muted" style="margin:4px 0 0">The bonuses are the fish's quality plus its 7 traits (age, size, weight, condition, coloration, mutation, behavior).</p></div>
   <div class="card"><h2>How your minigames upgrade the fish</h2>
     <div class="tblwrap" style="margin:12px 0"><table class="tbl"><thead><tr><th>Hit</th><th>Points at difficulty 1</th><th>Points at difficulty 10</th></tr></thead><tbody>
-      <tr><td><span class="w_good"><b>GREAT</b></span></td><td>+0.15</td><td>+1.05</td></tr>
+      <tr class="rowgood"><td><span class="w_good"><b>GREAT</b></span></td><td>+0.15</td><td class="v_good">+1.05</td></tr>
       <tr><td><span class="w_mid"><b>ALRIGHT</b></span></td><td>-0.1</td><td>-0.1</td></tr>
-      <tr><td><span class="w_bad"><b>BAD</b></span></td><td>-1.075</td><td>-1.75</td></tr></tbody></table></div>
-    <p class="muted">Every <b style="color:var(--text)">${FI.upgrade_cost} points</b> of total score is one upgrade roll; a negative total gives one downgrade per ${FI.downgrade_cost} points below zero. Each upgrade roll has a 50% chance to raise the quality one tier (25% from Epic up, 18% from Ancient up; Celestial is the top), otherwise it raises a random trait. That's why difficulty 10 fish are worth so much: two or three minigames full of GREATs at +1.05 each add up to dozens of upgrades, often reaching Celestial.</p>
-    <p class="muted">Rod boosts add to every hit: Great Boost adds to each GREAT, Alright and Bad Boost soften the other two.</p></div>
-  <div class="card"><h3>Quality tiers</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>Tier</th><th>Bonus</th><th>Chance when caught</th></tr></thead><tbody>
-    ${Q.map(q=>`<tr><td>${esc(q[0])}</td><td>${q[1]>0?"+":""}${q[1]}%</td><td class="faint">${(q[2]/qt*100).toFixed(q[2]/qt<.01?2:1)}%</td></tr>`).join("")}</tbody></table></div></div>
+      <tr class="rowbad"><td><span class="w_bad"><b>BAD</b></span></td><td class="v_bad">-1.075</td><td class="v_bad">-1.75</td></tr></tbody></table></div>
+    <ul class="muted fi_list">
+      <li>Every <span class="hl">${FI.upgrade_cost} points</span> of total score is one upgrade roll.</li>
+      <li>A negative total gives one downgrade per <span class="hl bad">${FI.downgrade_cost} points</span> below zero.</li>
+      <li>Each upgrade roll has a <b>50% chance</b> to raise the quality one tier (25% from Epic up, 18% from Ancient up; Celestial is the top). Otherwise it raises a random trait.</li>
+      <li>Rod boosts add to every hit: Great Boost adds to each GREAT, Alright and Bad Boost soften the other two.</li>
+    </ul>
+    <div class="callout good" data-k="Tip">Difficulty 10 fish are worth the most. Two or three minigames full of GREATs at +1.05 each add up to dozens of upgrades, often reaching Celestial.</div></div>
+  <div class="card"><h3>Quality tiers</h3><div class="tblwrap"><table class="tbl">${qhead}<tbody>
+    ${common.map(qrow).join("")}</tbody></table></div>
+    ${rare.length?`<details class="adv fi_more"><summary>Rarer tiers: ${esc(rare[0][0])} to ${esc(rare[rare.length-1][0])} (under 1% each)</summary><div class="in"><div class="tblwrap"><table class="tbl">${qhead}<tbody>${rare.map(qrow).join("")}</tbody></table></div></div></details>`:""}</div>
   <div class="card"><h3>Traits</h3><div class="grid g2">${FI.cat_keys.map(k=>{const c=FI.cats[k],t=c.reduce((a,x)=>a+x[2],0);return`<div><h4>${k}</h4><div class="small muted">${c.map(x=>`${esc(x[0])} <b style="color:var(--text)">${x[1]>0?"+":""}${x[1]}%</b> <span class="faint">(${Math.round(x[2]/t*100)}%)</span>`).join(" · ")}</div></div>`;}).join("")}</div></div>
   </div>`;
 }
@@ -4470,16 +4659,19 @@ function fRods(){
   // chance per crate to get a Time Acceleration rod of level IV or higher
   const taGood=P.filter(p=>p[2]==="time_accel"&&p[3]>=4),perR={};for(const k of RAR_KEYS)perR[k]=P.filter(p=>p[1]===k).length;
   const taOdds=C.map(([n,price,odds])=>{const tot=odds.reduce((a,b)=>a+b,0);let p=0;RAR_KEYS.forEach((k,i)=>{p+=odds[i]/tot*taGood.filter(x=>x[1]===k).length/(perR[k]||1);});return[n,price,p];});
+  const ok=taOdds.filter(x=>x[2]>0),cheap=ok.length?ok.reduce((a,b)=>a[1]/a[2]<=b[1]/b[2]?a:b):null;
   return`<div class="stack">
   <div class="card"><h2>Which rod is best</h2>
-    <ul class="muted" style="line-height:1.7;padding-left:20px;margin:10px 0 0">
-      <li><b style="color:var(--text)">Time Acceleration IV or higher</b> is the best all-round rod. A good cast already shortens the wait, so from level IV the bite comes at the 0.5 second minimum and higher levels add nothing. It matters most at difficulty 8 and below, where the base wait is long.</li>
-      <li><b style="color:var(--text)">Legendary Luck IV</b> is about as good at difficulty 10: more Legendary fish means more NP and FL per catch, which makes up for the longer wait.</li>
-      <li><b style="color:var(--text)">Great Boost</b> raises sell value a little, but doesn't beat Time Acceleration for FL per hour.</li>
-      <li>Only the rod you have equipped counts.</li>
-    </ul></div>
+    <div class="vbox good"><div class="big">IV+</div><div><span class="lbl">Best rod: Time Acceleration</span><b>Time Acceleration IV or higher</b> is the best all-round rod. From level IV the bite comes at the 0.5 second minimum, so higher levels add nothing.${cheap?` Cheapest way to get one: <b>${esc(cheap[0])}</b>, about <span class="hl">${fnum(cheap[1]/cheap[2])} FL</span> expected.`:""}</div></div>
+    <ul class="muted fi_list" style="margin-top:12px">
+      <li>A good cast already shortens the wait, which is why level IV is enough.</li>
+      <li>Time Acceleration matters most at <b>difficulty 8 and below</b>, where the base wait is long.</li>
+      <li><b>Legendary Luck IV</b> is about as good at difficulty 10: more Legendary fish means more NP and FL per catch, which makes up for the longer wait.</li>
+      <li><b>Great Boost</b> raises sell value a little, but doesn't beat Time Acceleration for FL per hour.</li>
+    </ul>
+    <div class="callout warn" data-k="Watch out">Only the rod you have equipped counts.</div></div>
   <div class="card"><h3>Getting a Time Acceleration IV+ rod</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>Crate</th><th>Price</th><th>Chance per crate</th><th>Expected cost</th></tr></thead><tbody>
-    ${taOdds.map(([n,pr,p])=>`<tr><td>${esc(n)}</td><td>${fnum(pr)} FL</td><td>${(p*100).toFixed(1)}%</td><td><b>${fnum(pr/p)} FL</b></td></tr>`).join("")}</tbody></table></div>
+    ${taOdds.map(([n,pr,p])=>{const b=cheap&&n===cheap[0];return`<tr${b?' class="best"':""}><td>${esc(n)}${b?' <span class="tag good">Cheapest</span>':""}</td><td>${fnum(pr)} FL</td><td>${(p*100).toFixed(1)}%</td><td><b>${fnum(pr/p)} FL</b></td></tr>`;}).join("")}</tbody></table></div>
     <p class="small faint">Each crate rolls a rarity, then any rod of that rarity with equal chance.</p></div>
   <div class="card"><h3>Gear crates</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>Crate</th><th>Price</th>${RAR_KEYS.map(k=>`<th>${RAR_NAME[k]}</th>`).join("")}</tr></thead><tbody>
     ${C.map(([n,pr,o])=>{const t=o.reduce((a,b)=>a+b,0);return`<tr><td>${esc(n)}</td><td>${fnum(pr)} FL</td>${o.map(x=>{const p=x/t*100;return`<td>${p<1?p.toFixed(1):Math.round(p)}%</td>`;}).join("")}</tr>`;}).join("")}</tbody></table></div>
@@ -4490,52 +4682,83 @@ function fRods(){
 }
 function fGames(){
   return`<div class="stack">
-  <div class="callout">One BAD hit costs about as much as 1.7 GREATs at difficulty 10. Calm and accurate beats fast and sloppy.</div>
+  <div class="callout warn" data-k="Watch out">One BAD hit costs about as much as <span class="hl bad">1.7 GREATs</span> at difficulty 10. Calm and accurate beats fast and sloppy.</div>
   <div class="grid g2">
-    <div class="card"><h3>Speed bar</h3><p class="muted">8 presses. Press when the moving marker is inside the green zone (GREAT), the yellow zone around it is ALRIGHT. The zone also moves on hard spots, so watch where it's heading, not where it is.</p></div>
-    <div class="card"><h3>Circle Selector</h3><p class="muted">5 rings. Press when the shrinking ring is on the white band (GREAT). Rings last 2.8 seconds on easy spots and 0.75 seconds on the hardest; on harder spots the circle jumps to a new place after every ring.</p></div>
-    <div class="card"><h3>Tile Beats</h3><p class="muted">6 to 20 tiles, more on harder spots. Use 1, 2 and 3 for the three lanes and press when the tile is on the line. A press while the tile is still far away is a BAD, so don't spam; an empty lane press does nothing.</p></div>
-    <div class="card"><h3>Quick Letter Type</h3><p class="muted">4 to 9 letters, always one of <b style="color:var(--text)">L, I, N, G, U, E</b>. Each letter starts green (GREAT), then turns yellow and red; the green part lasts 0.95 seconds on easy spots and 0.4 on the hardest. Sometimes it spells LINGUINE.</p>
-      <p class="muted"><b style="color:var(--text)">Easier spots (difficulty 8 and below):</b> wrong keys are ignored, so mash all six letters nonstop and every letter lands in its GREAT window.</p>
-      <p class="muted"><b style="color:var(--text)">Hard catches (every difficulty 10 catch, about 6 in 10 at difficulty 9):</b> any wrong key is an instant BAD for that letter. Read it and press only that key. A Letter Slow rod lowers the difficulty and can switch this off.</p></div>
+    <div class="card"><h3>Speed bar</h3><div class="rule"><span>Press when the marker is in the green zone.</span></div>
+      <ul class="muted fi_list">
+        <li><b>8 presses.</b></li>
+        <li>Green is <span class="w_good"><b>GREAT</b></span>, the yellow zone around it is <span class="w_mid"><b>ALRIGHT</b></span>.</li>
+        <li>On hard spots the zone also moves, so watch where it's heading, not where it is.</li>
+      </ul></div>
+    <div class="card"><h3>Circle Selector</h3><div class="rule"><span>Press when the shrinking ring is on the white band.</span></div>
+      <ul class="muted fi_list">
+        <li><b>5 rings.</b> The white band is <span class="w_good"><b>GREAT</b></span>.</li>
+        <li>Rings last <span class="hl">2.8 s</span> on easy spots and <span class="hl">0.75 s</span> on the hardest.</li>
+        <li>On harder spots the circle jumps to a new place after every ring.</li>
+      </ul></div>
+    <div class="card"><h3>Tile Beats</h3><div class="rule"><span>Never spam: an early press is a BAD.</span></div>
+      <ul class="muted fi_list">
+        <li><b>6 to 20 tiles</b>, more on harder spots.</li>
+        <li>Use <b>1, 2 and 3</b> for the three lanes. Press when the tile is on the line.</li>
+        <li>A press while the tile is still far away is a <span class="w_bad"><b>BAD</b></span>. An empty lane press does nothing.</li>
+      </ul></div>
+    <div class="card"><h3>Quick Letter Type</h3><div class="rule"><span>Easy spots: mash all six letters. Hard catches: press only the letter you see.</span></div>
+      <ul class="muted fi_list">
+        <li><b>4 to 9 letters</b>, always one of <b>L, I, N, G, U, E</b>. Sometimes it spells LINGUINE.</li>
+        <li>Each letter starts green (GREAT), then turns yellow and red. The green part lasts <span class="hl">0.95 s</span> on easy spots and <span class="hl">0.4 s</span> on the hardest.</li>
+        <li><b>Difficulty 8 and below:</b> wrong keys are ignored, so mash all six letters nonstop and every letter lands in its GREAT window.</li>
+        <li><b>Every difficulty 10 catch, about 6 in 10 at difficulty 9:</b> any wrong key is an instant <span class="w_bad"><b>BAD</b></span> for that letter.</li>
+        <li>A Letter Slow rod lowers the difficulty and can switch this off.</li>
+      </ul></div>
   </div>
-  <div class="card"><h3>Setup tips</h3><ul class="muted" style="line-height:1.7;padding-left:20px;margin:8px 0 0">
-    <li>Turn <b style="color:var(--text)">game warnings off</b> (Backpack, top bar, the "Warnings" button): each minigame announcement otherwise adds ${FI.warn_time} seconds.</li>
-    <li>Rods with <b style="color:var(--text)">Summoning</b> make your best minigame show up more often; <b style="color:var(--text)">Hater</b> rods make your worst one rare.</li>
-    <li><b style="color:var(--text)">Slowdown</b> rods make one minigame easier but also shorter, which means fewer GREATs and fewer upgrades.</li>
+  <div class="card"><h3>Setup tips</h3>
+    <div class="callout" data-k="Tip" style="margin-top:8px">Turn <b>game warnings off</b> (Backpack, top bar, the "Warnings" button). Each minigame announcement otherwise adds <span class="hl">${FI.warn_time} s</span>.</div>
+    <ul class="muted fi_list">
+      <li>Rods with <b>Summoning</b> make your best minigame show up more often. <b>Hater</b> rods make your worst one rare.</li>
+      <li><b>Slowdown</b> rods make one minigame easier but also shorter, which means fewer GREATs and fewer upgrades.</li>
   </ul></div></div>`;
 }
 function fLevels(){
   const X=FI.xp,S=FI.shop,LV=FI.levels;
   return`<div class="stack">
-  <div class="card"><h2>Fishing XP</h2><div class="tblwrap"><table class="tbl"><thead><tr><th></th>${RAR_KEYS.map(k=>`<th>${RAR_NAME[k]}</th>`).join("")}</tr></thead><tbody>
-    <tr><td>Each catch</td>${RAR_KEYS.map(k=>`<td>${X.per_catch[k]}</td>`).join("")}</tr>
-    <tr><td>New species</td>${RAR_KEYS.map(k=>`<td>${X.new_species[k]}</td>`).join("")}</tr>
-    <tr><td>Mastery bonus</td>${RAR_KEYS.map(k=>`<td>${X.mastery[k]}</td>`).join("")}</tr>
-    <tr><td>Catches for mastery</td>${RAR_KEYS.map(k=>`<td>${X.mastery_needed[k]}</td>`).join("")}</tr></tbody></table></div>
-    <p class="muted">Also: <b style="color:var(--text)">${X.new_location} XP</b> for each new spot, <b style="color:var(--text)">${X.new_modifier} XP</b> for each quality or trait you haven't seen before, <b style="color:var(--text)">difficulty × ${X.diff_step} XP</b> the first time you fish each difficulty up to ${X.diff_max_tier}, and ${X.storage_up} XP per backpack upgrade. Mastering Legendary fish is the biggest XP source.</p></div>
-  <div class="card"><h3>Level rewards</h3><p class="small muted" style="margin:4px 0 10px">The first levels unlock harder spots. After level ${LV.length}, every ${fnum(X.endless_step)} XP gives an Ocean Crate.</p>
+  <div class="card"><h2>Fishing XP</h2>
+    <div class="callout good" data-k="Tip" style="margin-top:10px">Mastering <b>Legendary</b> fish is the biggest XP source.</div>
+    <div class="tblwrap" style="margin-top:12px"><table class="tbl"><thead><tr><th></th>${RAR_KEYS.map(k=>`<th>${RAR_NAME[k]}</th>`).join("")}</tr></thead><tbody>
+    <tr><td><b>Each catch</b></td>${RAR_KEYS.map(k=>`<td>${X.per_catch[k]}</td>`).join("")}</tr>
+    <tr><td><b>New species</b></td>${RAR_KEYS.map(k=>`<td>${X.new_species[k]}</td>`).join("")}</tr>
+    <tr class="best"><td>Mastery bonus</td>${RAR_KEYS.map(k=>`<td${k==="L"?' class="v_good"':""}>${X.mastery[k]}</td>`).join("")}</tr>
+    <tr><td><b>Catches for mastery</b></td>${RAR_KEYS.map(k=>`<td>${X.mastery_needed[k]}</td>`).join("")}</tr></tbody></table></div>
+    <span class="eyebrow" style="margin-top:14px">Also</span>
+    <div class="stats fi_dec" style="margin-top:4px">
+      <div class="stat"><div class="v">${X.new_location} XP</div><div class="k">for each new spot</div></div>
+      <div class="stat"><div class="v">${X.new_modifier} XP</div><div class="k">for each quality or trait you haven't seen before</div></div>
+      <div class="stat"><div class="v">Difficulty × ${X.diff_step} XP</div><div class="k">the first time you fish each difficulty, up to ${X.diff_max_tier}</div></div>
+      <div class="stat"><div class="v">${X.storage_up} XP</div><div class="k">per backpack upgrade</div></div>
+    </div></div>
+  <div class="card"><h3>Level rewards</h3><p class="small muted" style="margin:4px 0 10px">The first levels unlock harder spots. After level ${LV.length}, every <span class="hl">${fnum(X.endless_step)} XP</span> gives an Ocean Crate.</p>
     <div class="tblwrap" style="max-height:340px;overflow:auto"><table class="tbl"><thead><tr><th>Level</th><th>XP</th><th>Reward</th></tr></thead><tbody>
-    ${LV.map((l,i)=>`<tr><td>${i+1}</td><td class="mono">${fnum(l.xp)}</td><td>${esc(l.reward)}</td></tr>`).join("")}</tbody></table></div></div>
-  <div class="card"><h3>Backpack and shop</h3><ul class="muted" style="line-height:1.7;padding-left:20px;margin:8px 0 0">
-    <li>The backpack starts with <b style="color:var(--text)">${S.backpack_start}</b> slots, grows with fishing levels, and you can buy up to ${S.storage_max} more: ${fnum(S.storage_base)} FL, then ${S.storage_step} FL more for each one. It can't go past ${S.backpack_max}.</li>
-    <li>When the backpack is full you can't keep fish, only sell them. Feed fish to your cards before long fishing sessions.</li>
-    <li><b style="color:var(--text)">Ocean Crates</b> cost ${fnum(S.ocean)} FL (${fnum(S.ocean_supporter)} FL with the supporter DLC).</li>
-  </ul></div>
-  <div class="card"><h3>Fish journal</h3><p class="muted">Every species you catch is recorded. ${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length} are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/fishing/spots">Best spots</a> and <a href="#/fishing/fish">Every fish</a>.</p></div>
+    ${LV.map((l,i)=>{const u=/^Unlock/i.test(l.reward);return`<tr${u?' class="rowgood"':""}><td><b>${i+1}</b></td><td class="mono">${fnum(l.xp)}</td><td>${u?`<b>${esc(l.reward)}</b> <span class="tag good">New spots</span>`:esc(l.reward)}</td></tr>`;}).join("")}</tbody></table></div></div>
+  <div class="card"><h3>Backpack and shop</h3><ul class="muted fi_list">
+    <li>The backpack starts with <span class="hl">${S.backpack_start}</span> slots and grows with fishing levels. It can't go past <span class="hl">${S.backpack_max}</span>.</li>
+    <li>You can buy up to ${S.storage_max} more slots: ${fnum(S.storage_base)} FL, then ${S.storage_step} FL more for each one.</li>
+    <li><b>Ocean Crates</b> cost <span class="hl">${fnum(S.ocean)} FL</span> (${fnum(S.ocean_supporter)} FL with the supporter DLC).</li>
+  </ul>
+    <div class="callout warn" data-k="Watch out">When the backpack is full you can't keep fish, only sell them. Feed fish to your cards before long fishing sessions.</div></div>
+  <div class="card"><h3>Fish journal</h3><p class="muted">Every species you catch is recorded. <span class="hl">${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length}</span> are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/fishing/spots">Best spots</a> and <a href="#/fishing/fish">Every fish</a>.</p></div>
   </div>`;
 }
 function fFish(){
-  return`<div class="card"><div class="card_head"><div><h3>Every fish</h3><div class="card_sub">${FI.fish.length} species. NP is what a fish gives when fed to a card; the price is before quality and traits.</div></div>
+  return`<div class="card"><div class="card_head"><div><h3>Every fish</h3><div class="card_sub">${FI.fish.length} species, highest NP first. NP is what a fish gives when fed to a card; the price is before quality and traits.</div></div>
     <div class="row tight"><div class="search">${ic("search")}<input class="input" id="ff_q" placeholder="Search fish" aria-label="Search fish"></div>
     <select class="select" id="ff_r"><option value="">Any rarity</option>${RAR_KEYS.map(k=>`<option value="${k}">${RAR_NAME[k]}</option>`).join("")}</select></div></div>
-    <div class="tblwrap"><table class="tbl"><thead><tr><th>Fish</th><th>Rarity</th><th>Price</th><th>NP</th><th>Where</th></tr></thead><tbody id="ff_b"></tbody></table></div></div>`;
+    <div class="tblwrap"><table class="tbl fi_fish"><thead><tr><th>Fish</th><th>Rarity</th><th class="fi_np">NP</th><th>Price</th><th>Where</th></tr></thead><tbody id="ff_b"></tbody></table></div></div>`;
 }
 function wireFish(){
   const where=w=>!w?"Any water":w==="lake"?"Lakes only":w==="coldlake"?"Cold Lake only (secret)":w.match(/../g).map(c=>FI.tags[c]||c).join(" + ")+" only";
+  const RTAG={UR:" info",L:" mid"};
   const paint=()=>{const q=$("#ff_q").value.toLowerCase(),r=$("#ff_r").value;
     $("#ff_b").innerHTML=FI.fish.filter(x=>(!q||x.name.toLowerCase().includes(q))&&(!r||x.rarity===r)).sort((a,b)=>b.np-a.np)
-      .map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${RAR_NAME[x.rarity]}</td><td class="mono">${x.price}</td><td class="mono">${x.np}</td><td class="small muted">${where(x.where)}</td></tr>`).join("");};
+      .map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><span class="tag${RTAG[x.rarity]||""}">${RAR_NAME[x.rarity]}</span></td><td class="mono fi_np">${x.np}</td><td class="mono">${x.price}</td><td class="small muted">${where(x.where)}</td></tr>`).join("");};
   $("#ff_q").oninput=paint;$("#ff_r").onchange=paint;paint();
 }
 
@@ -4611,7 +4834,7 @@ function pageGuide(args){
   if(sec==="statuses"){const q=$("#gs_q");q.oninput=()=>{const v=q.value.toLowerCase();$$("#gs_list tr").forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");};}
 }
 const gBasics=()=>`<h2>How a battle works</h2>
-  <p class="muted" style="margin-top:8px">Both sides bring 3 leaders. Battles play out on their own, turn by turn. Your choices happen before the fight: which cards, which levels.</p>
+  <p class="lead" style="margin-top:8px">Both sides bring 3 leaders. Battles play out on their own, turn by turn. Your choices happen before the fight: which cards, which levels.</p>
   <div class="steps" style="margin:18px 0">
     <div class="step"><div><b>Statuses tick</b><span>Damage-over-time like Bleeding or On Fire happens, and buffs count down.</span></div></div>
     <div class="step"><div><b>Start-of-turn abilities fire</b><span>Anything that says "at the start of each turn".</span></div></div>
@@ -4622,65 +4845,107 @@ const gBasics=()=>`<h2>How a battle works</h2>
   <div class="callout warn" data-k="The 30-turn clock" style="margin:8px 0"><b>Story:</b> defeat every enemy within 30 turns. If the clock runs out, you lose, even if your whole team is still standing.
   <b style="color:var(--text)">Ranked PvP:</b> running out of time is a draw.</div>
   <h3 style="margin-top:16px">Damage in one line</h3>
-  <p class="muted" style="margin-top:6px">Damage is the attacker's attack, times the element bonus, plus any flat bonuses. There's a 10% crit chance for +5 damage (20% when Lucky). The defender then gets one roll: a <b style="color:var(--text)">dodge</b> (defense ÷ 4 percent) takes no damage, a <b style="color:var(--text)">block</b> (defense ÷ 2 percent) halves it. Defense stops at 50, so the best you can get is a 12.5% dodge and 25% block.</p>
+  <p class="rule">Damage = the attacker's attack × the element bonus + any flat bonuses.</p>
+  <div class="stats gk">
+    <div class="stat"><div class="v">10%</div><div class="k">Crit chance for +5 damage (20% when Lucky)</div></div>
+    <div class="stat good"><div class="v">DEF ÷ 4 %</div><div class="k">Dodge chance: the hit does no damage</div></div>
+    <div class="stat good"><div class="v">DEF ÷ 2 %</div><div class="k">Block chance: the hit does half damage</div></div>
+    <div class="stat"><div class="v">50</div><div class="k">Defense cap: at best a 12.5% dodge and 25% block</div></div>
+  </div>
+  <p class="muted">The defender gets one roll per hit: a <b>dodge</b>, a <b>block</b> or a normal hit.</p>
   <h3 style="margin-top:16px">Normal vs EXTREME</h3>
   <p class="muted" style="margin-top:6px">Normal story fights are a single boss. EXTREME brings the boss plus two helpers and gives extra rewards. Each chapter page has recommended teams for both.</p>`;
 const gTeam=()=>`<h2>Leaders and supporters</h2>
-  <p class="muted" style="margin-top:8px"><b style="color:var(--text)">Leaders</b> are your 3 fighters. Their abilities (the bullet points on each card) work during the fight. The second ability unlocks at level 2.</p>
-  <p class="muted"><b style="color:var(--text)">Supporters</b> sit in a small deck of up to 4 cards. Some leaders <b style="color:var(--text)">draw</b> supporters during the fight, for example when they get hit. Each time a card is drawn, its <b style="color:var(--text)">supporter ability</b> fires once (things like "your highest-attack leader gains 2 attack").</p>
-  <div class="callout" style="margin:14px 0">If none of your leaders draw cards, your supporters never come into play. The simulator tells you when that's the case, so you don't waste time picking supporters that do nothing.</div>
-  <p class="muted">A card's leader abilities don't work from the supporter deck, and its supporter ability doesn't work while it's a leader. When the deck runs out it reshuffles, so a 1-card deck fires the same ability over and over. Story fights let you bring 0 to 4 supporters; ranked requires exactly 4.</p>`;
+  <p class="lead" style="margin-top:6px">Leaders do the fighting. Supporters only help when a leader draws them.</p>
+  <div class="stats gk">
+    <div class="stat"><div class="v">3</div><div class="k">Leaders: your fighters</div></div>
+    <div class="stat"><div class="v">0 to 4</div><div class="k">Supporters in story fights</div></div>
+    <div class="stat"><div class="v">4</div><div class="k">Supporters in ranked (exactly 4)</div></div>
+  </div>
+  <p class="muted"><b>Leaders</b> are your 3 fighters. Their abilities (the bullet points on each card) work during the fight. The second ability unlocks at <b>level 2</b>.</p>
+  <p class="muted"><b>Supporters</b> sit in a small deck of up to 4 cards. Some leaders <b>draw</b> supporters during the fight, for example when they get hit. Each time a card is drawn, its <b>supporter ability</b> fires once (things like "your highest-attack leader gains 2 attack").</p>
+  <div class="callout warn" data-k="Watch out" style="margin:14px 0">If none of your leaders draw cards, your supporters never come into play. The simulator tells you when that's the case, so you don't waste time picking supporters that do nothing.</div>
+  <ul class="tight muted">
+    <li>A card's leader abilities don't work from the supporter deck, and its supporter ability doesn't work while it's a leader.</li>
+    <li>When the deck runs out it reshuffles, so a 1-card deck fires the same ability over and over.</li></ul>`;
 function gElements(){
   if(typeof CHART==="undefined")return"";
   const head=`<tr><th>Attacker ↓ / Defender →</th>${ELN.map((n,i)=>`<th><span class="elname el${i}">${n}</span></th>`).join("")}</tr>`;
   const rows=ELN.map((n,a)=>`<tr><th><span class="elname el${a}">${n}</span></th>${CHART[a].map(m=>`<td class="${m>1?"up":m<1?"down":"n"}">${m===1?"·":"×"+m}</td>`).join("")}</tr>`).join("");
   return`<h2>Elements</h2>
-  <p class="muted" style="margin-top:8px">Every card has one of 6 elements. Damage gets multiplied depending on the attacker's element and the defender's. Find the attacker's row, then the defender's column. Green means extra damage, red means less.</p>
+  <p class="lead" style="margin-top:6px">Every card has one of 6 elements. A card's element comes from its name.</p>
+  <p class="muted">Damage gets multiplied depending on the attacker's element and the defender's. Find the attacker's row, then the defender's column. <span class="w_good gcol">Green</span> means extra damage, <span class="w_bad gcol">red</span> means less.</p>
   <div class="tblwrap" style="margin:14px 0"><table class="tbl echart">${head}${rows}</table></div>
-  <p class="muted"><b style="color:var(--text)">Apex</b> cards (a small gold dot on their badge) cancel their small elemental weakness, the ×1.05 to ×1.25 hits. The big multipliers like ×1.8 still apply to them.</p>
-  <p class="muted">One extra rule: when a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes 30% of its attack back as recoil.</p>
-  <p class="muted">A card's element comes from its name.</p>`;
+  <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (a small gold dot on their badge) cancel their small elemental weakness, the <b>×1.05 to ×1.25</b> hits. The big multipliers like <b>×1.8</b> still apply to them.</div>
+  <div class="callout" data-k="Good to know" style="margin:12px 0">When a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes <b>30% of its attack</b> back as recoil.</div>`;
 }
 function gStatuses(){
   const ids=Object.keys(typeof STA!=="undefined"?STA:{}).sort((a,b)=>ST_NAME(a).localeCompare(ST_NAME(b)));
+  const good=ids.filter(id=>STATUS_GOOD.has(id)),bad=ids.filter(id=>!STATUS_GOOD.has(id));
+  const row=id=>`<tr><td class="gs_chip">${stChip(id)}</td><td class="muted">${esc(statusDesc(id).replace(/ Lasts [^.]*\.$/,""))}</td><td class="gs_last${TURN_ONLY_ST.has(id)?" short":""}">${stLasts(id)}</td></tr>`;
+  const grp=(cls,label,list)=>list.length?`<tr class="grp ${cls}"><td colspan="3">${label} (${list.length})</td></tr>${list.map(row).join("")}`:"";
   return`<h2>Statuses</h2>
-  <p class="muted" style="margin-top:8px">Statuses are the green and red words in abilities. Hover or tap one anywhere on the site to see this description. Putting a status on again restarts its timer instead of stacking it.</p>
-  <p class="muted">Timing: statuses count down at the start of each turn and wear off at the end of a turn, so one that lands during a turn also lasts through the next one. Stunned, Paralyzed and Tired are the exception: they only last the turn they land on.</p>
+  <p class="lead" style="margin-top:6px">Statuses are the green and red words in abilities. Hover or tap one anywhere on the site to see this description.</p>
+  <div class="callout" data-k="Good to know" style="margin:12px 0">Statuses count down at the start of each turn and wear off at the end of a turn, so one that lands during a turn also lasts through the next one. ${stChip("stunned")}, ${stChip("paralyzed")} and ${stChip("tired")} are the exception: they only last <b>the turn they land on</b>.</div>
+  <p class="rule">Putting a status on again restarts its timer instead of stacking it.</p>
   <div class="search" style="max-width:340px;margin:12px 0">${ic("search")}<input class="input" id="gs_q" placeholder="Search statuses" aria-label="Search statuses"></div>
-  <div class="tblwrap"><table class="tbl"><thead><tr><th>Status</th><th>What it does</th><th>Lasts</th></tr></thead><tbody id="gs_list">
-  ${ids.map(id=>`<tr><td>${stChip(id)}</td><td class="muted">${esc(statusDesc(id).replace(/ Lasts [^.]*\.$/,""))}</td><td class="faint">${stLasts(id)}</td></tr>`).join("")}</tbody></table></div>`;
+  <div class="tblwrap"><table class="tbl gstbl"><thead><tr><th>Status</th><th>What it does</th><th>Lasts</th></tr></thead><tbody id="gs_list">
+  ${grp("good","Helpful",good)}${grp("bad","Harmful",bad)}</tbody></table></div>`;
 }
-const gLevels=()=>`<h2>Levels</h2>
-  <p class="muted" style="margin-top:8px">Cards level up from 1 to 20. Levels 2 to 10 come from more copies of the same card (from crates) or cookies; levels 11 to 20 come from feeding fish, which gives Nutrition Points (NP). The story caps your levels at 15 in Season 1 and 20 in Season 2.</p>
-  ${GD?`<div class="tblwrap" style="margin:12px 0"><table class="tbl lvtbl"><tbody>
-    <tr><th>Level</th>${GD.levels.filter(l=>l[0]<=10).map(l=>`<th class="num">${l[0]}</th>`).join("")}</tr>
-    <tr><td>Copies in total</td>${GD.levels.filter(l=>l[0]<=10).map(l=>`<td class="num">${l[1]}</td>`).join("")}</tr>
-    <tr><th>Level</th>${GD.levels.filter(l=>l[0]>10).map(l=>`<th class="num">${l[0]}</th>`).join("")}</tr>
-    <tr><td>NP in total</td>${GD.levels.filter(l=>l[0]>10).map(l=>`<td class="num">${l[2]}</td>`).join("")}</tr></tbody></table></div>
-  <h3>Cookies</h3><p class="muted" style="margin-top:6px">A cookie counts as copies of a card, but only below level 10 and only for the rarities it lists.</p>
-  <div class="tblwrap" style="margin:8px 0 14px"><table class="tbl"><thead><tr><th>Cookie</th><th class="num">Counts as</th><th>For</th><th class="num">Shop price</th><th class="num">With DLC 2</th></tr></thead><tbody>
-    ${GD.cookies.map(([n,c,r,pr,d2])=>`<tr><td>${esc(n)}</td><td class="num">${c} cop${c===1?"y":"ies"}</td><td class="small">${r.map(x=>RAR[x]).join(", ")}</td><td class="num">${pr.toLocaleString()} SL$</td><td class="num">${d2.toLocaleString()} SL$</td></tr>`).join("")}</tbody></table></div>`:""}
-  <div class="tblwrap" style="margin:12px 0"><table class="tbl"><thead><tr><th>Total gain</th><th>Health</th><th>Attack</th><th>Speed</th><th>Defense</th></tr></thead><tbody>
-    <tr><td>By level 10</td><td>+25</td><td>+8</td><td>+25</td><td>+11</td></tr>
-    <tr><td>By level 20</td><td>+97</td><td>+23</td><td>+100</td><td>+26</td></tr></tbody></table></div>
+const gLevels=()=>{
+  const lv=n=>GD&&GD.levels.find(l=>l[0]===n),c10=lv(10),n20=lv(20),end=n=>n===10||n===20?" lvend":"";
+  return`<h2>Levels</h2>
+  <p class="lead" style="margin-top:6px">Cards level up from 1 to 20. Levels 2 to 10 come from more copies of the same card (from crates) or cookies. Levels 11 to 20 come from feeding fish, which gives Nutrition Points (NP).</p>
+  <div class="stats gk">
+    <div class="stat"><div class="v">15</div><div class="k">Story level cap in Season 1</div></div>
+    <div class="stat"><div class="v">20</div><div class="k">Story level cap in Season 2</div></div>
+    ${c10&&c10[1]!=null?`<div class="stat"><div class="v">${c10[1]} copies</div><div class="k">In total for level 10</div></div>`:""}
+    ${n20&&n20[2]!=null?`<div class="stat"><div class="v">${n20[2]} NP</div><div class="k">In total for level 20</div></div>`:""}
+  </div>
   <p class="muted">The simulator applies the same cap: a level 20 card fights a Season 1 chapter as level 15.</p>
-  <p class="muted">Story enemies gain +18 health, +4 attack, +8 speed and +2 defense for every level above 1, in both seasons. Defense stops at 50 for everyone.</p>`;
+  ${GD?`<h3>What each level costs</h3>
+  <div class="tblwrap" style="margin:8px 0 12px"><table class="tbl lvtbl"><tbody>
+    <tr><th>Level</th>${GD.levels.filter(l=>l[0]<=10).map(l=>`<th class="num${end(l[0])}">${l[0]}</th>`).join("")}</tr>
+    <tr><td>Copies in total</td>${GD.levels.filter(l=>l[0]<=10).map(l=>`<td class="num${end(l[0])}">${l[1]}</td>`).join("")}</tr>
+    <tr><th>Level</th>${GD.levels.filter(l=>l[0]>10).map(l=>`<th class="num${end(l[0])}">${l[0]}</th>`).join("")}</tr>
+    <tr><td>NP in total</td>${GD.levels.filter(l=>l[0]>10).map(l=>`<td class="num${end(l[0])}">${l[2]}</td>`).join("")}</tr></tbody></table></div>
+  <h3>Cookies</h3><p class="muted" style="margin-top:6px">A cookie counts as copies of a card, but only below level 10 and only for the rarities it lists.</p>
+  <div class="tblwrap" style="margin:8px 0 14px"><table class="tbl cktbl"><thead><tr><th>Cookie</th><th class="num">Counts as</th><th>For</th><th class="num">Shop price</th><th class="num">With DLC 2</th></tr></thead><tbody>
+    ${GD.cookies.map(([n,c,r,pr,d2])=>`<tr><td><b>${esc(n)}</b></td><td class="num"><span class="hl">${c} cop${c===1?"y":"ies"}</span></td><td><span class="ckr">${r.map(x=>`<span class="tag">${RAR[x]}</span>`).join("")}</span></td><td class="num">${pr.toLocaleString()} SL$</td><td class="num v_good">${d2.toLocaleString()} SL$</td></tr>`).join("")}</tbody></table></div>`:""}
+  <h3>Stat gains</h3>
+  <div class="tblwrap" style="margin:8px 0 12px;max-width:620px"><table class="tbl"><thead><tr><th>Total gain</th><th class="num">Health</th><th class="num">Attack</th><th class="num">Speed</th><th class="num">Defense</th></tr></thead><tbody>
+    <tr><td>By level 10</td><td class="num v_good">+25</td><td class="num v_good">+8</td><td class="num v_good">+25</td><td class="num v_good">+11</td></tr>
+    <tr><td><b>By level 20</b></td><td class="num v_good">+97</td><td class="num v_good">+23</td><td class="num v_good">+100</td><td class="num v_good">+26</td></tr></tbody></table></div>
+  <p class="muted">Story enemies gain <b>+18 health, +4 attack, +8 speed and +2 defense</b> for every level above 1, in both seasons. Defense stops at <b>50</b> for everyone.</p>`;};
 // crate odds, prices and sources (DATA.guide, from the game's code by extract_guide.py)
 const GD=DATA.guide||null;
 const pctS=x=>x>=10?Math.round(x)+"%":x>=1?(Math.round(x*10)/10)+"%":x+"%";
 const priceS=pr=>!pr||pr.amt==null?"-":pr.off!=null?`${pr.amt} ${pr.cur} in season (${pr.dlc} with DLC 1), ${pr.off} off season`:`${pr.amt.toLocaleString()} ${pr.cur}${pr.dlc!=null?` (${pr.dlc.toLocaleString()} with DLC ${pr.dlcn||1})`:""}`;
 function gCrates(){
   if(!GD)return`<h2>Crates</h2><p class="muted">Crate data isn't available in this build.</p>`;
-  const row=c=>`<tr><td><b>${esc(c.n)}</b></td>${c.odds.map(o=>`<td class="num">${o?pctS(o):"-"}</td>`).join("")}<td class="small">${esc(priceS(c.price))}</td><td class="small muted">${c.obtain.map(esc).join(" · ")}</td></tr>`;
-  const head=`<thead><tr><th>Crate</th>${["Common","Uncommon","Rare","Ultra Rare","Legendary"].map(x=>`<th class="num">${x}</th>`).join("")}<th>Price</th><th>How to get it</th></tr></thead>`;
   const skin=GD.crates.filter(c=>!c.gear),gear=GD.crates.filter(c=>c.gear),d=GD.daily;
+  const perL=c=>c.price&&c.price.cur==="SL$"&&c.price.amt&&c.odds[4]?c.price.amt/(c.odds[4]/100):Infinity;   // SL$ per Legendary card on average
+  const best=skin.reduce((a,c)=>perL(c)<perL(a)?c:a,skin[0]),norm=skin.filter(c=>c.pool==="Normal"),own=skin.filter(c=>c.pool!=="Normal"),cheap=norm[0];
+  const row=c=>`<tr${c===best?' class="best"':""}><td><b>${esc(c.n)}</b>${c===best?` <span class="tag acc">Best for Legendary</span>`:""}</td>${c.odds.map((o,i)=>`<td class="num${i===4?" crL":""}${o?"":" faint"}">${o?pctS(o):"-"}</td>`).join("")}<td class="small">${esc(priceS(c.price))}</td><td class="small muted">${c.obtain.map(esc).join(" · ")}</td></tr>`;
+  const head=`<thead><tr><th>Crate</th>${["Common","Uncommon","Rare","Ultra Rare","Legendary"].map((x,i)=>`<th class="num${i===4?" crL":""}">${x}</th>`).join("")}<th>Price</th><th>How to get it</th></tr></thead>`;
+  const grp=(t,list)=>list.length?`<tr class="grp"><td colspan="8">${t}</td></tr>${list.map(row).join("")}`:"";
+  const top=d.up.length?d.up[d.up.length-1]:null;
   return`<h2>Crates</h2>
-  <p class="muted" style="margin-top:8px">Every crate first rolls a rarity with the chances below, then a random card of that rarity from its pool. The nine Common to Legendary crates all use the same Normal pool; only the chances differ. Seasonal, Gold, Daily and Ocean crates have their own pools (a card's "How to get it" says which).</p>
-  <div class="tblwrap" style="margin:12px 0"><table class="tbl crtbl">${head}<tbody>${skin.map(row).join("")}</tbody></table></div>
-  <h3 style="margin-top:18px">Daily crate</h3>
-  <p class="muted" style="margin-top:6px">${d.per_day.base} a day (${d.per_day.base+d.per_day.dlc1_bonus} with DLC 1, ${d.per_day.max} with both DLCs), once it unlocks after your first 10 pet-milestone crates. Upgrades from the SL$ shop raise the chance of a card that only the Daily crate has:</p>
-  <div class="tblwrap" style="margin:8px 0;max-width:560px"><table class="tbl"><thead><tr><th>Upgrade</th><th class="num">Daily-only card chance</th><th class="num">Price</th><th class="num">Shop level</th></tr></thead><tbody>
-    ${d.up.map(([t,h,p,l])=>`<tr><td>${t}</td><td class="num">${h}%</td><td class="num">${p!=null?p.toLocaleString()+" SL$":"-"}</td><td class="num">${l??"-"}</td></tr>`).join("")}</tbody></table></div>
+  ${best&&isFinite(perL(best))?`<p class="lead" style="margin-top:6px">For a Legendary card, the <b>${esc(best.n)}</b> gives the most per SL$: <span class="hl">${pctS(best.odds[4])}</span> for ${best.price.amt} SL$, about <span class="hl">${Math.round(perL(best))} SL$</span> per Legendary on average.${cheap&&cheap!==best?` The ${esc(cheap.n)} gives one only ${pctS(cheap.odds[4])} of the time.`:""}</p>`:""}
+  <p class="muted">Every crate first rolls a rarity with the chances below, then a random card of that rarity from its pool. The nine Common to Legendary crates all use the same Normal pool; only the chances differ. Seasonal, Gold, Daily and Ocean crates have their own pools (a card's "How to get it" says which).</p>
+  <div class="tblwrap" style="margin:12px 0"><table class="tbl crtbl">${head}<tbody>${grp("Normal pool: same cards, different chances",norm)}${grp("Their own card pools",own)}</tbody></table></div>
+  <section class="gblock">
+  <h3>Daily crate</h3>
+  <div class="stats gk">
+    <div class="stat"><div class="v">${d.per_day.base}</div><div class="k">Daily crate a day</div></div>
+    <div class="stat"><div class="v">${d.per_day.base+d.per_day.dlc1_bonus}</div><div class="k">A day with DLC 1</div></div>
+    <div class="stat"><div class="v">${d.per_day.max}</div><div class="k">A day with both DLCs</div></div>
+    ${top?`<div class="stat good"><div class="v">${top[1]}%</div><div class="k">Daily-only card chance with every upgrade</div></div>`:""}
+  </div>
+  <p class="muted">It unlocks after your first 10 pet-milestone crates. Upgrades from the SL$ shop raise the chance of a card that only the Daily crate has:</p>
+  <div class="tblwrap" style="margin:8px 0 0;max-width:560px"><table class="tbl"><thead><tr><th>Upgrade</th><th class="num">Daily-only card chance</th><th class="num">Price</th><th class="num">Shop level</th></tr></thead><tbody>
+    ${d.up.map(([t,h,p,l])=>`<tr><td>${t}</td><td class="num"><b>${h}%</b></td><td class="num">${p!=null?p.toLocaleString()+" SL$":"-"}</td><td class="num">${l??"-"}</td></tr>`).join("")}</tbody></table></div>
+  </section>
   <details class="adv" style="margin-top:14px"><summary>Fishing gear crates</summary><div class="in"><div class="tblwrap"><table class="tbl crtbl">${head}<tbody>${gear.map(row).join("")}</tbody></table></div></div></details>
 `;
 }
@@ -4825,23 +5090,28 @@ function renderRacePicker(){
         ?`<div class="vbox good"><div class="big">Lane ${best+1}</div><div><span class="lbl">Bet on this racer</span>It wins about ${Math.round(P[best]*100)}% of these races, so on average you get back about ${Math.round(back[best])} for every 100 SL$.</div></div>`
         :`<div class="vbox warn"><div class="big">Skip</div><div><span class="lbl">No racer stands out</span>Even the best pick only gets back about ${Math.round(back[best])} of every 100 SL$. Leave and reopen the race for new racers.</div></div>`}`;
   }
-  box.innerHTML=`<div class="tool_head"><div class="tool_title"><span class="ic">${ic("arrow")}</span><div><span class="eyebrow">Try it</span>Which racer should I bet on?</div></div>${hasLv?"":`<button class="btn sm" data-act="importSave">${ic("download")}Import your cards</button>`}</div>
-    <p class="small muted" style="margin:0 0 12px">Pick the four racers in the order the race screen lists them. ${hasLv?"Levels come from your imported cards; change one if it's wrong.":"Import your cards so their levels fill in by themselves, or set each level by hand."}</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">${lanes}</div>${res}`;
+  box.innerHTML=`<details class="tool_fold" id="rp_d"${S.ui.raceOpen?" open":""}><summary class="tool_head"><div class="tool_title"><span class="ic">${ic("arrow")}</span><div><span class="eyebrow">Try it</span>Which racer should I bet on?</div></div><span class="tool_chev" aria-hidden="true">${ic("arrow",'width="16" height="16"')}</span></summary>
+    <div class="tool_body"><div class="row between" style="flex-wrap:wrap;gap:8px;margin:0 0 12px"><p class="small muted" style="margin:0;flex:1;min-width:220px">Pick the four racers in the order the race screen lists them. ${hasLv?"Levels come from your imported cards; change one if it's wrong.":"Import your cards so their levels fill in by themselves, or set each level by hand."}</p>${hasLv?"":`<button class="btn sm" data-act="importSave">${ic("download")}Import your cards</button>`}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">${lanes}</div>${res}</div></details>`;
+  const fold=box.querySelector("#rp_d");if(fold)fold.addEventListener("toggle",()=>{if(S.ui.raceOpen!==fold.open){S.ui.raceOpen=fold.open;save();}});
   box.querySelectorAll("select[data-rlv]").forEach(sel=>sel.onchange=()=>{const x=L[+sel.dataset.rlv];if(x){x.lv=+sel.value;save();renderRacePicker();}});
 }
-ACT.jumpTo=el=>{const t=document.getElementById(el.dataset.t);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});};
+ACT.jumpTo=el=>{const t=document.getElementById(el.dataset.t);if(!t)return;const d=t.querySelector("details.tool_fold");if(d&&!d.open)d.open=true;t.scrollIntoView({behavior:"smooth",block:"start"});};
 ACT.racePick=el=>{const i=+el.dataset.i,L=S.ui.race;
   pickCard(`Lane ${i+1} racer`,id=>{L[i]={id,lv:null};save();renderRacePicker();},{exclude:L.filter(Boolean).map(x=>x.id),hint:`Pick the skin the race screen shows in Lane ${i+1}.`});};
 const gNumbers=()=>`<h2>About the numbers</h2>
-  <p class="muted" style="margin-top:8px">The site plays the same battle hundreds of times with fresh dice rolls (dodges, crits, random targets) and counts how often you win. "78%" means your team won 78 out of every 100 simulated battles.</p>
+  <p class="lead" style="margin-top:6px">The site plays the same battle hundreds of times with fresh dice rolls (dodges, crits, random targets) and counts how often you win.</p>
+  <div class="callout" data-k="Example" style="margin:12px 0"><b>"78%"</b> means your team won <b>78 out of every 100</b> simulated battles.</div>
   <h3 style="margin-top:14px">Why it changes a little between runs</h3>
-  <p class="muted" style="margin-top:6px">Each run uses new random battles, so the result moves by a few percent. The "give or take" number shows how much. Run more battles (Advanced settings) for a steadier number.</p>
+  <p class="muted" style="margin-top:6px">Each run uses new random battles, so the result moves by a few percent. The <b>"give or take"</b> number shows how much. Run more battles (Advanced settings) for a steadier number.</p>
   <h3 style="margin-top:14px">How accurate is it?</h3>
-  <p class="muted" style="margin-top:6px">The simulator follows the game's battle rules exactly, and players' real results have lined up with it. It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</p>
+  <p class="muted" style="margin-top:6px">The simulator follows the game's battle rules exactly, and players' real results have lined up with it.</p>
+  <div class="callout warn" data-k="Keep in mind" style="margin:10px 0">It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</div>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
-  <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: level ${REC_LEVEL(1)} in Season 1 and level 20 in Season 2. "Needs Lv X+" is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-08 · Easier to read",[
+  <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
+const SITE_UPDATES=[["2026-10-09 · Easier to read, every page",[
+  `<b>Every page leads with the answer now.</b> Home shows the best team, the hardest chapter and the top ranked rating. Story, Teams and Ranked put the key number first and fold away the rest. Cards are cleaner, the Simulator has numbered steps and one clear result, every Fishing tab opens with its best pick, and the Guide sections use key-number tiles and labelled boxes. The race picker in Gambling now folds open and shut.`,
+]],["2026-10-08 · Easier to read",[
   `<b>Important things stand out now.</b> Tools like the race picker and the rating calculator sit in a gold frame, verdicts show as a big colored box, warnings have a label, and the best team on each chapter page is marked. Guide pages use shorter lines and clearer headings, and win rates between 55% and 75% now show in amber instead of green.`,
 ]],["2026-10-08 · Gambling guide",[
   `<b>New: <a href="#/guide/gambling">Gambling</a></b> in the Guide. Every gambling game ranked by how much you get back per 100 SL$, the best setting for each, and the traps the game doesn't mention: which two games don't lose, the race tip the help text gets wrong, when Coin Flip stops doubling, and why leaving mid-round costs your bet.`,
@@ -4917,8 +5187,12 @@ const SITE_UPDATES=[["2026-10-08 · Easier to read",[
 function gUpdates(){
   const day=g=>/^\d{4}-\d\d-\d\d/.test(g[0])?String(g[0]).slice(0,10):"0000";   // newest first; undated ("Earlier") last
   const groups=SITE_UPDATES.concat(typeof UPDATE_GROUPS!=="undefined"?UPDATE_GROUPS:[]).map((g,i)=>[g,i]).sort((a,b)=>day(b[0]).localeCompare(day(a[0]))||a[1]-b[1]).map(x=>x[0]);
-  return`<h2>Updates</h2><div class="stack" style="margin-top:12px;gap:18px">${groups.map(g=>`<div><div class="tag acc" style="margin-bottom:8px">${g[0]}</div>
-    <ul style="margin:0;padding-left:20px;line-height:1.6" class="muted">${g[1].map(x=>`<li style="margin:5px 0">${x.replace(/class="stt"/g,'class="st"')}</li>`).join("")}</ul></div>`).join("")}</div>`;
+  const one=g=>`<div><div class="tag acc" style="margin-bottom:8px">${g[0]}</div>
+    <ul style="margin:0;padding-left:20px;line-height:1.6" class="muted">${g[1].map(x=>`<li style="margin:5px 0">${x.replace(/class="stt"/g,'class="st"')}</li>`).join("")}</ul></div>`;
+  const NEW=2,old=groups.slice(NEW);
+  return`<h2>Updates</h2><p class="lead" style="margin-top:6px">What changed on the site, newest first.</p>
+  <div class="stack" style="margin-top:12px;gap:18px">${groups.slice(0,NEW).map(one).join("")}</div>
+  ${old.length?`<details class="adv" style="margin-top:18px"><summary>Older updates (${old.length})</summary><div class="in"><div class="stack" style="gap:18px">${old.map(one).join("")}</div></div></details>`:""}`;
 }
 
 // game version the site's data was read from (Steam_Manager.GAME_VERSION, the text the game itself shows)
