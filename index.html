@@ -563,6 +563,14 @@ a.stat .tag{font-size:12px}
 .tierbox{display:flex;gap:14px;align-items:flex-start;margin-top:14px;padding:12px 14px;border-radius:var(--r2);background:var(--surface2);border:1px solid var(--line);font-size:14px}
 .tier.big{font-size:34px;min-width:38px;text-align:center}
 .tierbox .cc{vertical-align:middle}
+.msel{position:relative;min-width:0}
+.msel_btn{width:100%;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msel_btn.on{border-color:var(--acc);color:var(--acc)}
+.msel_menu{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:220px;padding:10px 12px;border-radius:var(--r2);background:var(--surface);border:1px solid var(--line2);box-shadow:var(--shadow);display:grid;gap:6px}
+.msel_menu[hidden]{display:none}
+.msel_menu .check{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700}
+.msel_menu .tier{font-size:16px;min-width:22px;text-align:center}
+.msel_quick{margin-bottom:4px}
 .fi_dec{margin:12px 0 14px}
 .fi_dec .v{font-size:22px}
 .fi_dec .k b{color:var(--text)}
@@ -3963,7 +3971,8 @@ function pageCards(args){
   // two modes with their own filters: Leaders (role, element, ability, stats) and Supporters (what the supporter
   // ability does). Only the current mode's filters apply, so nothing hidden can filter cards out.
   const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:"rec",lvl:10,
-    view:"lead",sdir:"",sstat:"",sside:"",spick:"",ssort:"amt",atk:"",tier:""},S.ui.cardsFilters||{});
+    view:"lead",sdir:"",sstat:"",sside:"",spick:"",ssort:"amt",atk:"",tier:[]},S.ui.cardsFilters||{});
+  F.tier=(Array.isArray(F.tier)?F.tier:F.tier?[F.tier]:[]).filter(t=>TIER_ORDER.includes(t));   // was one tier, now a list
   if(F.mine!==undefined){if(F.mine)F.own="mine";delete F.mine;}   // old saved filter shapes
   if(F.view!=="supp")F.view="lead";
   if(F.sort==="amt")F.sort="rec";
@@ -3984,7 +3993,8 @@ function pageCards(args){
       <div class="search">${ic("search")}<input class="input" id="cf_q" placeholder="Search by name" aria-label="Search cards by name" value="${esc(F.q)}"></div>
       <select class="select" id="cf_own" aria-label="Which cards"><option value="all">All cards</option><option value="mine" ${F.own==="mine"?"selected":""}>My cards</option><option value="missing" ${F.own==="missing"?"selected":""}>Cards I'm missing</option></select>
       ${SUP?suppSelects(F,"cf_")
-        :`<select class="select" id="cf_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option ${F.role===r?"selected":""}>${r}</option>`).join("")}</select><select class="select" id="cf_tier" aria-label="Tier"><option value="">Any tier</option>${TIER_ORDER.map(t=>`<option value="${t}" ${F.tier===t?"selected":""}>Tier ${t}${t==="D"?" (no use)":""}</option>`).join("")}</select>${srcSel}`}
+        :`<select class="select" id="cf_role" aria-label="What it does"><option value="">Any role</option>${Object.keys(ROLE_HELP).map(r=>`<option ${F.role===r?"selected":""}>${r}</option>`).join("")}</select><div class="msel" id="cf_tier"><button type="button" class="select msel_btn" aria-haspopup="true" aria-expanded="false" aria-label="Tiers"></button>
+        <div class="msel_menu" hidden>${TIER_ORDER.map(t=>`<label class="check"><input type="checkbox" value="${t}" ${F.tier.includes(t)?"checked":""}> <span class="tier t_${t[0]}">${t[0]}${t.length>1?"<sup>*</sup>":""}</span> ${t==="D"?"No use":"Tier "+t}</label>`).join("")}</div></div>${srcSel}`}
       <select class="select" id="cf_sort" aria-label="Sort">${SORTS.map(([v,l])=>`<option value="${v}" ${F[sortKey]===v?"selected":""}>${l}</option>`).join("")}</select>
       <button class="btn sm ${F.more?"":"ghost"}" id="cf_morebtn">${ic("filter")}More filters${(()=>{const n=(SUP?[F.src,F.rar,F.unob]:[F.trig,F.eff,F.st,F.atk,F.rar,F.apex,F.unob,F.lvl!==10]).filter(Boolean).length;return n?` <span class="badge">${n}</span>`:"";})()}</button>
     </div>
@@ -4008,7 +4018,7 @@ function pageCards(args){
   </div>`;
   if(!SUP)["trig","eff","st"].forEach(k=>{const s=$("#cf_"+k);if(s)s.value=F[k]||"";});
   // a saved value the dropdown doesn't offer (older version, renamed option) would filter invisibly: drop it
-  for(const k of["own","role","tier","src","rar","trig","eff","st","sort","ssort",...SUPP_KEYS]){const el=$("#cf_"+(k==="ssort"?"sort":k));
+  for(const k of["own","role","src","rar","trig","eff","st","sort","ssort",...SUPP_KEYS]){const el=$("#cf_"+(k==="ssort"?"sort":k));
     if(el&&el.tagName==="SELECT"&&(k!=="ssort"||SUP)&&(k!=="sort"||!SUP)&&F[k]&&el.value!==String(F[k])){F[k]=k==="own"?"all":k==="sort"?"rec":k==="ssort"?"amt":"";el.value=F[k];}}
   const els=$("#cf_els");
   const renderEls=()=>{if(!els)return;els.innerHTML=`<button class="chip click ${F.el===""?"on":""}" data-e="">All elements</button>`+ELN.map((n,i)=>`<button class="chip click ${F.el===String(i)?"on":""}" data-e="${i}" title="${esc(elHint(i))}"><span class="elname el${i}">${n}</span></button>`).join("");};
@@ -4026,7 +4036,7 @@ function pageCards(args){
       if(SUP)return!!suppInfo(c)&&suppPass(c,F);
       if(F.el!==""&&c.element!==+F.el)return false;
       if(F.role&&!rolesOf(c.id).includes(F.role))return false;
-      if(F.tier&&(tierOf(c.id)||[])[0]!==F.tier)return false;
+      if(F.tier.length&&!F.tier.includes((tierOf(c.id)||[])[0]))return false;
       if(F.apex&&!c.apex)return false;
       if(F.atk&&String(c.style)!==String(F.atk))return false;
       const m=META[c.id];
@@ -4067,7 +4077,7 @@ function pageCards(args){
   function activeFilters(){
     const a=[];if(F.own!=="all")a.push(F.own==="mine"?"My cards":"Cards I'm missing");if(F.src)a.push("source ("+SRC[F.src][0]+")");if(F.rar)a.push("rarity");
     if(SUP&&suppActive(F))a.push("supporter filters");
-    else{if(F.role)a.push("role");if(F.tier)a.push("tier");if(F.atk)a.push("attack target");if(F.el!=="")a.push("element");if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.apex)a.push("Apex only");}
+    else{if(F.role)a.push("role");if(F.tier.length)a.push("tier");if(F.atk)a.push("attack target");if(F.el!=="")a.push("element");if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.apex)a.push("Apex only");}
     return a;   // (unobtainable cards are never hidden from a name search)
   }
   function paint(){
@@ -4123,7 +4133,21 @@ function pageCards(args){
   {const q=$("#cf_q");let tq=null;q.addEventListener("input",()=>{clearTimeout(tq);tq=setTimeout(()=>{F.q=q.value;refresh();},160);});}
   bind("#cf_own","own");bind("#cf_src","src");bind("#cf_rar","rar");bind("#cf_unob","unob","change",x=>x.checked);bind("#cf_sort",sortKey);
   if(SUP)for(const k of SUPP_KEYS)bind("#cf_"+k,k);
-  else{bind("#cf_role","role");bind("#cf_tier","tier");bind("#cf_atk","atk");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex","change",x=>x.checked);}
+  else{bind("#cf_role","role");
+    {const box=$("#cf_tier");if(box){const btn=box.querySelector(".msel_btn"),menu=box.querySelector(".msel_menu"),cbs=[...menu.querySelectorAll("input")];
+      // label: "Any tier", or the picked tiers in order ("Tier S, A*, B")
+      const label=()=>{const n=F.tier.length;
+        btn.textContent=!n?"Any tier":n===1&&F.tier[0]==="D"?"Tier D (no use)":"Tier "+F.tier.join(", ");
+        btn.classList.toggle("on",!!n);};
+      const set=list=>{F.tier=TIER_ORDER.filter(t=>list.includes(t));cbs.forEach(cb=>cb.checked=F.tier.includes(cb.value));label();refresh();};
+      const open=v=>{menu.hidden=!v;btn.setAttribute("aria-expanded",v);if(v){menu.style.left="0";menu.style.right="auto";   // keep it on screen
+        if(menu.getBoundingClientRect().right>innerWidth-8){menu.style.left="auto";menu.style.right="0";}}};
+      btn.onclick=e=>{e.stopPropagation();open(menu.hidden);};
+      menu.addEventListener("change",()=>set(cbs.filter(cb=>cb.checked).map(cb=>cb.value)));
+      menu.onclick=e=>e.stopPropagation();
+      document.addEventListener("click",function close(){if(!document.body.contains(box)){document.removeEventListener("click",close);return;}open(false);});
+      box.addEventListener("keydown",e=>{if(e.key==="Escape"){open(false);btn.focus();}});
+      label();}}bind("#cf_atk","atk");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex","change",x=>x.checked);}
   $("#cf_view").onclick=e=>{const b=e.target.closest("[data-v]");if(!b||b.dataset.v===F.view)return;F.view=b.dataset.v;S.ui.cardsFilters=F;save();pageCards([]);};
   $("#cf_morebtn").onclick=()=>{F.more=!F.more;$("#cf_more").style.display=F.more?"":"none";$("#cf_morebtn").classList.toggle("ghost",!F.more);S.ui.cardsFilters=F;save();};
   $("#cf_clearmine").onclick=()=>{if(!OWN.size)return;if(!confirm(`Clear all ${cardsN(OWN.size)} marked as yours${Object.keys(S.ownLv).length?" and their imported levels":""}?`))return;const before=new Set(OWN),lv=S.ownLv;OWN.clear();S.ownLv={};save();$("#owncount").textContent=0;refresh();
