@@ -3973,12 +3973,13 @@ const SUPP_GROUPS=[["Helps your team",k=>/^\+\w+:ally|^-\w+:enemy|^x:/.test(k)],
 function pageCards(args){
   // two modes with their own filters: Leaders (role, element, ability, stats) and Supporters (what the supporter
   // ability does). Only the current mode's filters apply, so nothing hidden can filter cards out.
-  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:"rec",lvl:10,
+  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:Object.keys(TIER).length?"tier":"rec",lvl:10,
     view:"lead",sdir:"",sstat:"",sside:"",spick:"",ssort:"amt",atk:"",tier:[]},S.ui.cardsFilters||{});
   F.tier=(Array.isArray(F.tier)?F.tier:F.tier?[F.tier]:[]).filter(t=>TIER_ORDER.includes(t));   // was one tier, now a list
   if(F.mine!==undefined){if(F.mine)F.own="mine";delete F.mine;}   // old saved filter shapes
   if(F.view!=="supp")F.view="lead";
   if(F.sort==="amt")F.sort="rec";
+  if(!F.tierSort){F.tierSort=1;if(F.sort==="rec"&&Object.keys(TIER).length)F.sort="tier";}   // once: best tier became the default sort
   const SUP=F.view==="supp";
   let limit=90;
   const opts=(set,label,lab=nice)=>`<option value="">${label}</option>`+[...set].filter(Boolean).map(x=>[x,lab(x)]).sort((a,b)=>a[1].localeCompare(b[1])).map(([x,l])=>`<option value="${esc(x)}">${esc(l)}</option>`).join("");
@@ -3987,7 +3988,7 @@ function pageCards(args){
   const rarSel=`<select class="select" id="cf_rar"><option value="">Any rarity</option>${RAR_ORDER.map(r=>`<option value="${r}" ${F.rar===r?"selected":""}>${RAR[r]}</option>`).join("")}</select>`;
   const unobBox=`<label style="justify-content:flex-end"><span class="check" title="Cards from past events or with no known source"><input type="checkbox" id="cf_unob" ${F.unob?"checked":""}> Show cards you can't get</span></label>`;
   const SORTS=SUP?[["amt","Strongest first"],["group","Best per effect"],["rec","Most used in recommended teams"],["name","Name"],["id","Newest first"]]
-    :[["rec","Most recommended first"],...(Object.keys(TIER).length?[["tier","Best tier first"]]:[]),["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["spdlow","Slowest"],["hplow","Least health"],["id","Newest first"]];
+    :[...(Object.keys(TIER).length?[["tier","Best tier first"]]:[]),["rec","Most used in chapter teams"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["spdlow","Slowest"],["hplow","Least health"],["id","Newest first"]];
   const sortKey=SUP?"ssort":"sort";
   $("#view").innerHTML=`<div class="fadein">
     <div class="page_head"><div><h1>Cards</h1><p>Every card in the game. Tap one to see what it does. Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div></div>
@@ -4022,7 +4023,7 @@ function pageCards(args){
   if(!SUP)["trig","eff","st"].forEach(k=>{const s=$("#cf_"+k);if(s)s.value=F[k]||"";});
   // a saved value the dropdown doesn't offer (older version, renamed option) would filter invisibly: drop it
   for(const k of["own","role","src","rar","trig","eff","st","sort","ssort",...SUPP_KEYS]){const el=$("#cf_"+(k==="ssort"?"sort":k));
-    if(el&&el.tagName==="SELECT"&&(k!=="ssort"||SUP)&&(k!=="sort"||!SUP)&&F[k]&&el.value!==String(F[k])){F[k]=k==="own"?"all":k==="sort"?"rec":k==="ssort"?"amt":"";el.value=F[k];}}
+    if(el&&el.tagName==="SELECT"&&(k!=="ssort"||SUP)&&(k!=="sort"||!SUP)&&F[k]&&el.value!==String(F[k])){F[k]=k==="own"?"all":k==="sort"?(Object.keys(TIER).length?"tier":"rec"):k==="ssort"?"amt":"";el.value=F[k];}}
   const els=$("#cf_els");
   const renderEls=()=>{if(!els)return;els.innerHTML=`<button class="chip click ${F.el===""?"on":""}" data-e="">All elements</button>`+ELN.map((n,i)=>`<button class="chip click ${F.el===String(i)?"on":""}" data-e="${i}" title="${esc(elHint(i))}"><span class="elname el${i}">${n}</span></button>`).join("");};
   if(els)els.onclick=e=>{const b=e.target.closest("[data-e]");if(!b)return;F.el=b.dataset.e;renderEls();refresh();};
