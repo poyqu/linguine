@@ -2502,9 +2502,9 @@ async function simulate(pd,ed,n,onprog,mode){
 // =====================================================================================
 // navigation
 // =====================================================================================
-const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["fishing","Fishing","fish"],["guide","Guide","book"]];
+const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["ranked","Ranked","trophy"],["fishing","Fishing","fish"],["guide","Guide","book"]];
 function renderNav(cur){
-  if(cur==="builds"||cur==="ranked")cur="teams";   // community builds live under Teams
+  if(cur==="builds")cur="teams";   // community builds live under Teams
   if(cur==="report"||cur==="share")cur="team";
   const h=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" title="${l}" aria-label="${l}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
   $("#nav").innerHTML=h;
@@ -2777,7 +2777,7 @@ function pickCard(title,onPick,o={}){
 // round2 home_story: "Right now" strip under the hero (best overall team, hardest EXTREME chapter, ranked #1)
 function homeNowRanked(R){
   const e=R&&R.top&&R.top[0];if(!e)return"";
-  return`<div class="v">${e.rating.toLocaleString()}</div><div class="k">Top ranked rating, ${esc(e.t.map(id=>shortName(CARDS[id])).join(" + "))}</div>`;
+  return`<div class="v">${e.rating.toLocaleString()}</div><div class="k">Top ranked rating${R.date?" on "+new Date(R.date+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"}):""}, ${esc(e.t.map(id=>shortName(CARDS[id])).join(" + "))}</div>`;
 }
 function homeNowStrip(){
   const tiles=[];
@@ -4072,7 +4072,7 @@ function pageCards(args){
         <div class="desc sdesc">${suppLine(c)}</div>${tSrc(c)}</div>${ownBtn(c)}</div>`;
     const lc=applyPlayerLevel(c,F.lvl),hs=SORT_STAT[F.sort],roles=rolesOf(c.id).slice(0,2);
     return`<div class="ctile ct2 ${OWN.has(c.id)?"owned":""}" data-card="${c.id}" role="button" tabindex="0"><div class="ct_side">${av(c.id)}${tierBadge(c.id)}</div>
-      <div class="body"><div class="nm">${esc(shortName(c))}${REC_USE[c.id]?`<span class="ct_rec" title="Recommended: appears in recommended teams" aria-label="Recommended">★</span>`:""}${S.team.leaders.includes(c.id)?`<span class="ct_team">In your team</span>`:""}</div>
+      <div class="body"><div class="nm">${esc(shortName(c))}${S.team.leaders.includes(c.id)?`<span class="ct_team">In your team</span>`:""}</div>
         <div class="ct_meta">${elTag(c)}${roles.map(r=>` <i>·</i> <span title="${esc(ROLE_HELP[r]||"")}">${r}</span>`).join("")}</div>
         <div class="ct_stats">${[["hp","HP"],["atk","ATK"],["def","DEF"],["spd","SPD"]].map(([k,l])=>`<span class="${k===hs?"on":""}">${l} <b>${lc[k]}</b></span>`).join("")}</div>
         <div class="desc ct_desc">${tAbil((c.atext||[])[0]||"No abilities")}</div>${tSrc(c)}</div>${ownBtn(c)}</div>`;
