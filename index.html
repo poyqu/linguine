@@ -3247,7 +3247,7 @@ function strongPool(){
 // supporter packages built from the allowed cards: the strongest heal / attack / defense pumps and enemy debuffs
 function suppPkgs(allowed){
   const cand=[...allowed].map(id=>CARDS[id]).filter(c=>c&&suppInfo(c));
-  const best=(f,n)=>cand.filter(c=>f(suppInfo(c))).sort((a,b)=>suppRank(b)-suppRank(a)||(REC_USE[b.id]||0)-(REC_USE[a.id]||0)).slice(0,n).map(c=>c.id);
+  const best=(f,n)=>cand.filter(c=>f(suppInfo(c))).sort((a,b)=>suppRank(b)-suppRank(a)||(REC_SUPP[b.id]||0)-(REC_SUPP[a.id]||0)).slice(0,n).map(c=>c.id);
   const heal=best(i=>i.up&&i.stat==="health"&&i.side==="ally",4),atk=best(i=>i.up&&i.stat==="attack"&&i.side==="ally",4),
     def=best(i=>i.up&&i.stat==="defense"&&i.side==="ally",4),deb=best(i=>!i.up&&i.stat==="attack"&&i.side==="enemy",4),dmg=best(i=>!i.up&&i.stat==="health"&&i.side==="enemy",4);
   const pk=[heal,atk,def,deb,dmg,heal.slice(0,2).concat(atk.slice(0,2)),heal.slice(0,2).concat(deb.slice(0,2)),[]];
@@ -3913,7 +3913,7 @@ const tierText=id=>{const t=tierOf(id);if(!t)return"";const L=t[0][0];
 const tierBadge=(id,cls="")=>{const t=tierOf(id);if(!t)return"";return`<span class="tier t_${t[0][0]} ${cls}" title="Story tier ${t[0]}: ${esc(tierText(id))}">${t[0][0]}${t[0].length>1?"<sup>*</sup>":""}</span>`;};
 for(const chId in REC){const r=REC[chId];for(const e of[r,r&&r.normal]){if(!e)continue;
   const teams=(e.cores&&e.cores.length)?e.cores.flatMap(c=>c.alts):(e.team?[e]:[]);
-  for(const t of teams){const ids=(t.team||[]).concat(teamDraws(t.team||[])?(t.supp||[]):[]);for(const id of ids)REC_USE[id]=(REC_USE[id]||0)+1;}}}
+  for(const t of teams)for(const id of t.team||[])REC_USE[id]=(REC_USE[id]||0)+1;}}   // leader slots only; supporter use is REC_SUPP
 // how often a card is used AS A SUPPORTER in recommended teams (only teams with a leader that draws count)
 const REC_SUPP={};
 for(const chId in REC){const r=REC[chId];for(const e of[r,r&&r.normal]){if(!e)continue;
