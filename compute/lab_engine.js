@@ -24,7 +24,7 @@ const TURN_ONLY=["tired","stunned","paralyzed"];      // RuntimeLeader.TURN_ONLY
 const BUFF_STATUSES=["blessed","lucky","strengthened","purified","soul_protected","tired"];   // battle_sim._BUFF_STATUSES
 const STYLE_FLIP={2:3,3:2,4:5,5:4,6:7,7:6,8:9,9:8};
 const STYLE_ALL=10;                                   // BattleEnums.AttackStyle.ALL: hits every leader in the target pool
-const MAXHP=999,MAXATK=199,MINATK=1,DEFCAP=50,OVERHEAL=1.2;
+const MAXHP=999,MAXATK=199,MINATK=1,DEFCAP=50,OVERHEAL=1.2,OVERTIME_TURN=12,OVERTIME_PCT=0.08;   // overtime: battle_sim v193
 const _own=Object.prototype.hasOwnProperty;
 function hasSta(sid){return typeof sid==="string"&&_own.call(STA,sid);}
 function staF(sid){return hasSta(sid)?STA[sid][2]:{};}
@@ -175,8 +175,9 @@ class Sim{
     if(TURN_ONLY.includes(sid)){                        // turn-only statuses tick once immediately on inflict
       const e=t.st[sid],dl=STA[sid][1],dd=e[1]<dl.length?dl[e[1]]:{};
       e[1]++;e[0]--;
-      if(dd&&Object.keys(dd).length)this.applyStatDeltas(t,dd);   // no death check here (game: silent death possible)
+      if(dd&&Object.keys(dd).length)this.applyStatDeltas(t,dd);
     }
+    this.checkDeath(t,src);                               // v189: _check_death(target, inflictor) right after the inflict tick
     if(this.depth<24){this.depth++;this.fire(t,"on_status_applied",{affected:t,status_id:sid});this.depth--;}
     this.broadcast("on_any_status_applied",{affected:t,status_id:sid});
     return true;
@@ -186,7 +187,7 @@ class Sim{
   die(v,killer,isAtk){   // battle_sim._kill + _handle_death_ripple
     v.alive=false;v.hp=0;
     if(v.announced)return;
-    v.announced=true;
+    v.announced=true;v.deathNo=this.deathN=(this.deathN||0)+1;   // death order (read by the site's "first to fall"; no effect on the battle)
     this.L(`    💀 ${v.name} died`);
     this.fire(v,"on_death",{killer:killer||null},true);
     if(isAtk&&killer){
@@ -205,9 +206,11 @@ class Sim{
     for(const l of this.everyL())if((!l.alive||l.hp<=0)&&!l.announced)this.die(l,killer,isAtk);
   }
   // ---- ticks / stat changes ----
+  overtime(){return !this.story&&this.turn>=OVERTIME_TURN;}   // battle_sim._overtime (v193)
+  healAmt(a){return a>0&&this.overtime()?Math.ceil(a*0.5):a;}   // battle_sim._heal_amt: healing halved in overtime
   applyStatDeltas(l,d){   // battle_sim._apply_stat_deltas (heal caps at max_hp; attack floor 0; no death check)
     if(!d)return;
-    if(_has(d,"health")){const a=_i(d.health);if(a<0)l.takeDamage(-a);else l.hp=Math.min(l.hp+a,l.mhp);}
+    if(_has(d,"health")){const a=_i(d.health);if(a<0)l.takeDamage(-a);else l.hp=Math.min(l.hp+this.healAmt(a),l.mhp);}
     if(_has(d,"attack"))l.atk=Math.max(0,Math.min(MAXATK,l.atk+_i(d.attack)));
     if(_has(d,"defense"))l.dfn=Math.max(0,Math.min(DEFCAP,l.dfn+_i(d.defense)));
     if(_has(d,"speed"))l.spd=Math.max(0,l.spd+_i(d.speed));
@@ -227,7 +230,7 @@ class Sim{
   mod(l,stat,amt){   // battle_sim._modify_stat
     if(stat==="health"){
       if(amt<0)l.takeDamage(-amt);
-      else l.hp=Math.min(l.hp+amt,Math.floor(l.mhp*OVERHEAL));   // overheal up to 120% max hp
+      else l.hp=Math.min(l.hp+this.healAmt(amt),Math.floor(l.mhp*OVERHEAL));   // overheal up to 120% max hp (halved in overtime, v193)
     }else if(stat==="attack"){
       l.atk=Math.max(MINATK,Math.min(MAXATK,l.atk+amt));
       if(amt>0&&this.depth<24){this.depth++;this.fire(l,"on_boost",{});this.depth--;}
@@ -458,7 +461,7 @@ class Sim{
       // ---- Oct 3 2026 patch effects ----
       case"gain_stat_random":{
         const amt=this.randint(_i(_g(p,"min",0)),_i(_g(p,"max",0))),stat=String(_g(p,"stat","health"));
-        if(stat==="health"&&amt>0){self.hp+=amt;this.L(`    🎲 ${self.name.slice(0,22)} rolls +${amt} health`);}   // raw add: no overheal cap, no triggers
+        if(stat==="health"&&amt>0){const h=this.healAmt(amt);self.hp+=h;this.L(`    🎲 ${self.name.slice(0,22)} rolls +${h} health`);}   // raw add: no overheal cap, no triggers (halved in overtime)
         else if(amt!==0){this.L(`    🎲 ${self.name.slice(0,22)} rolls ${amt} ${stat}`);this.mod(self,stat,amt);}
         return;
       }
@@ -1233,6 +1236,16 @@ class Sim{
       for(const[amt,dm]of swaps)d.health=_i(d.health||0)-dm+amt;
       this.applyStatDeltas(l,d);
       this.checkDeath(l);
+    }
+    if(this.overtime()){   // v193 overtime (battle_sim): from turn 12, not story, every leader loses ceil(max_hp x 8% x (turn-11))
+      const k=this.turn-OVERTIME_TURN+1;
+      if(this.turn===OVERTIME_TURN)this.L(`  ⏱ OVERTIME: every leader loses health each turn, healing is halved`);
+      for(const l of [...this.teams[0],...this.teams[1]]){
+        if(!l.alive)continue;
+        l.takeDamage(Math.ceil(l.mhp*OVERTIME_PCT*k));
+        this.checkDeath(l);
+      }
+      if(!this.alive(0).length||!this.alive(1).length)return;
     }
     for(const l of this.orderBySpeed())if(l.alive)this.fire(l,"turn_start",{});
     for(const atk of this.orderBySpeed()){
