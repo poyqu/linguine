@@ -15,6 +15,7 @@ Usage: python s2_search.py [S2E1 S2E2 ...] [--level 20] [--smoke]
 Writes s2_teams.json (merged, private).
 """
 import sim, fastsim, re, os, json, itertools, time, sys, random
+from story_search import ch_arg as _ch_arg   # story _ch arguments by name (v189 shifted positions)
 from collections import Counter
 from multiprocessing import Pool
 from story_search import CHAPTERS_S2, CHAPTERS, chapter_key, sd, split_args, find_call
@@ -78,7 +79,7 @@ else:
     NORMAL_OPP = {}
     for m in re.finditer(r'_ch\("(S2E\d+|F\d+)"', sd):
         p = sd.find("(", m.start()); a = split_args(sd[p+1:find_call(sd, p)])
-        o = [(int(x), int(y)) for x, y in re.findall(r'_opp\((\d+),\s*(\d+)\)', a[6])]
+        o = [(int(x), int(y)) for x, y in re.findall(r'_opp\((\d+),\s*(\d+)\)', _ch_arg(a, "opponents"))]
         if o: NORMAL_OPP[m.group(1)] = o
 def available_for(CH):
     if CH.startswith("F"):   # Season 1 recs: crate cards only (story rewards would be circular)
