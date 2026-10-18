@@ -109,8 +109,11 @@ def _chapter_opponents():
             if ch == "," and dep == 0 and not ins: args.append(cur); cur = ""
             else: cur += ch
         args.append(cur)
+        sig = _re.search(r"static func _ch\(([^)]*)\)", sd)
+        params = [x.split(":")[0].strip() for x in sig.group(1).split(",")] if sig else             ["id", "name", "opp_name", "opp_portrait", "intro", "win", "opponents", "rewards", "hard_opponents", "hard_rewards"]
+        idx = [params.index(n) for n in ("opponents", "hard_opponents") if n in params]
         sids = []
-        for k in (6, 8):   # _ch arg 6 = normal opponents, arg 8 = EXTREME opponents
+        for k in idx:      # the normal + EXTREME opponent arguments, found by NAME (v189 dropped "name" and shifted them)
             if len(args) > k:
                 for a in _re.findall(r'_opp\((\d+),\s*\d+\)', args[k]):
                     if int(a) not in sids: sids.append(int(a))
