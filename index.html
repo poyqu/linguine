@@ -656,7 +656,7 @@ a.stat .tag{font-size:12px}
   </div>
 </div></header>
 <main id="view"></main>
-<footer class="site"><span>Fan-made tool. Win chances are simulated estimates, not guarantees.</span><span><a href="#/guide/updates">What's new</a> · <a href="classic.html">Classic version</a></span></footer>
+<footer class="site"><span>Fan-made tool. Win chances are simulated estimates, not guarantees.</span><span><a href="#/guide/updates">What's new</a> · <a href="classic.html">Classic version</a> · <a href="https://github.com/poyqu/linguine" target="_blank" rel="noopener">GitHub</a></span></footer>
 <nav class="tabbar" id="tabbar"></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="overlay"></div>
@@ -2015,7 +2015,7 @@ const REWARD_FROM=DATA.reward_from||{};
 // set while recommendations are being recomputed after a data fix (build_lab: recs_stale.flag)
 // seasons whose recommendations are being recomputed after a data fix (build_lab: recs_stale.flag lists them)
 const STALE_SEASONS=Array.isArray(DATA.recs_stale)?DATA.recs_stale:(DATA.recs_stale?[1,2]:[]);
-const staleNote=sn=>(sn==null?STALE_SEASONS.length:STALE_SEASONS.includes(sn))?`<div class="callout warn" style="margin-bottom:12px"><b>Being recalculated.</b> The game was updated on October 3 (about 45 cards rebalanced, Season 2 EXTREME fights made easier). The simulator already uses the new data. ${sn==null?`The recommended teams for Season ${STALE_SEASONS.join(" and ")} are`:"These recommended teams are"} from before the update and are being recomputed; until then, check a team in the simulator before relying on it.</div>`:"";   // card id -> [chapter id, "normal" | "hard"]
+const staleNote=sn=>(sn==null?STALE_SEASONS.length:STALE_SEASONS.includes(sn))?`<div class="callout warn" style="margin-bottom:12px"><b>Being recalculated.</b> The game update to ${esc((GD&&GD.version)||"the newest version")} changed cards since the last full team search. The simulator already uses the new data. ${sn==null?`The recommended teams for Season ${STALE_SEASONS.join(" and ")} were`:"These recommended teams were"} re-tested on it and a full new search is running; until then, check a team in the simulator before relying on it.</div>`:"";   // card id -> [chapter id, "normal" | "hard"]
 
 // =====================================================================================
 // small helpers
@@ -2698,11 +2698,11 @@ function openCard(id,ctx){
     <p class="small muted" style="margin-top:10px">Each turn it attacks <b style="color:var(--text)">${STYLE[c.style]||"an enemy"}</b>.</p>
     <div class="divider"></div>
     <h3>${isBoss?"Abilities":"As a leader"}</h3>
-    ${isBoss?"":`<p class="muted small" style="margin:2px 0 0">Active while this card is one of the 3 fighters. The second one unlocks at level 2.</p>`}
+    ${isBoss?"":`<p class="muted small" style="margin:2px 0 0">The second one unlocks at level 2.</p>`}
     ${abilitiesHtml(c)}
     ${isCard?`<div class="divider"></div><h3>As a supporter</h3>
     <p class="muted small" style="margin:2px 0 6px">Fires each time this card is drawn from the supporter deck. Leader abilities don't work from the deck.</p>
-    ${c.stext?`<ul class="abil"><li class="sup">${fmtAbility(capFirst(c.stext))}</li></ul>`:'<p class="faint small">No supporter ability, so drawing it does nothing.</p>'}
+    ${c.stext?`<ul class="abil"><li class="sup">${fmtAbility(capFirst(c.stext))}</li></ul>`:'<p class="faint small">No supporter ability.</p>'}
     ${draws?`<div class="callout good" style="margin-top:10px">This card <b>draws supporters</b> as a leader, so supporter abilities fire during its battles.</div>`:""}`:""}
     <div class="divider"></div>
     <h3>Element: ${esc(ELN[c.element]||"Unknown")}</h3>
@@ -2934,7 +2934,7 @@ function pageStory(args){
   const allRel=anyRec&&list.every(ch=>{const r=bestRec(ch.id,"hard");return r!=null&&r>=.95;});   // then a per-card "Reliable clear" says nothing
   $("#view").innerHTML=`<div class="fadein">
   <div class="page_head"><div><h1>Story chapters</h1>
-    <p>Each chapter is one fight. <b>Normal</b> is a single boss. <b>EXTREME</b> adds two helpers and gives extra rewards. Pick a chapter to see the enemies and the teams that beat them.</p></div>
+    </div>
     <div class="seg" role="tablist">${SEASONS.map(x=>`<button role="tab" class="${x===s?"on":""}" data-act="season" data-s="${x}">Season ${x}</button>`).join("")}</div></div>
   ${staleNote(s)}
   ${!anyRec?`<div class="callout warn" style="margin-bottom:16px"><b>No recommended teams for Season ${s} yet.</b> It's still new, so the site hasn't calculated answers for it. You can open any chapter and search for a team yourself, or test your own team in the simulator.</div>`:""}
@@ -2965,7 +2965,7 @@ function wideCard(){
   const top=sorted.slice(0,3);
   const weakOf=w=>Object.entries(w.per_chapter||{}).filter(([,v])=>v<.95).sort((a,b)=>chNo(a[0])-chNo(b[0]));
   return`<details class="adv" style="margin-top:22px"><summary>Want one team for most of Season 1? See the ${top.length} that come closest</summary><div class="in">
-    <p class="small muted" style="margin-top:0">No team clears every chapter. These are different teams, so if you lack a card, try the next one, and use the chapter's own team for its weak spots.</p>
+    <p class="small muted" style="margin-top:0">No team clears every chapter.</p>
     <div class="stack">${top.map((w,i)=>{const sp=teamDraws(w.team)?w.supp:[];const weak=weakOf(w);return`<div class="teamrow ${i===0?"best":""}">
       <div class="members">${w.team.map(id=>cchip(id,{own:true})).join("")}</div>
       <div style="min-width:150px"><div style="font-weight:900">Clears ${w.clears} of ${(CH_BY_SEASON[1]||[]).length}</div><div class="small faint">average EXTREME win ${pct(w.mean)}</div></div>
@@ -2996,7 +2996,7 @@ function pageChapter(chId){
     </div></div>`;
   $("#ch_intro").innerHTML=diff==="hard"
     ?`EXTREME: you face ${ch.hard.length} enemies at once and must defeat all of them within 30 turns.`
-    :`Normal: you face a single boss and must defeat it within 30 turns.${ch.hard.length?" Switch to EXTREME for the harder version with extra rewards.":""}`;
+    :`Normal: you face a single boss and must defeat it within 30 turns.`;
   renderFoes(ch,diff);
   renderChapterTeams(ch,diff,lvlRec);
 }
@@ -3007,7 +3007,7 @@ function renderFoes(ch,diff){
   const season=ch.season||1;
   const spDraw=opps.some(([id])=>{const c=enemyBase(id);let y=false;for(const a of c.abilities||[])walkEff(a,e=>{if(/draw/.test(e))y=true;});return y;});
   $("#ch_right").innerHTML=`<div class="card"><div class="card_head"><div><h3>Who you're fighting</h3>
-      <div class="card_sub">Tap a name for full details. Green and red words are statuses: hover or tap them.</div></div></div>
+      </div></div>
     <div class="stack">${opps.map(([id,l])=>{
       const c=enemyBase(id),lc=applyEnemyLevel(Object.assign({},c),l,season);
       return`<div class="foe">${av(id,"lg",true)}<div class="body">
@@ -3091,13 +3091,13 @@ function renderChapterTeams(ch,diff,lvl){
   const hardFight=bestWr!=null&&teams.length&&bestWr<.75;
   const SHOW=3;
   const head=`<div class="card_head"><div><h3>${hardFight?"Best teams found":"Teams that win"}</h3>
-    <div class="card_sub" id="ch_sub">${teams.length?(live?`These EXTREME teams are being checked live against the Normal boss, every card at level ${lvl}.`:`Rated with every card at level ${lvl}. "Needs Lv" is the lowest level (all 3 leaders) that still wins about as often.${Object.keys(S.ownLv||{}).length?" Use loads your imported card levels.":" Set your real levels in the simulator after pressing Use."}`):""}</div></div>
+    <div class="card_sub" id="ch_sub">${teams.length?(live?`These EXTREME teams are being checked live against the Normal boss, every card at level ${lvl}.`:`Rated with every card at level ${lvl}. "Needs Lv" is the lowest level (all 3 leaders) that still wins about as often.`):""}</div></div>
     ${OWN.size>=3&&teams.length?`<label class="check"><input type="checkbox" id="only_mine" ${onlyMine?"checked":""}> Only teams I can build</label>`:""}</div>`;
   let body;
   if(!teams.length){
     body=`<div class="callout warn"><b>Not calculated yet.</b> ${season>=2?"Season 2 is new, so there's no recommended team for this chapter yet.":"There's no saved recommendation for this chapter."} Use the search below to find one now.</div>`;
   }else if(!shown.length){
-    body=`<div class="callout">None of the recommended teams can be built from your cards. Try the search below with <b>My cards</b>: it looks for the best team you can actually make.</div>`;
+    body=`<div class="callout">None of the recommended teams can be built from your cards. Try the search below with <b>My cards</b>.</div>`;
   }else{
     const row=(t,i)=>teamRowHtml(live?{...t,wr:undefined,min:undefined,alts:[]}:t,{best:i===0&&!onlyMine&&!hardFight,ch:ch.id,diff,lvl,none:"Checking..."});
     // the strongest recommended team (or 3rd-card swap) the player owns, preferring one their levels already reach
@@ -3110,7 +3110,7 @@ function renderChapterTeams(ch,diff,lvl){
       if(p&&p!==shown[0])pickHtml=`<h4 style="margin:0 0 8px">Your best pick</h4><p class="small muted" style="margin:0 0 8px">${lvOk(p)?"The strongest recommended team you own, and your card levels are high enough for it.":"The strongest recommended team you own."}</p>${teamRowHtml(p,{ch:ch.id,diff,lvl})}<h4 style="margin:16px 0 8px">All recommended teams</h4>`;
       else if(p===shown[0])pickHtml=`<div class="callout good" style="margin-bottom:12px">You own every card of the top team${lvOk(p)?", and your levels are high enough":""}.</div>`;
     }
-    body=pickHtml+(hardFight?`<div class="callout warn" style="margin-bottom:12px"><b>This is one of the hardest fights.</b> Even the best known team only wins about ${pct(bestWr)} of the time, so expect a few tries. Higher card levels help.</div>`:"")
+    body=pickHtml+(hardFight?`<div class="callout warn" style="margin-bottom:12px"><b>This is one of the hardest fights.</b> Even the best known team only wins about ${pct(bestWr)} of the time.</div>`:"")
       +`<div class="stack">${shown.slice(0,SHOW).map(row).join("")}</div>`
       +(shown.length>SHOW?`<details style="margin-top:10px"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800">Show ${shown.length-SHOW} more team${shown.length-SHOW>1?"s":""}</summary><div class="stack" style="margin-top:10px">${shown.slice(SHOW).map((t,i)=>row(t,i+SHOW)).join("")}</div></details>`:"");
     const low=!live&&ent&&ent.lowest_level;   // the team that still wins at the lowest card level
@@ -3206,11 +3206,11 @@ function wireFindControls(pre,onGo,ctxCh){   // ctxCh: chapter id (story rewards
   let must=null;
   const pool=$("#"+pre+"_pool"),hint=$("#"+pre+"_hint");
   const cur=()=>pool.querySelector(".on").dataset.p;
-  const setHint=()=>{const p=cur();hint.innerHTML=p==="mine"?"Searches teams built only from the cards you marked as yours."
+  const setHint=()=>{const p=cur();hint.innerHTML=p==="mine"?""
     :p==="strong"?"Starts from the cards in recommended, ranked and community teams, screens them against this fight and searches the best ones (see Search settings). Cards from this fight's recommended teams always take part."
     :`Screens every card you can get against this fight, then tries every team of 3 from the best ones (see Search settings). Cards from this fight's recommended teams always take part, and Final polish tries every card in the best teams.${OWN.size<3?` Tip: <a href="#/cards">mark the cards you own</a> to search only teams you can build.`:""}`;};
   const paintMust=()=>{$("#"+pre+"_must").innerHTML=must?`<span class="mustchip">${cchip(must)}<button class="xbtn sm" data-mx="1" aria-label="Remove the must-use card">${ic("x")}</button></span>`
-    :`<button class="btn ghost sm" data-mp="1" title="Only show teams that include this card">${ic("plus")}Must use a card</button>`;};
+    :`<button class="btn ghost sm" data-mp="1">${ic("plus")}Must use a card</button>`;};
   $("#"+pre+"_must").addEventListener("click",e=>{
     if(e.target.closest("[data-mx]")){must=null;paintMust();return;}
     if(e.target.closest("[data-mp]"))pickCard("Must use this card",id=>{must=id;paintMust();est();},{mine:cur()==="mine"});});
@@ -3381,7 +3381,7 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
 let AUTO_RUN=false;
 function pageTeam(){
   $("#view").innerHTML=`<div class="fadein teampage">
-  <div class="page_head"><div><h1>Simulator</h1><p>Build a team, pick who to fight, and see how often you win. Every battle uses the game's real rules.</p></div></div>
+  <div class="page_head"><div><h1>Simulator</h1></div></div>
   <div class="split">
     <div class="card" id="team_panel"></div>
     <div class="stack">
@@ -3427,11 +3427,11 @@ function renderTeamPanel(){
   const nL=t.leaders.filter(x=>x!=null).length;
   const drawers=t.leaders.filter(id=>id!=null&&drawsSupporters(id));
   let suppNote;
-  if(!nL)suppNote="Supporters are optional. They only do something if one of your leaders draws cards during battle.";
+  if(!nL)suppNote="Supporters only do something if one of your leaders draws cards in battle.";
   else if(drawers.length)suppNote=`<b>${esc(shortName(CARDS[drawers[0]]))}</b> draws supporters, so supporter abilities will fire in battle.`;
-  else suppNote=t.supp.length?`<div class="callout warn" data-k="Watch out"><b>Your supporters never come into play.</b> None of your leaders draw cards, so you can leave these empty.</div>`:"None of your leaders draw cards, so supporters won't do anything for this team. You can leave these empty.";
+  else suppNote=t.supp.length?`<div class="callout warn" data-k="Watch out"><b>Your supporters never come into play.</b> None of your leaders draw cards, so you can leave these empty.</div>`:"None of your leaders draw cards, so supporters won't do anything for this team.";
   const st=!nL?starterTeam():null;
-  el.innerHTML=`<div class="card_head"><div><h3><span class="stepn">1</span>Your team</h3><div class="card_sub">3 leaders fight. Tap a name to see what it does.</div></div>
+  el.innerHTML=`<div class="card_head"><div><h3><span class="stepn">1</span>Your team</h3></div>
       <div class="row tight">${nL?`<select class="select" id="setall" aria-label="Set every level" style="padding:6px 10px"><option value="">Set all levels</option>${Object.keys(S.ownLv).length?'<option value="mine">My levels</option>':""}${[1,5,10,15,20].map(x=>`<option>${x}</option>`).join("")}</select>
       <button class="btn sm ghost" data-act="clearTeam">Clear</button>`:""}</div></div>
     ${st?`<div class="callout" style="margin-bottom:12px"><div class="row between"><span>Not sure where to start? Load ${st.why}.</span>
@@ -3476,7 +3476,7 @@ function renderOppPanel(){
     <div class="row" style="margin-top:10px"><a class="small" href="${chHref(ch.id)}">See this chapter's enemies and recommended teams ›</a></div>`;
   }else{
     const t=o.pvp;
-    body=`<p class="small muted" style="margin:10px 0">Another player's team. Both sides use player levels, and a battle that hits 30 turns counts as a draw, like ranked.</p>
+    body=`<p class="small muted" style="margin:10px 0">Both sides use player levels, and a battle that hits 30 turns counts as a draw, like ranked.</p>
     <div class="slots">${t.leaders.map((id,i)=>slotHtml(t,id,"L",i,"opp")).join("")}</div>
     <details style="margin-top:10px" id="opp_supp" ${S.ui.oppSuppOpen?"open":""}><summary class="small" style="cursor:pointer;color:var(--text2);font-weight:800">Their supporters (${t.supp.length}/4)</summary>
       <div class="slots" style="margin-top:8px">${t.supp.map((id,i)=>slotHtml(t,id,"S",i,"opp")).join("")}${t.supp.length<4?slotHtml(t,null,"S",0,"opp"):""}</div></details>`;
@@ -3584,7 +3584,7 @@ ACT.watch=async el=>{
       <div class="row tight"><span class="tag ${outcome[0]}">${outcome[1]} on turn ${sim.turn}</span>
       <button class="btn xs" data-act="watch" data-want="win">Show a win</button><button class="btn xs" data-act="watch" data-want="loss">Show a loss</button><button class="btn xs ghost" data-act="watch">Another</button></div></div>
     ${found?"":`<div class="callout" style="margin:8px 0">Couldn't find a ${want} in 300 tries, so here's a typical battle instead.</div>`}
-    <p class="small muted"><b class="bn_you">Your leaders</b> and <b class="bn_foe">the enemy</b> are colored. Supporter draws are dimmed. Open any turn to read it.</p>
+    <p class="small muted"><b class="bn_you">Your leaders</b> and <b class="bn_foe">the enemy</b> are colored. Supporter draws are dimmed.</p>
     <div class="blog">${turns.filter(t=>t.n||t.lines.length).map((t,i,a)=>{const falls=t.lines.filter(l=>l.includes("💀")).length;
       return`<details class="bturn" ${i===0||i===a.length-1?"open":""}><summary>${t.n?`Turn ${t.n}`:"Before the fight"}${falls?`<span class="tag bad">${falls} defeated</span>`:""}</summary>
       <ul>${t.lines.map(l=>`<li class="${cls(l)}">${pretty(l.replace(/^[^\w\[(]+\s*/u,m=>m.includes("💀")?"💀":""))}</li>`).join("")}</ul></details>`;}).join("")}</div>`;
@@ -3653,7 +3653,7 @@ ACT.findBest=el=>{
   const {out}=toolStart(el);
   const ready=S.team.leaders.every(x=>x!=null);
   const lv=ready?Math.round(S.team.leaders.reduce((a,id)=>a+(S.team.levels[id]||10),0)/3):10;
-  out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">Uses the opponent selected above. Takes 10 to 60 seconds depending on your device.</div></div></div>
+  out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">Takes 10 to 60 seconds depending on your device.</div></div></div>
     ${findControls("fb",lv,20)}<div id="fb_out" style="margin-top:12px"></div></div>`;
   wireFindControls("fb",o=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:o.pool,src:o.src,must:o.must,adv:o.adv,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
     ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});},S.opp.kind==="chapter"?S.opp.ch:null);
@@ -3746,13 +3746,13 @@ function renderAdvanced(){
         <div class="row tight"><button class="btn xs" data-act="loadSaved" data-n="${esc(n)}">Load</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:L,supp:sp,lv:L.map(id=>(t.levels||{})[id]||10)})}" title="Load it as your opponent">Fight it</button><button class="btn xs ghost" data-act="delSaved" data-n="${esc(n)}">Delete</button></div></div>`;}).join("")}</div>`:'<p class="small faint">No saved teams yet.</p>'}
     </div>
     <div class="stack"><h4>Team code</h4>
-      <p class="small muted" style="margin:0">Paste the code from the game's "Copy Team ID" button, or copy your team's code to share it.</p>
+      <p class="small muted" style="margin:0">Paste the code from the game's "Copy Team ID" button.</p>
       <input class="input code" id="code_in" placeholder="Paste a team code" aria-label="Team code">
       <div class="row tight"><button class="btn sm" data-act="codeLoad" data-as="you">Load as my team</button><button class="btn sm" data-act="codeLoad" data-as="opp">Load as opponent</button><button class="btn sm" data-act="codeCopy">${ic("copy")}Copy my code</button></div>
       <h4 style="margin-top:10px">Battle settings</h4>
       <label class="small muted row tight">Battles per run <select class="select" id="adv_n">${[200,500,1000,2000,5000].map(x=>`<option ${x===S.simN?"selected":""}>${x}</option>`).join("")}</select></label>
       <label class="check"><input type="checkbox" id="adv_fixed" ${S.fixedSeed?"checked":""}> Same dice every run (seed <input class="input" id="adv_seed" type="number" value="${S.seed}" style="width:80px;padding:4px 8px">)</label>
-      <p class="small faint" style="margin:0">Off: each run uses new random battles, so the number moves a little between runs. That's normal.</p>
+      <p class="small faint" style="margin:0">Off: each run uses new random battles, so the number moves a little between runs.</p>
       ${S.opp.kind==="chapter"?`<h4 style="margin-top:10px">Enemy supporters</h4><p class="small muted" style="margin:0">These are the enemy's 4 supporters. If the game shows different ones, set them here.</p>
         ${(()=>{const ov=S.opp.suppOv[S.opp.ch+S.opp.diff]||[],cur=enemySupp();
           return`<div class="small faint">${ov.length?"Your choice:":"Computed:"}</div>
@@ -3778,7 +3778,7 @@ function enemySupp(){const ch=CHM[S.opp.ch];if(!ch)return[];const ov=S.opp.suppO
   return(ov&&ov.length?ov:(S.opp.diff==="hard"?ch.csupp:ch.csupp_normal)||[]).slice();}
 ACT.suppOvOne=el=>{const key=S.opp.ch+S.opp.diff,i=+el.dataset.i,cur=enemySupp();
   pickCard(`Replace enemy supporter ${i+1}`,id=>{cur[i]=id;S.opp.suppOv[key]=cur;save();renderAdvanced();renderOppPanel();clearResult();toast("Enemy supporter changed.");},
-    {supp:true,mine:false,exclude:cur,hint:"Pick the supporter the game shows for this enemy. The other three stay as they are."});};
+    {supp:true,mine:false,exclude:cur,hint:"Pick the supporter the game shows for this enemy."});};
 ACT.suppOvClear=()=>{delete S.opp.suppOv[S.opp.ch+S.opp.diff];save();renderAdvanced();clearResult();};
 
 // =====================================================================================
@@ -4005,7 +4005,7 @@ function pageCards(args){
     :[...(Object.keys(TIER).length?[["tier","Best tier first"]]:[]),["rec","Most used in chapter teams"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["spdlow","Slowest"],["hplow","Least health"],["id","Newest first"]];
   const sortKey=SUP?"ssort":"sort";
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Cards</h1><p>Every card in the game. Tap one to see what it does. Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div></div>
+    <div class="page_head"><div><h1>Cards</h1><p>Use the ${ic("check",'width="14" height="14" style="vertical-align:-2px"')} button to mark the ones you own; you've marked <b id="owncount">${OWN.size}</b>.</p></div></div>
     <div class="filters">
       <div class="seg modeseg" id="cf_view" role="group" aria-label="Browse cards as">${[["lead","Leaders"],["supp","Supporters"]].map(([v,l])=>`<button class="${F.view===v?"on":""}" data-v="${v}" aria-pressed="${F.view===v}">${l}</button>`).join("")}</div>
       <div class="search">${ic("search")}<input class="input" id="cf_q" placeholder="Search by name" aria-label="Search cards by name" value="${esc(F.q)}"></div>
@@ -4189,7 +4189,7 @@ function pageBuilds(){
     <div class="page_head"><div><h1>Community builds</h1><p>Teams other players found. Every submission is re-simulated automatically before it lands, so nobody can fake a number. The first person to submit a team keeps the credit.</p></div>
       <div class="seg"><button class="${view==="story"?"on":""}" data-act="bview" data-v="story">Story</button><button class="${view==="pvp"?"on":""}" data-act="bview" data-v="pvp">PvP</button></div></div>
     <div class="callout" style="margin-bottom:14px">${view==="story"
-      ?`<b>Story score</b> is the average EXTREME win chance over every story chapter of both seasons, each season at its story level cap (Season 1 at level 15, Season 2 at level 20). The two season numbers are shown next to it. Story builds can't use story-reward cards, since you need to beat the story to get those.`
+      ?`<b>Story score</b> is the average EXTREME win chance over every story chapter of both seasons, each season at its story level cap (Season 1 at level 15, Season 2 at level 20). Story builds can't use story-reward cards, since you need to beat the story to get those.`
       :"<b>PvP score</b> comes from a league where every PvP build fights every other one. It's re-run each time a new build arrives, so standings shift. PvP builds can use any card and need exactly 4 supporters."}</div>
     ${view==="story"?`<div class="row tight" style="margin-bottom:10px"><span class="small muted">Sort by</span><div class="seg" id="b_sort">${[["all","Both seasons"],["s1","Season 1"],["s2","Season 2"]].map(([k,l])=>`<button class="${(S.ui.buildsSort||"all")===k?"on":""}" data-act="bsort" data-k="${k}">${l}</button>`).join("")}</div></div>`:""}
     <div class="stack" id="bl"></div>
@@ -4199,7 +4199,7 @@ function pageBuilds(){
       <div class="row"><input class="input" id="b_user" placeholder="Your username" aria-label="Your username" maxlength="24" value="${esc(S.user||"")}">
         <select class="select" id="b_for"><option value="story">For story</option><option value="pvp" ${view==="pvp"?"selected":""}>For PvP</option><option value="both">For both</option></select>
         <button class="btn primary" data-act="submitBuild">${ic("github")}Submit on GitHub</button></div>
-      <p class="small faint" style="margin-top:8px">This opens a pre-filled GitHub issue. Press "Submit new issue" there to finish. You need a free GitHub account.</p>`
+      <p class="small faint" style="margin-top:8px">You need a free GitHub account.</p>`
       :emptyState("swords","No team to submit","Build a full team of 3 leaders in the simulator first.",`<a class="btn" href="#/team">Open simulator</a>`)}
       <div id="b_msg"></div>
     </div></div>`;
@@ -4302,7 +4302,7 @@ function pageRanked(args){
   const seg=`<div class="seg" role="tablist">${[["","Season 2"],["s1","Season 1 (archive)"]].map(([v,l])=>`<button role="tab" aria-selected="${(v==="s1")===s1}" class="${(v==="s1")===s1?"on":""}" data-act="rkSeason" data-v="${v}">${l}</button>`).join("")}</div>`;
   $("#view").innerHTML=`<div class="fadein">
     ${teamsSwitch("ranked")}
-    <div class="page_head"><div><h1>Ranked top 100</h1><p>${s1?`<b>Season 1 archive.</b> The final standings of the original ranked board on October 17, 2026, the last snapshot before Season 2 took over. The game still has this board as <b>Ranked: Original</b>, but it isn't updated here anymore.`:`The highest-rated teams on the game's <b>Ranked: Season 2</b> board, with their supporters and each team's win-loss record. <a href="#/guide/ranked">How Season 2 works</a>.`} A level shows only when it is below 20. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div>${seg}</div>
+    <div class="page_head"><div><h1>Ranked top 100</h1><p>${s1?`<b>Season 1 archive.</b> The final standings of the original ranked board on October 17, 2026, the last snapshot before Season 2 took over. The game still has this board as <b>Ranked: Original</b>, but it isn't updated here anymore.`:`The highest-rated teams on the game's <b>Ranked: Season 2</b> board, with their supporters and each team's win-loss record. <a href="#/guide/ranked">How Season 2 works</a>.`} A level shows only when it is below 20. Player names are left out on purpose.</p></div>${seg}</div>
     <div id="rk_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the leaderboard...</div></div></div></div>`;
   (s1?loadRankedS1():loadRanked()).then(R=>{
     const el=$("#rk_body");if(!el||PAGE!=="ranked"||location.hash.includes("/s1")!==s1)return;   // switched season meanwhile
@@ -4314,7 +4314,7 @@ function pageRanked(args){
         <div><div class="small muted">Last updated</div><div class="rk_when">${esc(when)} <span class="muted">(${agoText(R.ts)})</span></div></div>
         <div class="rk_facts">${[["Ranked teams",R.players],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(x=>[x[0],Number(x[1]).toLocaleString()]).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
         <p class="small faint" style="margin-top:10px">${s1?"A frozen archive: this list doesn't change anymore.":"Updated by hand, so it can lag behind."} Ratings can't be verified, so read the order as "teams people really use".</p>
-        <details class="rk_how"><summary>How this list is made</summary><p class="small faint">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (from the skin data the game uploads with the pet score): teams using cards their player doesn't own, or ownership the game can't produce, are left out too.${R.checks?` For this snapshot: ${R.checks.checked.toLocaleString()} of ${R.top.length.toLocaleString()} teams checked, ${(R.checks.banned+R.checks.ownership).toLocaleString()} removed from the top.`:""} Ratings themselves are calculated by each player's own game and can't be verified, so read the order as "teams people really use", not a verified ranking. Teams fight at level 20 unless a lower level is shown.</p></details></div>
+        <details class="rk_how"><summary>How this list is made</summary><p class="small faint">This is a snapshot of the game's ranked board. Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (from the skin data the game uploads with the pet score): teams using cards their player doesn't own, or ownership the game can't produce, are left out too.${R.checks?` For this snapshot: ${R.checks.checked.toLocaleString()} of ${R.top.length.toLocaleString()} teams checked, ${(R.checks.banned+R.checks.ownership).toLocaleString()} removed from the top.`:""} Ratings are calculated by each player's own game, which is why they can't be verified.</p></details></div>
       <div class="card" style="margin-top:14px"><div class="card_head"><div><h3>Most used in the top 500</h3></div></div>
         <div class="row tight" style="flex-wrap:wrap">${R.popular.filter(([id])=>CARDS[id]).slice(0,12).map(([id,n])=>`<span class="rk_pop">${cchip(id)}<span class="faint small">${n}×</span></span>`).join("")}</div></div>
       <div class="card" style="margin-top:14px"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="small muted">Test your simulator team against the 30 best of these at once:</span><button class="btn sm" data-act="rankedCheck">${ic("trophy")}PvP check</button></div>
@@ -4338,7 +4338,7 @@ function pageTeams(args){
   $("#view").innerHTML=`<div class="fadein">
     ${teamsSwitch("best")}
     <div class="page_head"><div><h1>Best teams overall</h1>
-      <p>The teams that win the most EXTREME story fights on their own. Every fight was simulated hundreds of times with every card at the story's level cap (level ${lvOf(view)}). For the fights a team can't handle, use that chapter's own team.</p></div>
+      <p>The teams that win the most EXTREME story fights on their own. Every fight was simulated hundreds of times with every card at the story's level cap (level ${lvOf(view)}).</p></div>
       <div class="seg" role="tablist">${[["both","Whole story"],["s1","Season 1"],["s2","Season 2"]].map(([k,l])=>`<button role="tab" aria-selected="${k===view}" class="${k===view?"on":""}" data-act="ovView" data-v="${k}">${l}</button>`).join("")}</div></div>
     <div class="row" style="margin-bottom:14px">
       ${mineOk?`<label class="check"><input type="checkbox" id="ov_mine" ${onlyMine?"checked":""}> Only teams I can build</label>`:`<span class="small faint"><a href="#/cards">Import or mark your cards</a> to see only teams you can build.</span>`}
@@ -4602,7 +4602,7 @@ function pageFishing(args){
   const sec=args[0]||"start";
   const SECS=[["start","How it works"],["spots","Best spots"],["value","Fish value"],["rods","Rods"],["games","Minigame tips"],["levels","Levels & journal"],["fish","Every fish"]];
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Fishing</h1><p>How fishing works, where to fish, what makes a fish worth more, which rod to use, and tricks for every minigame.</p></div></div>
+    <div class="page_head"><div><h1>Fishing</h1></div></div>
     <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/fishing/${k}">${l}</a>`).join("")}</div>
     <div id="fi_body"></div></div>`;
   const f={start:fStart,spots:fSpots,value:fValue,rods:fRods,games:fGames,levels:fLevels,fish:fFish}[sec]||fStart;
@@ -4629,7 +4629,7 @@ function fStart(){
     <div class="steps" style="margin:14px 0 4px">
       <div class="step"><div><b>Cast</b><span>A bar slides back and forth. Stop it in the green zone. A good cast already counts toward the fish's quality and makes the bite come sooner.</span></div></div>
       <div class="step"><div><b>Wait for the bite</b><span>The wait is ${H[0]} seconds at difficulty 1 down to ${H[9]} seconds at difficulty 10, minus your rod's Time Acceleration, minus your score so far. It never goes below 0.5 seconds.</span></div></div>
-      <div class="step"><div><b>Catch: minigames</b><span>Press Catch, then play the minigames. How many depends on the spot: difficulty 1 to 8 always has 1, difficulty 9 has 2 about 30% of the time, difficulty 10 has 2 or 3.</span></div></div>
+      <div class="step"><div><b>Catch: minigames</b><span>How many depends on the spot: difficulty 1 to 8 always has 1, difficulty 9 has 2 about 30% of the time, difficulty 10 has 2 or 3.</span></div></div>
       <div class="step"><div><b>The fish</b><span>The species is rolled first (harder spots give rarer fish), then its quality and 7 traits. Your minigame score then upgrades it: every ${FI.upgrade_cost} points is one upgrade.</span></div></div>
       <div class="step"><div><b>Keep or sell</b><span><b>Keep</b> it to feed your cards: the fish's NP levels a card from 11 to 20. <b>Sell</b> it for FL, the fishing money for gear crates, Ocean crates, backpack space, XP Boosts and SL$.</span></div></div>
     </div>
@@ -4663,7 +4663,7 @@ function fSpots(){
     ${card("Most NP per hour, default rod",RK.default,"np_h","NP/h","Without Time Acceleration the bite wait matters more, so difficulty 9 edges ahead.")}
     ${card("Most FL per hour, default rod",RK.default,"fl_h","FL/h","Difficulty 10 stays best for selling.")}
   </div>`:""}
-  <div class="card"><div class="card_head"><div><h3>Every spot</h3><div class="card_sub">Tap a column to sort, tap a spot for the way there. "Local fish" only live at that kind of water.${RK?` <span class="w_good"><b>Green</b></span> numbers are a top 5 spot.`:""}</div></div>
+  <div class="card"><div class="card_head"><div><h3>Every spot</h3><div class="card_sub">"Local fish" only live at that kind of water.${RK?` <span class="w_good"><b>Green</b></span> numbers are a top 5 spot.`:""}</div></div>
     <div class="row tight"><select class="select" id="sp_d"><option value="">Any difficulty</option>${[1,2,3,4,5,6,7,8,9,10].map(d=>`<option value="${d}">Difficulty ${d}</option>`).join("")}</select>
     <select class="select" id="sp_w"><option value="">Any water</option><option value="lake">Lakes</option><option value="ocean">Ocean</option></select></div></div>
     <div class="tblwrap"><table class="tbl" id="sp_tbl"><thead><tr>
@@ -4823,11 +4823,11 @@ function fLevels(){
     ${S.exchange_fl_per_sl?`<li><b>Currency Exchange</b>: <span class="hl">${S.exchange_fl_per_sl} FL</span> buys 1 SL$.</li>`:""}
   </ul>
     <div class="callout warn" data-k="Watch out">When the backpack is full you can't keep fish, only sell them. Feed fish to your cards before long fishing sessions.</div></div>
-  <div class="card"><h3>Fish journal</h3><p class="muted">Every species you catch is recorded. <span class="hl">${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length}</span> are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/fishing/spots">Best spots</a> and <a href="#/fishing/fish">Every fish</a>.</p></div>
+  <div class="card"><h3>Fish journal</h3><p class="muted"><span class="hl">${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length}</span> are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/fishing/spots">Best spots</a> and <a href="#/fishing/fish">Every fish</a>.</p></div>
   </div>`;
 }
 function fFish(){
-  return`<div class="card"><div class="card_head"><div><h3>Every fish</h3><div class="card_sub">${FI.fish.length} species, highest NP first. NP is what a fish gives when fed to a card; the price is before quality and traits.</div></div>
+  return`<div class="card"><div class="card_head"><div><h3>Every fish</h3><div class="card_sub">${FI.fish.length} species, highest NP first. Price is before quality and traits.</div></div>
     <div class="row tight"><div class="search">${ic("search")}<input class="input" id="ff_q" placeholder="Search fish" aria-label="Search fish"></div>
     <select class="select" id="ff_r"><option value="">Any rarity</option>${RAR_KEYS.map(k=>`<option value="${k}">${RAR_NAME[k]}</option>`).join("")}</select>
     <select class="select" id="ff_h" aria-label="Habitat"><option value="*">Any habitat</option></select></div></div>
@@ -4916,7 +4916,7 @@ function pageGuide(args){
   const sec=args[0]||"basics";
   const SECS=[["basics","How battles work"],["team","Leaders and supporters"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"],["crates","Crates"],["ranked","Ranked"],["gambling","Gambling"],["settings","Game settings"],["numbers","About the numbers"],["updates","Updates"]];
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Guide</h1><p>Everything you need to read the rest of the site, in plain words.</p></div></div>
+    <div class="page_head"><div><h1>Guide</h1></div></div>
     <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/guide/${k}">${l}</a>`).join("")}</div>
     <div class="card prose" id="g_body"></div></div>`;
   $("#g_body").innerHTML=({basics:gBasics,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,ranked:gRanked,gambling:gGambling,settings:gSettings,numbers:gNumbers,updates:gUpdates}[sec]||gBasics)();
@@ -4944,8 +4944,8 @@ const gBasics=()=>`<h2>How a battle works</h2>
     <div class="stat"><div class="v">50</div><div class="k">Defense cap: at best a 12.5% dodge and 25% block</div></div>
   </div>
   <p class="muted">The defender gets one roll per hit: a <b>dodge</b>, a <b>block</b> or a normal hit.</p>
-  <h3 style="margin-top:16px">Normal vs EXTREME</h3>
-  <p class="muted" style="margin-top:6px">Normal story fights are a single boss. EXTREME brings the boss plus two helpers and gives extra rewards. Each chapter page has recommended teams for both.</p>`;
+  
+  `;
 const gTeam=()=>`<h2>Leaders and supporters</h2>
   <p class="lead" style="margin-top:6px">Leaders do the fighting. Supporters only help when a leader draws them.</p>
   <div class="stats gk">
@@ -4953,9 +4953,9 @@ const gTeam=()=>`<h2>Leaders and supporters</h2>
     <div class="stat"><div class="v">0 to 4</div><div class="k">Supporters in story fights</div></div>
     <div class="stat"><div class="v">4</div><div class="k">Supporters in ranked (exactly 4)</div></div>
   </div>
-  <p class="muted"><b>Leaders</b> are your 3 fighters. Their abilities (the bullet points on each card) work during the fight. The second ability unlocks at <b>level 2</b>.</p>
+  <p class="muted">A leader's second ability unlocks at <b>level 2</b>.</p>
   <p class="muted"><b>Supporters</b> sit in a small deck of up to 4 cards. Some leaders <b>draw</b> supporters during the fight, for example when they get hit. Each time a card is drawn, its <b>supporter ability</b> fires once (things like "your highest-attack leader gains 2 attack").</p>
-  <div class="callout warn" data-k="Watch out" style="margin:14px 0">If none of your leaders draw cards, your supporters never come into play. The simulator tells you when that's the case, so you don't waste time picking supporters that do nothing.</div>
+  <div class="callout warn" data-k="Watch out" style="margin:14px 0">If none of your leaders draw cards, your supporters never come into play.</div>
   <ul class="tight muted">
     <li>A card's leader abilities don't work from the supporter deck, and its supporter ability doesn't work while it's a leader.</li>
     <li>When the deck runs out it reshuffles, so a 1-card deck fires the same ability over and over.</li></ul>`;
@@ -4965,7 +4965,7 @@ function gElements(){
   const rows=ELN.map((n,a)=>`<tr><th><span class="elname el${a}">${n}</span></th>${CHART[a].map(m=>`<td class="${m>1?"up":m<1?"down":"n"}">${m===1?"·":"×"+m}</td>`).join("")}</tr>`).join("");
   return`<h2>Elements</h2>
   <p class="lead" style="margin-top:6px">Every card has one of 6 elements. A card's element comes from its name.</p>
-  <p class="muted">Damage gets multiplied depending on the attacker's element and the defender's. Find the attacker's row, then the defender's column. <span class="w_good gcol">Green</span> means extra damage, <span class="w_bad gcol">red</span> means less.</p>
+  <p class="muted"><span class="w_good gcol">Green</span> means extra damage, <span class="w_bad gcol">red</span> means less.</p>
   <div class="tblwrap" style="margin:14px 0"><table class="tbl echart">${head}${rows}</table></div>
   <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (a small gold dot on their badge) cancel their small elemental weakness, the <b>×1.05 to ×1.25</b> hits. The big multipliers like <b>×1.8</b> still apply to them.</div>
   <div class="callout" data-k="Good to know" style="margin:12px 0">When a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes <b>30% of its attack</b> back as recoil.</div>`;
@@ -4976,7 +4976,7 @@ function gStatuses(){
   const row=id=>`<tr><td class="gs_chip">${stChip(id)}</td><td class="muted">${esc(statusDesc(id).replace(/ Lasts [^.]*\.$/,""))}</td><td class="gs_last${TURN_ONLY_ST.has(id)?" short":""}">${stLasts(id)}</td></tr>`;
   const grp=(cls,label,list)=>list.length?`<tr class="grp ${cls}"><td colspan="3">${label} (${list.length})</td></tr>${list.map(row).join("")}`:"";
   return`<h2>Statuses</h2>
-  <p class="lead" style="margin-top:6px">Statuses are the green and red words in abilities. Hover or tap one anywhere on the site to see this description.</p>
+  
   <div class="callout" data-k="Good to know" style="margin:12px 0">Statuses count down at the start of each turn and wear off at the end of a turn, so one that lands during a turn also lasts through the next one. ${stChip("stunned")}, ${stChip("paralyzed")} and ${stChip("tired")} are the exception: they only last <b>the turn they land on</b>.</div>
   <p class="rule">Putting a status on again restarts its timer instead of stacking it.</p>
   <div class="search" style="max-width:340px;margin:12px 0">${ic("search")}<input class="input" id="gs_q" placeholder="Search statuses" aria-label="Search statuses"></div>
@@ -5056,7 +5056,7 @@ function gRanked(){
   const top=R.tiers[R.tiers.length-1],sb=R.streak_max/R.streak_step,cl=(x,a,b)=>Math.max(a,Math.min(b,x)),gw=Math.trunc(R.max_gap/R.win.divisor),gl=Math.trunc(R.max_gap/R.loss.divisor);
   const wlo=cl(R.win.base-gw,R.win.min,R.win.max),whi=cl(R.win.base+gw,R.win.min,R.win.max),llo=cl(R.loss.base-gl,R.loss.min,R.loss.max),lhi=cl(R.loss.base+gl,R.loss.min,R.loss.max);   // the gap cap keeps these inside the clamps
   return`<h2>Ranked: Season 2</h2>
-  <p class="lead" style="margin-top:6px">How Season 2 picks your opponent and changes your rating. There is no story requirement: you only need a complete main team (the one marked ★ in the Team Builder). The current best teams are on the <a href="#/ranked">Ranked top 100</a>.</p>
+  <p class="lead" style="margin-top:6px">There is no story requirement: you only need a complete main team (the one marked ★ in the Team Builder). The current best teams are on the <a href="#/ranked">Ranked top 100</a>.</p>
   <div class="stats">
     <div class="stat"><div class="v">${R.start}</div><div class="k">Everyone starts here.</div></div>
     <div class="stat good"><div class="v">+${wlo} to +${whi}</div><div class="k">A win, plus up to +${R.streak_max} for a win streak, then scaled by your tier.</div></div>
@@ -5092,8 +5092,7 @@ function gRanked(){
 const gSettings=()=>{const row=(n,d)=>`<tr><td><b>${n}</b></td><td>${d}</td></tr>`;const tbl=(h,rows)=>`<h3>${h}</h3><div class="tblwrap" style="margin:8px 0 14px"><table class="tbl"><tbody>${rows.join("")}</tbody></table></div>`;
   return`<h2>Game settings</h2>
   <p class="lead" style="margin-top:6px">What the less obvious buttons in the game's Settings actually change.</p>
-  ${tbl("Display",[row("Super Optimization","Loads cat pictures at half resolution and keeps only 8 of them in memory instead of 40. Uses less memory, cats look a bit blurrier. For slow PCs."),
-    row("Skip Splash Video","Skips the intro video when the game starts.")])}
+  ${tbl("Display",[row("Super Optimization","Loads cat pictures at half resolution and keeps only 8 of them in memory instead of 40. Uses less memory, cats look a bit blurrier. For slow PCs.")])}
   ${tbl("Accessibility",[row("No Anim (PS)","Your cat on the main screen holds still instead of playing its idle and click animations."),
     row("No Flashing","Also holds the cat still, and turns off the flashing in crate openings, blackjack, the main screen's crate milestone and the scrolling background of skin cards."),
     row("Colorblindness Fishing","Recolors the zones of the fishing minigames so they don't depend on red and green."),
@@ -5241,7 +5240,7 @@ ACT.racePick=el=>{const i=+el.dataset.i,L=S.ui.race;
   pickCard(`Lane ${i+1} racer`,id=>{L[i]={id,lv:null};save();renderRacePicker();},{exclude:L.filter(Boolean).map(x=>x.id),hint:`Pick the skin the race screen shows in Lane ${i+1}.`});};
 const gNumbers=()=>`<h2>About the numbers</h2>
   <p class="lead" style="margin-top:6px">The site plays the same battle hundreds of times with fresh dice rolls (dodges, crits, random targets) and counts how often you win.</p>
-  <div class="callout" data-k="Example" style="margin:12px 0"><b>"78%"</b> means your team won <b>78 out of every 100</b> simulated battles.</div>
+  
   <h3 style="margin-top:14px">Why it changes a little between runs</h3>
   <p class="muted" style="margin-top:6px">Each run uses new random battles, so the result moves by a few percent. The <b>"give or take"</b> number shows how much. Run more battles (Advanced settings) for a steadier number.</p>
   <h3 style="margin-top:14px">How accurate is it?</h3>
@@ -5363,7 +5362,7 @@ ACT.verInfo=()=>{const busy=(DATA.recs_stale||[]).length>0,d=DATA.data_date?new 
       <div style="margin-top:8px"><span class="gamever">${esc(DATA.game_version)}  (Up to date!)</span></div></div></div>
     <div class="step"><div><b>Compare</b><span>Same version as here: the site matches your game. If the pill says <i>Newest Version: …</i> instead of <i>Up to date!</i>, your game needs an update: close it and let Steam update it.</span></div></div>
   </div>
-  <p class="muted"><b style="color:var(--text)">Your game shows a newer version?</b> Then the game was updated after the site. Card stats or fights may have changed, so the numbers here can be off until the site catches up (usually within a day). If your game shows an older version, restart Steam to get the update.</p>
+  <p class="muted"><b style="color:var(--text)">Your game shows a newer version?</b> Then the game was updated after the site. Card stats or fights may have changed, so the numbers here can be off until the site catches up (usually within a day).</p>
   <p class="small faint" style="margin-bottom:0">Changes are listed under What's new at the bottom of the page.</p></div></div>`,"modal");};
 // =====================================================================================
 // boot
