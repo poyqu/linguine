@@ -4263,6 +4263,17 @@ function loadRanked(){
     return RANKED;}).catch(()=>{rankedReq=null;return null;});
   return rankedReq;
 }
+// Season 1 archive (ranked_s1.json: the original "Decks" board on Oct 17 2026, the last snapshot before Season 2 took over)
+let RANKED_S1=null,rankedS1Req=null;
+function loadRankedS1(){
+  if(!rankedS1Req)rankedS1Req=fetch("ranked_s1.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{
+    if(j&&Array.isArray(j.top)){j.top=j.top.filter(e=>Array.isArray(e.t)&&Array.isArray(e.s)&&Array.isArray(e.lv)&&e.t.every(id=>CARDS[id])&&e.s.every(id=>CARDS[id]));
+      if(!Array.isArray(j.popular))j.popular=[];if(!j.cut)j.cut={};RANKED_S1=j;}
+    if(!RANKED_S1)rankedS1Req=null;
+    return RANKED_S1;}).catch(()=>{rankedS1Req=null;return null;});
+  return rankedS1Req;
+}
+ACT.rkSeason=el=>go(el.dataset.v==="s1"?"#/ranked/s1":"#/ranked");
 const rankedLv=e=>Object.fromEntries(e.t.map((id,i)=>[id,e.lv[i]]));
 const rankedDeck=e=>playerDeck({leaders:e.t,supp:e.s,levels:rankedLv(e)});
 const teamName=t=>t.map(id=>shortName(CARDS[id])).join(" + ");
@@ -4285,13 +4296,15 @@ async function pvpField(){
     out.push({n:teamName(e.t),t:e.t,s:e.s,lv:e.lv,rank:e.r,ed:rankedDeck(e)});if(out.length>=30)break;}
   return out;
 }
-function pageRanked(){
+function pageRanked(args){
+  const s1=(args||[])[0]==="s1";
+  const seg=`<div class="seg" role="tablist">${[["","Season 2"],["s1","Season 1 (archive)"]].map(([v,l])=>`<button role="tab" aria-selected="${(v==="s1")===s1}" class="${(v==="s1")===s1?"on":""}" data-act="rkSeason" data-v="${v}">${l}</button>`).join("")}</div>`;
   $("#view").innerHTML=`<div class="fadein">
     ${teamsSwitch("ranked")}
-    <div class="page_head"><div><h1>Ranked top 100</h1><p>The highest-rated teams on the game's <b>Ranked: Season 2</b> board, with their supporters and each team's win-loss record. <a href="#/guide/ranked">How Season 2 works</a>. A level shows only when it is below 20. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div></div>
+    <div class="page_head"><div><h1>Ranked top 100</h1><p>${s1?`<b>Season 1 archive.</b> The final standings of the original ranked board on October 17, 2026, the last snapshot before Season 2 took over. The game still has this board as <b>Ranked: Original</b>, but it isn't updated here anymore.`:`The highest-rated teams on the game's <b>Ranked: Season 2</b> board, with their supporters and each team's win-loss record. <a href="#/guide/ranked">How Season 2 works</a>.`} A level shows only when it is below 20. Player names are left out on purpose. <b>Try it</b> loads a team as yours and checks it against the top 30; <b>Fight it</b> tests your team against it.</p></div>${seg}</div>
     <div id="rk_body"><div class="card"><div class="small muted row tight"><span class="spin"></span>Loading the leaderboard...</div></div></div></div>`;
-  loadRanked().then(R=>{
-    const el=$("#rk_body");if(!el||PAGE!=="ranked")return;
+  (s1?loadRankedS1():loadRanked()).then(R=>{
+    const el=$("#rk_body");if(!el||PAGE!=="ranked"||location.hash.includes("/s1")!==s1)return;   // switched season meanwhile
     if(!R){el.innerHTML=emptyState("trophy","Leaderboard not available","The ranked snapshot couldn't be loaded. Try again later.","");return;}
     const when=new Date(R.ts*1000).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
     const rkMax=Math.max(1,...R.top.map(e=>e.rating||0));
@@ -4299,7 +4312,7 @@ function pageRanked(){
       <div class="rk_upd card"><div class="row tight" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div><div class="small muted">Last updated</div><div class="rk_when">${esc(when)} <span class="muted">(${agoText(R.ts)})</span></div></div>
         <div class="rk_facts">${[["Ranked teams",R.players],["#10",R.cut["10"]],["#100",R.cut["100"]],["#1000",R.cut["1000"]]].filter(x=>x[1]!=null).map(x=>[x[0],Number(x[1]).toLocaleString()]).map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div>
-        <p class="small faint" style="margin-top:10px">Updated by hand, so it can lag behind. Ratings can't be verified, so read the order as "teams people really use".</p>
+        <p class="small faint" style="margin-top:10px">${s1?"A frozen archive: this list doesn't change anymore.":"Updated by hand, so it can lag behind."} Ratings can't be verified, so read the order as "teams people really use".</p>
         <details class="rk_how"><summary>How this list is made</summary><p class="small faint">This is a snapshot of the game's ranked board, updated by hand, so it can lag behind. Players on the game's own ban lists are left out, and every team is checked against the skins its player owns (from the skin data the game uploads with the pet score): teams using cards their player doesn't own, or ownership the game can't produce, are left out too.${R.checks?` For this snapshot: ${R.checks.checked.toLocaleString()} of ${R.top.length.toLocaleString()} teams checked, ${(R.checks.banned+R.checks.ownership).toLocaleString()} removed from the top.`:""} Ratings themselves are calculated by each player's own game and can't be verified, so read the order as "teams people really use", not a verified ranking. Teams fight at level 20 unless a lower level is shown.</p></details></div>
       <div class="card" style="margin-top:14px"><div class="card_head"><div><h3>Most used in the top 500</h3></div></div>
         <div class="row tight" style="flex-wrap:wrap">${R.popular.filter(([id])=>CARDS[id]).slice(0,12).map(([id,n])=>`<span class="rk_pop">${cchip(id)}<span class="faint small">${n}×</span></span>`).join("")}</div></div>
@@ -5229,7 +5242,8 @@ const SITE_UPDATES=[["2026-10-18 · Game update v193",[
   `<b>Ranked is Season 2 now.</b> The <a href="#/ranked">Ranked top 100</a> shows the Season 2 board with each team's tier and record, and <a href="#/guide/ranked">Guide: Ranked</a> explains the new rules: tiers up to BEYOND IV, how wins and losses shrink in high tiers, win streaks, cookie rewards, the tier shield and how opponents are picked, with a calculator.`,
   `<b>Fishing: habitat filter.</b> The fish list can be filtered by habitat, including combinations like "Hot Water + Equatorial", so you can see which fish live where.`,
   `<b>Gambling: Race changed.</b> Since v193 the race winner is drawn when you bet (22% your racer, paid 3.5×), so you get back 77 of every 100 SL$ whatever the lineup. The race picker is gone.`,
-  `<b>New: <a href="#/guide/settings">Game settings</a></b> in the Guide: what Super Optimization, No Anim (PS), Quick Letter Type, Popups and the other toggles really do.`]],
+  `<b>New: <a href="#/guide/settings">Game settings</a></b> in the Guide: what Super Optimization, No Anim (PS), Quick Letter Type, Popups and the other toggles really do.`,
+  `<b><a href="#/ranked/s1">Season 1 archive</a></b> on the Ranked page: the final top 100 of the original ranked board (October 17), one click away from Season 2.`]],
   ["2026-10-11 · Card tiers",[
   `<b>Every leader has a tier now</b>, from S down to D (no use), shown under its icon on the Cards page. A star means it reaches the next letter up, but only next to one partner, which the card shows when you open it. Filter by one or more tiers, or sort by "Best tier first". Tiers come from simulated story teams at the season level cap.`,
 ]],["2026-10-09 · Easier to read, every page",[
