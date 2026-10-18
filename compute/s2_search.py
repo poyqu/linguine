@@ -63,8 +63,8 @@ else:
     for m in re.finditer(r'_ch\("((?:F|S\d+E)\d+)"', sd):
         p = sd.find("(", m.start()); e = find_call(sd, p)
         a = split_args(sd[p+1:e])
-        sk = lambda k: [int(x) for x in re.findall(r'_rew_skin\((\d+)\)', a[k])] if len(a) > k else []
-        REWARDS[m.group(1)] = (sk(7), sk(9))
+        sk = lambda k: [int(x) for x in re.findall(r'_rew_skin\((\d+)\)', _ch_arg(a, k))]   # by name (v189 shifted positions)
+        REWARDS[m.group(1)] = (sk("rewards"), sk("hard_rewards"))
 # S2_OWNED=1: a player who owns the Season 1 story rewards (Potato, Grunky, Muffin, Witch Hat, ...).
 # These sit in unavailable.json for the PUBLIC recommendations, but a story player has them.
 OWNED = os.environ.get("S2_OWNED") == "1"
