@@ -31,6 +31,16 @@ def find_call(s,start):
             depth-=1
             if depth==0: return i
     return -1
+# story_data._ch(...) arguments by NAME, read from its signature: v189 dropped the chapter-name parameter, which
+# shifted every position (hard opponents were args[8], now args[7]) and left every chapter without enemies
+def _ch_params(src):
+    m=re.search(r"static func _ch\(([^)]*)\)",src)
+    return [x.split(":")[0].strip() for x in m.group(1).split(",")] if m else         ["id","name","opp_name","opp_portrait","intro","win","opponents","rewards","hard_opponents","hard_rewards"]
+try: CH_PARAMS=_ch_params(sd or open(os.path.join(HERE,"decompiled","story_data.gd"),encoding="utf-8").read())
+except OSError: CH_PARAMS=_ch_params("")
+def ch_arg(args,name,default=""):
+    i=CH_PARAMS.index(name) if name in CH_PARAMS else -1
+    return args[i] if 0<=i<len(args) else default
 if _SB.ACTIVE:
     CHAPTERS_ALL={k:_SB.pairs(v['hard']) for k,v in _SB.B['chapters'].items() if v['hard']}
 else:
@@ -38,7 +48,7 @@ else:
     for m in re.finditer(r'_ch\("((?:F|S\d+E)\d+)"',sd):     # Season 1 = F1..F21, Season 2 = S2E1.. (no S2E3)
         p=sd.find("(",m.start()); e=find_call(sd,p)
         args=split_args(sd[p+1:e])
-        hard=[(int(a),int(b)) for a,b in re.findall(r'_opp\((\d+),\s*(\d+)\)',args[8])] if len(args)>8 else []
+        hard=[(int(a),int(b)) for a,b in re.findall(r'_opp\((\d+),\s*(\d+)\)',ch_arg(args,"hard_opponents"))]
         if hard: CHAPTERS_ALL[m.group(1)]=hard
 def season_of(cid):   # story_data.season_of
     return int(cid[1:cid.index("E")]) if cid.startswith("S") and "E" in cid else 1

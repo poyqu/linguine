@@ -3,7 +3,7 @@ Usage: python team_s2.py 411,323,630 [n]"""
 import sim, sys, json, os, fastsim
 from multiprocessing import Pool
 import s2_search as S
-from story_search import chapter_key, sd, split_args, find_call, CHAPTERS_ALL
+from story_search import chapter_key, sd, split_args, find_call, CHAPTERS_ALL, ch_arg
 from godot_seed import cpu_supporters, cpu_supporter_cards
 import re
 import story_bundle as _SB
@@ -13,7 +13,7 @@ else:
     NORMAL = {}                                   # story_data _ch arg 6 = normal opponents (arg 8 = hard)
     for m in re.finditer(r'_ch\("(S2E\d+|F\d+)"', sd):
         p = sd.find("(", m.start()); a = split_args(sd[p + 1:find_call(sd, p)])
-        o = [(int(x), int(y)) for x, y in re.findall(r'_opp\((\d+),\s*(\d+)\)', a[6])]
+        o = [(int(x), int(y)) for x, y in re.findall(r'_opp\((\d+),\s*(\d+)\)', ch_arg(a, "opponents"))]
         if o: NORMAL[m.group(1)] = o
 def edeck(ch, mode):
     p = NORMAL[ch] if mode == "normal" else CHAPTERS_ALL[ch]
