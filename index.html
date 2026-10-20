@@ -4792,7 +4792,7 @@ function flToSl(){   // FL -> SL$: duplicates from gear crates (POLE_DUPE_DP) an
   rows.sort((a,b)=>a[1]/a[2]-b[1]/b[2]);
   const pd=RAR_KEYS.map(k=>`${RAR_NAME[k]} ${PD[k]}`).join(" · ");
   return`<div class="card"><h3>Turning FL into SL$</h3>
-    <p class="small muted" style="margin:4px 0 10px">Gear and Ocean crates can't be sold, but a duplicate pays SL$. A rod you already own: ${pd} SL$. An Ocean skin: by its rarity (more for crate-only skins), only ¾ while the duplicate still levels the card (below level 10). Counted here: every pull a duplicate.</p>
+    <p class="small muted" style="margin:4px 0 10px">Gear and Ocean crates can't be sold, but a duplicate pays SL$. A rod you already own: ${pd} SL$. An Ocean skin: by its rarity, more for crate-only skins (the game's ¾ rule for duplicates that level a card never takes effect, so it's always the full amount). Counted here: every pull a duplicate.</p>
     <div class="tblwrap"><table class="tbl"><thead><tr><th>Option</th><th>FL</th><th>SL$ on average</th><th>FL per SL$</th></tr></thead><tbody>
     ${rows.map(([n,fl,sl,k],i)=>`<tr${i?"":' class="best"'}><td>${esc(n)}${i?"":' <span class="tag good">Best</span>'}</td><td>${fnum(fl)}</td><td>${k===2?"1, always":sl.toFixed(1)}</td><td><b>${(fl/sl).toFixed(1)}</b></td></tr>`).join("")}
     </tbody></table></div>
