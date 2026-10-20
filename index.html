@@ -82,11 +82,19 @@ button,input,select,textarea{font:inherit;color:inherit}
 .iconbtn:hover{color:var(--text);border-color:var(--line2)}
 .iconbtn svg{width:18px;height:18px}
 .tabbar{display:none}
-/* the top bar needs ~1330px with the full brand + game version badge + team label; compact it below that */
-@media(max-width:1380px){.teampill .lbl{display:none}}
-@media(max-width:1260px){.brand .btxt{display:none}}
-@media(max-width:1180px){.nav a{padding:8px 9px;gap:6px;font-size:14px}}
-@media(max-width:1100px){.topbar_in{gap:10px}.nav a{padding:8px 7px;gap:5px}}
+/* the top bar needs ~1380px with the full brand + game version badge + team label + search button; compact it below that */
+@media(max-width:1430px){.teampill .lbl{display:none}}
+@media(max-width:1310px){.brand .btxt{display:none}}
+@media(max-width:1230px){.nav a{padding:8px 9px;gap:6px;font-size:14px}}
+@media(max-width:1150px){.topbar_in{gap:10px}.nav a{padding:8px 7px;gap:5px}}
+@media(max-width:1090px){.nav svg{display:none}}
+/* fitTopbar() (site_app.js) compacts further, step by step, whenever the bar still doesn't fit (team pill avatars,
+   version text and the search button change its width) */
+.tb1 .teampill .lbl{display:none}
+.tb2 .brand .btxt{display:none}
+.tb3 .nav a{padding:8px 7px;gap:5px;font-size:14px}.tb3 .topbar_in{gap:10px}
+.tb4 .nav svg{display:none}
+.tb5 .verbadge{font-size:0;gap:0;padding:6px}.tb5 .verbadge .dot{margin:0}
 .pillempty{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);padding:3px 4px;white-space:nowrap}
 footer.site{max-width:1180px;margin:0 auto;padding:0 20px 30px;font-size:13px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between}
 footer.site a{color:var(--text2)}
@@ -2555,10 +2563,17 @@ function renderNav(cur){
   $("#nav").innerHTML=h;
   $("#tabbar").innerHTML=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
 }
+function fitTopbar(){   // compact the top bar one step at a time until it fits (no sideways scrolling)
+  const tb=$(".topbar_in"),b=document.body;if(!tb)return;
+  for(let i=1;i<=5;i++)b.classList.remove("tb"+i);
+  for(let i=1;i<=5&&tb.scrollWidth>tb.clientWidth+1;i++)b.classList.add("tb"+i);
+}
+let FIT_T=null;window.addEventListener("resize",()=>{clearTimeout(FIT_T);FIT_T=setTimeout(fitTopbar,80);});
 function renderTeamPill(){
   const t=S.team,n=t.leaders.filter(x=>x!=null).length;
   $("#teampill").innerHTML=n?t.leaders.map(id=>id!=null?av(id,"sm"):`<span class="av sm empty"></span>`).join("")+`<span class="lbl">${n===3?"Your team":`${n}/3 leaders`}</span>`
     :`<span class="pillempty">${ic("plus",'width="15" height="15"')}No team yet</span>`;
+  fitTopbar();
 }
 function applyTheme(){
   const t=S.theme||(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
@@ -5520,6 +5535,7 @@ document.addEventListener("keydown",e=>{
 applyTheme();
 renderVer();
 if(window.matchMedia)matchMedia("(prefers-color-scheme: light)").addEventListener("change",()=>{if(!S.theme)applyTheme();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTopbar);   // web font widths change the bar
 setTimeout(route,0);   // after any script appended to this one (site_report.js) has defined its pages
 
 </script>
