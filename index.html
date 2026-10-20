@@ -2557,9 +2557,9 @@ async function simulate(pd,ed,n,onprog,mode){
 // =====================================================================================
 // navigation
 // =====================================================================================
-const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["ranked","Ranked","trophy"],["fishing","Fishing","fish"],["guide","Guide","book"]];
+const NAV=[["","Home","home"],["story","Story","story"],["team","Simulator","swords"],["cards","Cards","cards"],["teams","Teams","people"],["guide","Guide","book"]];
 function renderNav(cur){
-  if(cur==="builds")cur="teams";   // community builds live under Teams
+  if(cur==="builds"||cur==="ranked")cur="teams";   // community builds and the ranked top 100 live under Teams
   if(cur==="report"||cur==="share")cur="team";
   const h=NAV.map(([p,l,i])=>`<a href="#/${p}" class="${p===cur?"on":""}" title="${l}" aria-label="${l}" ${p===cur?'aria-current="page"':""}>${ic(i)}<span>${l}</span></a>`).join("");
   $("#nav").innerHTML=h;
@@ -4653,14 +4653,10 @@ ACT.spotInfo=el=>{
   const open=el.closest(".scrim");   // switching spots inside the dialog: swap its content, keep one layer
   if(open){open.innerHTML=html;open.querySelector(".mbody").scrollTop=0;}else openLayer(html,"modal");
 };
-function pageFishing(args){
-  if(!FI){$("#view").innerHTML=emptyState("fish","No fishing data","This build of the site has no fishing data.");return;}
-  const sec=args[0]||"start";
-  const SECS=[["start","How it works"],["spots","Best spots"],["value","Fish value"],["rods","Rods"],["games","Minigame tips"],["levels","Levels & journal"],["fish","Every fish"]];
-  $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Fishing</h1></div></div>
-    <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/fishing/${k}">${l}</a>`).join("")}</div>
-    <div id="fi_body"></div></div>`;
+function pageFishing(args){location.replace("#/guide/fishing/"+(args[0]||"start"));}   // Oct 20: Fishing lives in the Guide now
+const FISH_SECS=[["start","How it works"],["spots","Best spots"],["value","Fish value"],["rods","Rods"],["games","Minigame tips"],["levels","Levels & journal"],["fish","Every fish"]];
+function fishingInto(sec){   // renders a fishing section into #fi_body (Guide > Fishing)
+  if(!FI){$("#fi_body").innerHTML=emptyState("fish","No fishing data","This build of the site has no fishing data.");return;}
   const f={start:fStart,spots:fSpots,value:fValue,rods:fRods,games:fGames,levels:fLevels,fish:fFish}[sec]||fStart;
   $("#fi_body").innerHTML=f();
   if(sec==="spots")wireSpots();
@@ -4671,9 +4667,9 @@ function fStart(){
   return`<div class="stack">
   <div class="card"><h2>Quick wins</h2>
     <div class="stats fi_dec">
-      <div class="stat"><div class="v">Difficulty 8</div><div class="k"><b>Feeding?</b> One minigame per catch makes catches much faster, and with a Time Acceleration rod you get the most NP per hour. <a href="#/fishing/spots">Best spots</a></div></div>
+      <div class="stat"><div class="v">Difficulty 8</div><div class="k"><b>Feeding?</b> One minigame per catch makes catches much faster, and with a Time Acceleration rod you get the most NP per hour. <a href="#/guide/fishing/spots">Best spots</a></div></div>
       <div class="stat"><div class="v">Difficulty 10</div><div class="k"><b>Selling?</b> More minigames mean more upgrades, so each fish sells for several times more.</div></div>
-      <div class="stat"><div class="v">Time Acceleration VI</div><div class="k"><b>Best rod for difficulty 8: VI or higher</b> (IV is enough at difficulty 10). It cuts the bite wait to the minimum. <a href="#/fishing/rods">Rods</a></div></div>
+      <div class="stat"><div class="v">Time Acceleration VI</div><div class="k"><b>Best rod for difficulty 8: VI or higher</b> (IV is enough at difficulty 10). It cuts the bite wait to the minimum. <a href="#/guide/fishing/rods">Rods</a></div></div>
     </div>
     <div class="callout" data-k="Tip"><b>Turn game warnings off.</b> Each minigame announcement waits ${FI.warn_time} seconds. With warnings off the game starts right away. It's not in the game settings: open your <b>Backpack</b> (from the fishing menu, or while fishing) and press the <b>Warnings: ON</b> button at the top, next to Shop, so it says OFF.</div>
     <h3 style="margin-top:16px">Minigame tips</h3>
@@ -4899,7 +4895,7 @@ function fLevels(){
     ${S.exchange_fl_per_sl?`<li><b>Currency Exchange</b>: <span class="hl">${S.exchange_fl_per_sl} FL</span> buys 1 SL$.</li>`:""}
   </ul>
     <div class="callout warn" data-k="Watch out">When the backpack is full you can't keep fish, only sell them. Feed fish to your cards before long fishing sessions.</div></div>
-  <div class="card"><h3>Fish journal</h3><p class="muted"><span class="hl">${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length}</span> are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/fishing/spots">Best spots</a> and <a href="#/fishing/fish">Every fish</a>.</p></div>
+  <div class="card"><h3>Fish journal</h3><p class="muted"><span class="hl">${FI.fish.filter(x=>x.where==="coldlake").length} of the ${FI.fish.length}</span> are secret: they only bite at Cold Lake and stay hidden until you catch one. Fish that only live in one kind of water are listed on <a href="#/guide/fishing/spots">Best spots</a> and <a href="#/guide/fishing/fish">Every fish</a>.</p></div>
   </div>`;
 }
 function fFish(){
@@ -4988,18 +4984,26 @@ const UPDATE_GROUPS=[    ["2026-10-02",[
       `Best-team-per-chapter search is saved instead of recomputed every time.`,
       `Renamed to <b>Linguine Sandbox</b>, with a cleaner layout for phones.`,
     ]],];
+const GUIDE_CATS=[["general","General","#/guide/basics"],["ranked","Ranked","#/guide/ranked"],["fishing","Fishing","#/guide/fishing/start"],["gambling","Gambling","#/guide/gambling"]];
+const GUIDE_SECS={general:[["basics","How battles work"],["team","Leaders and supporters"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"],["crates","Crates"],["settings","Game settings"],["numbers","About the numbers"],["updates","Updates"]],
+  ranked:[["ranked","Ranked"]],gambling:[["gambling","Gambling"]]};
 function pageGuide(args){
-  const sec=args[0]||"basics";
-  const SECS=[["basics","How battles work"],["team","Leaders and supporters"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"],["crates","Crates"],["ranked","Ranked"],["gambling","Gambling"],["settings","Game settings"],["numbers","About the numbers"],["updates","Updates"]];
+  const fishing=args[0]==="fishing";
+  const sec=fishing?(args[1]||"start"):(args[0]||"basics");
+  const cat=fishing?"fishing":sec==="ranked"?"ranked":sec==="gambling"?"gambling":"general";
+  const secs=fishing?FISH_SECS:GUIDE_SECS[cat],pre=fishing?"#/guide/fishing/":"#/guide/";
   $("#view").innerHTML=`<div class="fadein">
-    <div class="page_head"><div><h1>Guide</h1></div></div>
-    <div class="row tight" style="margin-bottom:16px">${SECS.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="#/guide/${k}">${l}</a>`).join("")}</div>
-    <div class="card prose" id="g_body"></div></div>`;
+    <div class="page_head"><div><h1>Guide</h1></div>
+      <div class="seg" role="tablist">${GUIDE_CATS.map(([k,l,h])=>`<button role="tab" aria-selected="${k===cat}" class="${k===cat?"on":""}" data-act="guideCat" data-h="${h}">${l}</button>`).join("")}</div></div>
+    ${secs.length>1?`<div class="row tight" style="margin-bottom:16px">${secs.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="${pre}${k}">${l}</a>`).join("")}</div>`:""}
+    ${fishing?`<div id="fi_body"></div>`:`<div class="card prose" id="g_body"></div>`}</div>`;
+  if(fishing){fishingInto(sec);return;}
   $("#g_body").innerHTML=({basics:gBasics,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,ranked:gRanked,gambling:gGambling,settings:gSettings,numbers:gNumbers,updates:gUpdates}[sec]||gBasics)();
   if(sec==="ranked")wireRankCalc();
   if(sec==="gambling")renderRacePicker();
   if(sec==="statuses"){const q=$("#gs_q");q.oninput=()=>{const v=q.value.toLowerCase();$$("#gs_list tr").forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");};}
 }
+ACT.guideCat=el=>go(el.dataset.h);
 const gBasics=()=>`<h2>How a battle works</h2>
   <p class="lead" style="margin-top:8px">Both sides bring 3 leaders. Battles play out on their own, turn by turn. Your choices happen before the fight: which cards, which levels.</p>
   <div class="steps" style="margin:18px 0">
@@ -5149,7 +5153,7 @@ function gRanked(){
   <div class="tblwrap" style="margin:10px 0;max-width:680px"><table class="tbl"><thead><tr><th>Result</th><th>Rating change</th></tr></thead><tbody>
     <tr class="rowgood"><td><b>Win</b></td><td>(${R.win.base} + (their rating - yours) / ${R.win.divisor}, so ${wlo} to ${whi}) + streak bonus, × your tier's win share</td></tr>
     <tr class="rowbad"><td><b>Loss</b></td><td>(${R.loss.base} + (your rating - theirs) / ${R.loss.divisor}, so ${llo} to ${lhi}) × your tier's loss share</td></tr>
-    <tr><td><b>Draw</b></td><td>No change, but your streak resets</td></tr></tbody></table></div>
+    <tr><td><b>Draw</b></td><td>No change, but your streak resets. Rare since v193/v194: only when turn 30 is reached or both teams fall with exactly the same health share</td></tr></tbody></table></div>
   <ul class="tight">
     <li><b>Rating difference:</b> counts up to ${R.max_gap} either way. Beating someone 1,000 above you gives the same as beating someone ${R.max_gap} above you.</li>
     <li><b>Win streak:</b> +${R.streak_step} for each win in a row before this one, up to +${R.streak_max} (from your ${sb+1}th win in a row). A loss or draw resets it.</li>
@@ -5326,6 +5330,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-20 · Game update v194",[
+  `<b>Tidier menu.</b> The Guide now has four parts (General, Ranked, Fishing, Gambling); Fishing moved into it, and the Ranked top 100 lives under Teams. Old links still work.`,
   `<b>Turning FL into SL$</b> (Fishing, Rods): which crate gives the most SL$ per FL from duplicates. Common Gear Crates are best, about 8.4 FL per SL$ if you already own the rods, versus 20 at the Currency Exchange. Community builds: PvP scores re-run with the v194 rules.`,
   `<b>Search the whole site.</b> The new magnifier in the top bar (or / or Ctrl+K) finds cards, statuses, fish, fishing spots and islands, rods, story chapters and every part of the guides, and jumps straight there.`,
   `<b>Ranked: Season 2 guide.</b> Wins now also pay SL$, from 50 in Bronze to 500 in BEYOND IV (v194). Settings guide: the new Crates Dot setting, and No Anim (PS) now also stops the scrolling skin-card background.`,
@@ -5506,9 +5511,10 @@ function buildSearchIndex(){
   add("Page","Best teams overall","Teams that win the most story fights",()=>sxGo("#/teams"),"tier list recommended teams best");
   add("Page","Import your cards","Load your owned cards and levels from the game",()=>sxGo("#/cards/import"),"my cards owned import save levels");
   add("Page","Light / dark theme","Switch the site's colors",()=>{sxLeave();$("#themebtn").click();},"theme dark mode light mode colors");
-  add("Page","Fishing: every fish","All fish with rarity, NP, price and habitat",()=>sxGo("#/fishing/fish"),"every fish list journal");
+  add("Page","Fishing guide","Spots, rods, fish value, minigames, levels",()=>sxGo("#/guide/fishing/start"),"fishing fish");
+  add("Page","Fishing: every fish","All fish with rarity, NP, price and habitat",()=>sxGo("#/guide/fishing/fish"),"every fish list journal");
   // currencies
-  const CUR={"SL$":["The main currency: crates, gambling, shop","#/guide/basics"],"FL$":["The fishing currency: from selling fish, for gear and Ocean crates","#/fishing/start"],
+  const CUR={"SL$":["The main currency: crates, gambling, shop","#/guide/basics"],"FL$":["The fishing currency: from selling fish, for gear and Ocean crates","#/guide/fishing/start"],
     "NP":["Nutrition Points: fish fed to a card, levels 11 to 20","#/guide/levels"]};
   for(const k in CUR)add("Currency",k,CUR[k][0],()=>sxGo(CUR[k][1]),k==="NP"?"nutrition points np":k.toLowerCase()+" "+k.replace("$","").toLowerCase()+" currency money");
   // cards: name first, ability text only as the "abilities mention" group
@@ -5525,19 +5531,19 @@ function buildSearchIndex(){
       `${c.id.toLowerCase()} s${sn}e${n} s${sn} ${n} ch${n} chapter ${n} season ${sn} ${c.hard&&c.hard.length?"extreme hard normal":"normal"} boss story`);}
   // fishing: fish, spots, islands / regions, rods (rods grouped by effect, names ranked low)
   if(FI){
-    for(const f of FI.fish)add("Fish",f.name,`${RAR_NAME[f.rarity]||f.rarity} · ${f.np} NP · ${f.price} FL`,()=>sxGo("#/fishing/fish",()=>{sxFill("#ff_q",f.name);sxFlash(f.name);}),
+    for(const f of FI.fish)add("Fish",f.name,`${RAR_NAME[f.rarity]||f.rarity} · ${f.np} NP · ${f.price} FL`,()=>sxGo("#/guide/fishing/fish",()=>{sxFill("#ff_q",f.name);sxFlash(f.name);}),
       (RAR_NAME[f.rarity]||"").toLowerCase()+" fish");
     const isl={};
     for(const s of FI.spots){add("Spot",s.name,`Fishing spot · difficulty ${s.diff}${s.island?" · "+[s.island,s.region].filter(Boolean).join(" › "):""}`,
       ()=>{sxLeave();ACT.spotInfo({dataset:{spot:s.name},closest:()=>null});},"spot fishing "+[s.island,s.region].filter(Boolean).join(" ").toLowerCase());
       for(const k of[s.island,s.region])if(k)(isl[k]=isl[k]||[]).push(s.name);}
-    for(const k in isl)add("Island",k,`${isl[k].length} spot${isl[k].length>1?"s":""}: ${isl[k].join(", ")}`,()=>sxGo("#/fishing/spots"));
+    for(const k in isl)add("Island",k,`${isl[k].length} spot${isl[k].length>1?"s":""}: ${isl[k].join(", ")}`,()=>sxGo("#/guide/fishing/spots"));
     const E=FI.effects||{},byE={};
     for(const[n,r,e,l]of FI.poles||[]){const lab=e&&E[e]?E[e].label:"";const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][l-1]||l;
       if(lab)(byE[lab]=byE[lab]||[]).push(n);
-      add("Rod",n,`${RAR_NAME[r]||r} rod${lab?" · "+lab+" "+roman:""}`,()=>sxGo("#/fishing/rods",()=>sxFlash(lab)),"rod pole "+lab.toLowerCase());}
-    for(const lab in byE)add("Rod effect",`${lab} rods`,`${byE[lab].length} rods have this effect`,()=>sxGo("#/fishing/rods",()=>sxFlash(lab)),lab.toLowerCase()+" rod pole effect");
-    for(const k in FI.tags||{})add("Habitat",FI.tags[k],"Fish that live there: see Every fish",()=>sxGo("#/fishing/fish",()=>{const h=$("#ff_h");if(h){const o=[...h.options].find(x=>x.value==="+"+k);if(o){h.value=o.value;h.dispatchEvent(new Event("change"));}}}),"habitat water "+k.toLowerCase());
+      add("Rod",n,`${RAR_NAME[r]||r} rod${lab?" · "+lab+" "+roman:""}`,()=>sxGo("#/guide/fishing/rods",()=>sxFlash(lab)),"rod pole "+lab.toLowerCase());}
+    for(const lab in byE)add("Rod effect",`${lab} rods`,`${byE[lab].length} rods have this effect`,()=>sxGo("#/guide/fishing/rods",()=>sxFlash(lab)),lab.toLowerCase()+" rod pole effect");
+    for(const k in FI.tags||{})add("Habitat",FI.tags[k],"Fish that live there: see Every fish",()=>sxGo("#/guide/fishing/fish",()=>{const h=$("#ff_h");if(h){const o=[...h.options].find(x=>x.value==="+"+k);if(o){h.value=o.value;h.dispatchEvent(new Event("change"));}}}),"habitat water "+k.toLowerCase());
   }
   // updates (changelog)
   if(typeof SITE_UPDATES!=="undefined")for(const[date,lines]of SITE_UPDATES)for(const ln of lines){const d=sxText(ln);const b=d.querySelector("b");const t=b?sxClean(b.textContent):"";
@@ -5549,8 +5555,8 @@ function buildSearchIndex(){
     ["guide","crates","Guide: Crates",G(typeof gCrates!=="undefined"&&gCrates)],["guide","ranked","Guide: Ranked",G(typeof gRanked!=="undefined"&&gRanked)],
     ["guide","gambling","Guide: Gambling",G(typeof gGambling!=="undefined"&&gGambling)],["guide","settings","Guide: Game settings",G(typeof gSettings!=="undefined"&&gSettings)],
     ["guide","numbers","Guide: About the numbers",G(typeof gNumbers!=="undefined"&&gNumbers)],["guide","updates","Guide: Updates",null]];
-  if(FI)secs.push(["fishing","start","Fishing: how it works",fStart],["fishing","spots","Fishing: best spots",fSpots],["fishing","value","Fishing: fish value",fValue],
-    ["fishing","rods","Fishing: rods",fRods],["fishing","games","Fishing: minigame tips",fGames],["fishing","levels","Fishing: levels & journal",fLevels]);
+  if(FI)secs.push(["guide/fishing","start","Fishing: how it works",fStart],["guide/fishing","spots","Fishing: best spots",fSpots],["guide/fishing","value","Fishing: fish value",fValue],
+    ["guide/fishing","rods","Fishing: rods",fRods],["guide/fishing","games","Fishing: minigame tips",fGames],["guide/fishing","levels","Fishing: levels & journal",fLevels]);
   for(const[pg,k,label,fn]of secs){
     const href=`#/${pg}/${k}`;const short=label.replace(/^(Guide|Fishing): /,"").toLowerCase();
     add("Guide",label,"Open this page",()=>sxGo(href),short);out[out.length-1].alt=short;
