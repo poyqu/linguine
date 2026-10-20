@@ -27,7 +27,7 @@ rl.on("line", line => {
   for (let k = 0; k < j.n; k++) {
     const S = new ctx.Sim((j.sa * k + j.sb) >>> 0, null, j.story !== false);
     S.run(pd.map(x => x && Object.assign({}, x)), ed.map(x => x && Object.assign({}, x)));
-    const a0 = S.alive(0).length, a1 = S.alive(1).length;
+    const [a0, a1] = S.aliveAfter();
     if (a1 === 0 && a0 > 0) { w++; f += 1 + 0.3 * Math.max(0, 1 - S.turn / 30); }
     else {
       if (a0 === 0 && a1 > 0) l++; else d++;
