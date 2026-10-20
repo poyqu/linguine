@@ -1280,6 +1280,13 @@ class Sim{
     }
   }
   over(){return!this.alive(0).length||!this.alive(1).length;}
+  teamHealth(s){   // battle_state.team_health (v194): alive hp / max hp of the whole team
+    let cur=0,top=0;for(const l of this.teams[s]){top+=Math.max(1,l.mhp);if(l.alive)cur+=Math.max(0,l.hp);}
+    return top>0?cur/top:0;
+  }
+  // after run(): leaders left per side, with the v194 tiebreak (both teams dead outside story -> the side with more
+  // health at the start of that turn wins) counted as 1 leader left for the winner. Use this to score a fight.
+  aliveAfter(){return[this.winner===0?Math.max(1,this.alive(0).length):this.alive(0).length,this.winner===1?Math.max(1,this.alive(1).length):this.alive(1).length];}
   run(deckA,deckB){
     this.teams=[[],[]];
     deckA.slice(0,3).forEach((c,i)=>{if(c)this.teams[0].push(new RL(c,0,i));});   // null slot = empty (battle_sim skips it)
@@ -1291,9 +1298,16 @@ class Sim{
       this.turn++;
       this.drawnLast=this.drawn.slice();this.drawn=[0,0];
       this.L(`── Turn ${this.turn} ──`);
+      this.tsh=[this.teamHealth(0),this.teamHealth(1)];   // battle_sim: turn_start_health, taken before the turn runs
       this.runTurn();
     }
+    const a0=this.alive(0).length,a1=this.alive(1).length;
+    this.winner=a0&&!a1?0:a1&&!a0?1:2;this.wonOnHealth=false;
+    if(!a0&&!a1&&!this.story&&this.tsh&&Math.abs(this.tsh[0]-this.tsh[1])>0.0001){   // v194 tiebreak (not in story)
+      this.winner=this.tsh[0]>this.tsh[1]?0:1;this.wonOnHealth=true;
+      this.L(`  Both teams fell at once - the team with more health left wins!`);
+    }
     // story rule: player wins ONLY by killing all enemies within 30 turns
-    return(!this.alive(1).length&&this.alive(0).length)?0:1;
+    return this.winner===0?0:1;
   }
 }
