@@ -644,6 +644,21 @@ a.stat .tag{font-size:12px}
 .lvtbl .lvend{background:var(--accsoft);font-weight:900;color:var(--text)}
 .cktbl .ckr{display:inline-flex;flex-wrap:wrap;gap:4px}
 @media (max-width:600px){.gblock{padding:2px 12px 14px}}
+.sx{width:min(680px,100%);max-height:80vh}
+.sx_head{gap:8px}
+.sx_box{flex:1;max-width:none}
+.sx_res{overflow:auto;padding:4px 10px 12px;min-height:80px}
+.sx_hint{padding:10px 6px;margin:0}
+.sx_sep{padding:10px 8px 4px;border-top:1px solid var(--line);margin-top:6px}
+.sx_item{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:10px;background:none;color:var(--text);cursor:pointer;font:inherit}
+.sx_item:hover,.sx_item.sel{background:var(--surface2)}
+.sx_tag{flex:0 0 64px;justify-content:center;margin-top:1px}
+.sx_txt{display:flex;flex-direction:column;min-width:0}
+.sx_t{font-weight:800}
+.sx_s{color:var(--text3);font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@keyframes sxflash{0%,40%{background:var(--accsoft);box-shadow:0 0 0 2px var(--acc)}100%{background:transparent;box-shadow:none}}
+.sx_flash{animation:sxflash 2.4s ease-out;border-radius:6px}
+@media (max-width:600px){.sx{max-height:92vh}.sx_tag{flex-basis:56px}}
 </style>
 </head>
 <body>
@@ -652,6 +667,7 @@ a.stat .tag{font-size:12px}
   <nav class="nav" id="nav"></nav>
   <div class="top_right">
     <a class="teampill" id="teampill" href="#/team" title="Your team"></a>
+    <button class="iconbtn" id="searchbtn" data-act="search" title="Search (/)" aria-label="Search the site"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
     <button class="iconbtn" id="themebtn" title="Switch light / dark" aria-label="Switch light or dark theme"></button>
   </div>
 </div></header>
@@ -2243,7 +2259,7 @@ function humanize(t){
   return t
     .replace(/draw (\d+) supporter\(s\)/g,(m,n)=>`draw ${n} supporter${n==="1"?"":"s"}`).replace(/supporter\(s\)/g,"supporters")
     .replace(/ \(element-proof\)/g," (ignores elements)")
-    .replace(/IMMUNE to all\b/g,"Immune to all statuses")
+    .replace(/IMMUNE to all\b( statuses)?/g,"Immune to all statuses")
     .replace(/IMMUNE to \[([^\]]*)\]/g,(m,l)=>"Immune to "+pyList(l).map(x=>`[${x}]`).join(", "))
     .replace(/IMMUNE to ([a-z_]+)/g,"Immune to [$1]")
     .replace(/statuses \[([^\]]*)\]/g,(m,l)=>"statuses "+pyList(l).map(x=>`[${x}]`).join(", "))
@@ -5273,6 +5289,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-20 · Game update v194",[
+  `<b>Search the whole site.</b> The new magnifier in the top bar (or / or Ctrl+K) finds cards, statuses, fish, fishing spots and islands, rods, story chapters and every part of the guides, and jumps straight there.`,
   `<b>Ranked: Season 2 guide.</b> Wins now also pay SL$, from 50 in Bronze to 500 in BEYOND IV (v194). Settings guide: the new Crates Dot setting, and No Anim (PS) now also stops the scrolling skin-card background.`,
   `<b>Simulator updated for v194.</b> Outside Story, when both teams fall at the same moment, the team that had more health left at the start of that turn now wins instead of a draw.`,
 ]],["2026-10-18 · Game update v193",[
@@ -5394,6 +5411,109 @@ ACT.verInfo=()=>{const busy=(DATA.recs_stale||[]).length>0,d=DATA.data_date?new 
   </div>
   <p class="muted"><b style="color:var(--text)">Your game shows a newer version?</b> Then the game was updated after the site. Card stats or fights may have changed, so the numbers here can be off until the site catches up (usually within a day).</p>
   <p class="small faint" style="margin-bottom:0">Changes are listed under What's new at the bottom of the page.</p></div></div>`,"modal");};
+// =====================================================================================
+// site-wide search (Oct 20 2026): one box for cards, statuses, fish, spots, islands, rods, story chapters and every
+// heading / table row of the Guide and Fishing pages. Opens from the top bar, "/" or Ctrl+K. The index is built on
+// first use from the same data and page renderers the site uses, so it stays in sync with every build.
+// =====================================================================================
+let SIDX=null;
+function sxText(html){const d=document.createElement("div");d.innerHTML=html;return d;}
+const sxClean=s=>String(s||"").replace(/\s+/g," ").trim();
+function sxFlash(text){   // after navigating: scroll to the first element showing `text` and highlight it
+  if(!text)return;const want=text.toLowerCase();
+  const els=[...$$("#view h2,#view h3,#view td,#view th,#view li b,#view .step b,#view b,#view summary")];
+  const el=els.find(e=>sxClean(e.textContent).toLowerCase()===want)||els.find(e=>sxClean(e.textContent).toLowerCase().startsWith(want));
+  if(!el)return;const t=el.closest("tr,li,.step")||el;
+  t.scrollIntoView({block:"center",behavior:"smooth"});t.classList.remove("sx_flash");void t.offsetWidth;t.classList.add("sx_flash");
+}
+function sxGo(href,after){closeAll();if(location.hash===href)route();else location.hash=href;setTimeout(()=>after&&after(),60);}
+function sxFill(sel,val){const i=$(sel);if(!i)return;i.value=val;i.dispatchEvent(new Event("input",{bubbles:true}));i.scrollIntoView({block:"center"});}
+function buildSearchIndex(){
+  const out=[];const add=(type,title,sub,act,extra)=>{title=sxClean(title);if(title)out.push({type,title,sub:sxClean(sub),act,extra:sxClean(extra||""),lt:title.toLowerCase()});};
+  // pages
+  for(const[p,l]of NAV)add("Page",l,"Open the "+l+" page",()=>sxGo("#/"+p));
+  // cards: name, plus ability text (ranked lower)
+  const plain=t=>humanize(t).replace(/\[([a-z_]+)\]/g,(m,w)=>(typeof STA!=="undefined"&&STA[w])||ST_PLAIN[w]?ST_NAME(w):m).replace(/\[once\/(game|turn)\]/g,"");
+  for(const id in CARDS){const c=CARDS[id];const ab=(c.atext||[]).map(plain).join(" · ");
+    add("Card",dname(c),ab||"No abilities",()=>{closeAll();openCard(+id);},ab+(c.stext?" · as a supporter: "+c.stext:""));}
+  // statuses
+  if(typeof STA!=="undefined")for(const id of Object.keys(STA))add("Status",ST_NAME(id),statusDesc(id),()=>sxGo("#/guide/statuses",()=>sxFill("#gs_q",ST_NAME(id))));
+  // elements
+  (ELN||[]).forEach((n,i)=>n&&add("Element",n,"Element: strengths and weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash(n))));
+  // story chapters
+  for(const c of CH_ALL)add("Story",`${chName(c)}: ${c.title}`,`Season ${c.season||1}`,()=>sxGo(chHref(c)));
+  // fishing: fish, spots, islands / regions, rods
+  if(FI){
+    for(const f of FI.fish)add("Fish",f.name,`${RAR_NAME[f.rarity]||f.rarity} · ${f.np} NP · ${f.price} FL`,()=>sxGo("#/fishing/fish",()=>sxFill("#ff_q",f.name)));
+    const isl={};
+    for(const s of FI.spots){add("Spot",s.name,`Fishing spot · difficulty ${s.diff}${s.island?" · "+[s.island,s.region].filter(Boolean).join(" › "):""}`,
+      ()=>{closeAll();ACT.spotInfo({dataset:{spot:s.name},closest:()=>null});});
+      for(const k of[s.island,s.region])if(k)(isl[k]=isl[k]||[]).push(s.name);}
+    for(const k in isl)add("Island",k,`${isl[k].length} spot${isl[k].length>1?"s":""}: ${isl[k].join(", ")}`,()=>sxGo("#/fishing/spots"));
+    const E=FI.effects||{};
+    for(const[n,r,e,l]of FI.poles||[])add("Rod",n,`${RAR_NAME[r]||r} rod${e&&E[e]?" · "+E[e].label+" "+(["I","II","III","IV","V","VI","VII","VIII","IX","X"][l-1]||l):""}`,()=>sxGo("#/fishing/rods",()=>sxFlash(e&&E[e]?E[e].label:"")));
+  }
+  // every heading and table row of the Guide and Fishing pages
+  const secs=[["guide","basics","How battles work",typeof gBasics!=="undefined"&&gBasics],["guide","team","Leaders and supporters",typeof gTeam!=="undefined"&&gTeam],
+    ["guide","elements","Elements",typeof gElements!=="undefined"&&gElements],["guide","levels","Levels",typeof gLevels!=="undefined"&&gLevels],
+    ["guide","crates","Crates",typeof gCrates!=="undefined"&&gCrates],["guide","ranked","Ranked",typeof gRanked!=="undefined"&&gRanked],
+    ["guide","gambling","Gambling",typeof gGambling!=="undefined"&&gGambling],["guide","settings","Game settings",typeof gSettings!=="undefined"&&gSettings],
+    ["guide","numbers","About the numbers",typeof gNumbers!=="undefined"&&gNumbers]];
+  if(FI)secs.push(["fishing","start","Fishing: how it works",fStart],["fishing","spots","Fishing: best spots",fSpots],["fishing","value","Fishing: fish value",fValue],
+    ["fishing","rods","Fishing: rods",fRods],["fishing","games","Fishing: minigame tips",fGames],["fishing","levels","Fishing: levels & journal",fLevels]);
+  for(const[pg,k,label,fn]of secs){if(!fn)continue;let d;try{d=sxText(fn());}catch(e){continue;}
+    const href=`#/${pg}/${k}`;add("Guide",label,"Open this page",()=>sxGo(href));
+    for(const h of d.querySelectorAll("h2,h3"))add("Guide",h.textContent,label,()=>sxGo(href,()=>sxFlash(sxClean(h.textContent))));
+    for(const tr of d.querySelectorAll("tbody tr")){const td=tr.querySelector("td");if(!td)continue;const t=sxClean(td.textContent);
+      if(!t||t.length>60||/^[\d.,%+\- ×x]+$/.test(t))continue;
+      add("Guide",t,label+": "+sxClean([...tr.querySelectorAll("td")].slice(1).map(x=>x.textContent).join(" · ")).slice(0,140),()=>sxGo(href,()=>sxFlash(t)));}
+    for(const b of d.querySelectorAll("li > b:first-child,.step b")){const t=sxClean(b.textContent).replace(/[:.]$/,"");if(t&&t.length<50)
+      add("Guide",t,label+": "+sxClean(b.parentNode.textContent).slice(t.length,t.length+140),()=>sxGo(href,()=>sxFlash(sxClean(b.textContent))));}}
+  return out;
+}
+const SX_ORDER={Status:0,Fish:1,Spot:1,Island:1,Element:1,Page:2,Guide:3,Story:3,Card:4,Rod:5};
+function searchFind(q){
+  q=q.toLowerCase().trim();if(!q)return[];const words=q.split(/\s+/);
+  const hits=[];
+  for(const it of SIDX){
+    const t=it.lt,s=it.sub.toLowerCase();let sc=-1;
+    if(t===q)sc=100;else if(t.startsWith(q))sc=80;else if(new RegExp("(^|[^a-z0-9])"+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).test(t))sc=65;
+    else if(t.includes(q))sc=55;else if(words.every(w=>t.includes(w)))sc=45;
+    else if(it.type!=="Card"&&words.every(w=>(t+" "+s).includes(w)))sc=25;   // a card's sub is its ability text: those go below
+    else if(it.extra&&words.every(w=>it.extra.toLowerCase().includes(w)))sc=10;   // card abilities
+    if(sc<0)continue;
+    hits.push([sc-(SX_ORDER[it.type]||0)*1.5-it.title.length/200,it,sc===10]);
+  }
+  hits.sort((a,b)=>b[0]-a[0]);
+  const top=hits.filter(h=>!h[2]).slice(0,60),abil=hits.filter(h=>h[2]);
+  return{top:top.map(h=>h[1]),abil:abil.map(h=>h[1])};
+}
+function openSearch(){
+  if(!SIDX)SIDX=buildSearchIndex();
+  const el=openLayer(`<div class="modal sx" role="dialog" aria-modal="true" aria-label="Search the site"><div class="mhead sx_head">
+    <div class="search sx_box">${ic("search")}<input class="input" id="sx_q" placeholder="Search cards, statuses, fish, spots, guide..." aria-label="Search the site" autocomplete="off" autofocus></div>
+    <button class="xbtn" data-act="closeLayer" aria-label="Close">${ic("x")}</button></div><div class="sx_res" id="sx_res"></div></div>`,"modal");
+  const inp=el.querySelector("#sx_q"),box=el.querySelector("#sx_res");let list=[],sel=0;
+  const row=(it,i)=>`<button class="sx_item${i===sel?" sel":""}" data-i="${i}"><span class="tag sx_tag">${it.type}</span><span class="sx_txt"><span class="sx_t">${esc(it.title)}</span>${it.sub?`<span class="sx_s">${esc(it.sub)}</span>`:""}</span></button>`;
+  const paint=()=>{const q=inp.value;
+    if(!q.trim()){list=[];box.innerHTML=`<p class="small faint sx_hint">Type a card, status (like Blessed), fish, island, rod, crate, setting...</p>`;return;}
+    const r=searchFind(q),ab=r.abil.slice(0,12);list=r.top.concat(ab);sel=Math.min(sel,Math.max(0,list.length-1));
+    if(!list.length){box.innerHTML=`<p class="small faint sx_hint">Nothing found for “${esc(q)}”.</p>`;return;}
+    box.innerHTML=r.top.map(row).join("")+(ab.length?`<div class="sx_sep small faint">Cards whose abilities mention “${esc(q)}” (${r.abil.length}${r.abil.length>ab.length?", first "+ab.length+" shown":""})</div>`+ab.map((it,j)=>row(it,r.top.length+j)).join(""):"");};
+  const pick=i=>{const it=list[i];if(it)it.act();};
+  inp.addEventListener("input",()=>{sel=0;paint();});
+  inp.addEventListener("keydown",e=>{
+    if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();if(!list.length)return;sel=(sel+(e.key==="ArrowDown"?1:-1)+list.length)%list.length;
+      box.querySelectorAll(".sx_item").forEach((b,i)=>b.classList.toggle("sel",i===sel));const b=box.querySelector(".sx_item.sel");if(b)b.scrollIntoView({block:"nearest"});}
+    else if(e.key==="Enter"){e.preventDefault();pick(sel);}});
+  box.addEventListener("click",e=>{const b=e.target.closest(".sx_item");if(b)pick(+b.dataset.i);});
+  paint();setTimeout(()=>inp.focus(),30);
+}
+ACT.search=()=>openSearch();
+document.addEventListener("keydown",e=>{
+  const typing=e.target&&(e.target.matches&&e.target.matches("input,textarea,select,[contenteditable]"));
+  if((e.key==="/"&&!typing)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k")){if(OV.length&&$("#sx_q"))return;e.preventDefault();openSearch();}
+});
 // =====================================================================================
 // boot
 // =====================================================================================
