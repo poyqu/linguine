@@ -7,8 +7,8 @@ from multiprocessing import Pool
 import verify   # verify imports sim + DECKS + BUILDS_PATH
 
 def score(b):
-    e, e1, e2 = verify.story_eff(b["leaders"], b.get("supp", []))
-    return round(e, 3), round(e1, 3), round(e2, 3)
+    e, e1, e2, cl = verify.story_eff(b["leaders"], b.get("supp", []))
+    return round(e, 3), round(e1, 3), round(e2, 3), cl
 
 if __name__ == "__main__":
     if sys.platform == "win32":   # below-normal priority: don't steal CPU from anything interactive
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     story = [b for b in BUILDS if b.get("for") in ("story", "both")]
     print(f"re-scoring {len(story)} story builds over {len(verify.DECKS)} chapters...", flush=True)
     with Pool(min(8, os.cpu_count() or 1)) as p:
-        for b, (e, e1, e2) in zip(story, p.map(score, story)):
-            b["eff"], b["eff_s1"], b["eff_s2"] = e, e1, e2
+        for b, (e, e1, e2, cl) in zip(story, p.map(score, story)):
+            b["eff"], b["eff_s1"], b["eff_s2"], b["cl"] = e, e1, e2, cl
     if "--pvp" in sys.argv:
         pvp_builds = [b for b in BUILDS if b.get("for") in ("pvp", "both")]
         if pvp_builds: verify.pvp_league(pvp_builds)
