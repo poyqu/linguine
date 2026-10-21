@@ -38,14 +38,16 @@ def battles(ek, ed, n, story=True, pd=None, trio=None, lv=20, supp=()):
     return json.loads(_NODE["p"].stdout.readline())
 
 def story_eff(leaders, supp, n=250):
-    """-> (overall, season1, season2) mean EXTREME win rates."""
+    """-> (overall, season1, season2) mean EXTREME win rates, [s1 fights won 95%+, s1 fights, s2 won, s2 fights]
+    (the 95%+ count is the site's headline score, the same one the Best teams overall list is sorted by)."""
     per = {1: [], 2: []}
     for ch, ed in DECKS.items():
         r = battles(ch, ed, n, trio=leaders, lv=CAP[season_of(ch)], supp=supp)
         per[season_of(ch)].append(r["w"] / n)
     allv = per[1] + per[2]
     m = lambda x: sum(x) / len(x) if x else None
-    return m(allv), m(per[1]), m(per[2])
+    cl = [sum(x >= 0.95 for x in per[1]), len(per[1]), sum(x >= 0.95 for x in per[2]), len(per[2])]
+    return m(allv), m(per[1]), m(per[2]), cl
 
 def pvp_league(builds, n=120):
     """Round-robin among all PvP builds; sets each build's 'pvp' (win fraction) and 'rec' [W,L,D].
@@ -129,8 +131,8 @@ def main():
     entry = {"leaders": leaders, "supp": supp, "by": by,
              "date": datetime.date.today().isoformat(), "for": cat}
     if cat in ("story", "both"):
-        e, e1, e2 = story_eff(leaders, supp)
-        entry["eff"], entry["eff_s1"], entry["eff_s2"] = round(e, 3), round(e1, 3), round(e2, 3)
+        e, e1, e2, cl = story_eff(leaders, supp)
+        entry["eff"], entry["eff_s1"], entry["eff_s2"], entry["cl"] = round(e, 3), round(e1, 3), round(e2, 3), cl
     BUILDS.append(entry)
     if cat in ("pvp", "both"):
         pvp_builds = [b for b in BUILDS if b.get("for") in ("pvp", "both")]
