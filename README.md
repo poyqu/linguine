@@ -8,6 +8,8 @@ It's a single, self-contained web page that replicates the game's battle logic s
 
 > Unofficial fan project. The engine is a replica of the game's rules, but its randomness differs from the real game, so every win rate here is a **statistical estimate**, not an exact prediction.
 
+Made with the help of [Claude](https://claude.com/claude-code), Anthropic's AI, through Claude Code: much of the code, the game-data extraction and the guide research is written with it.
+
 ---
 
 ## What it does
