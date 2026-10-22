@@ -3391,6 +3391,16 @@ function groupByPair(list,maxGroups,altsPer){
   }
   return groups;
 }
+// variety: take pair groups in order, but a card may be in at most `cap` of the chosen groups, so one strong carry
+// can't fill every row (Oct 22). Groups over the cap are skipped; if too few remain, the best skipped ones fill up.
+function diverseGroups(list,maxGroups,altsPer,cap=2){
+  const all=groupByPair(list,maxGroups*12,altsPer),use={},out=[],rest=[];
+  const near=ids=>out.some(g=>g.members[0].team.filter(id=>ids.includes(id)).length>=2);   // only one card apart = an alternative
+  for(const g of all){const ids=g.members[0].team;
+    if(out.length<maxGroups&&!near(ids)&&ids.every(id=>(use[id]||0)<cap)){out.push(g);ids.forEach(id=>use[id]=(use[id]||0)+1);}else rest.push(g);}
+  for(const g of rest){if(out.length>=Math.min(maxGroups,3))break;if(!near(g.members[0].team))out.push(g);}
+  return out;
+}
 ACT.cancelSearch=()=>{cancelWork();toast("Search stopped.");};
 async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
   const my=GEN;adv=adv||findAdv();
@@ -3475,12 +3485,12 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
     }
     if(!uniq.length){out.innerHTML=`<div class="callout warn"><b>Nothing won in the quick pass.</b> This fight is very hard for these cards${pool==="mine"?". Try \"Strong cards\" or \"Every card\" to see what would work":pool==="strong"?". Try \"Every card\" for unusual picks":""}, or raise the card level.</div>`;return;}
     const val=[],vs=new Set();
-    for(const g of groupByPair(uniq,Math.ceil(adv.checkTeams/5),5))for(const r of g.members){const key=r.team.slice().sort((a,b)=>a-b).join(",");if(!vs.has(key)){vs.add(key);val.push(r);}}
+    for(const g of diverseGroups(uniq,Math.ceil(adv.checkTeams/5),5,3))for(const r of g.members){const key=r.team.slice().sort((a,b)=>a-b).join(",");if(!vs.has(key)){vs.add(key);val.push(r);}}
     const vjobs=val.map((r,i)=>({k:i,ids:r.team,supp:r.supp,lvl,seed:(1+Math.floor(Math.random()*2e9))>>>0,n:adv.checkN}));
     const fin=await runJobs(vjobs,{ed},(d,t)=>prog(`Double-checking the best ${val.length} teams...`,.85+d/t*.15),mode);
     if(GEN!==my)return;
     const res=rankTeams(fin.map(r=>({...val[r.k],wr:mode==="pvp"?(r.w+r.d*.5)/r.n:r.w/r.n})).sort((a,b)=>b.wr-a.wr));
-    const groups=groupByPair(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,lead:g.pair,alts:g.members.slice(1)}));
+    const groups=diverseGroups(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,lead:g.pair,alts:g.members.slice(1)}));
     out.innerHTML=`${base!=null?`<div class="callout ${groups[0]&&groups[0].wr>base+.02?"good":""}" style="margin-bottom:10px">Your current team: <b>${pct(base)}</b>. ${groups[0]&&groups[0].wr>base+.02?`The best team below wins ${pct(groups[0].wr)}.`:"Nothing found clearly beats it."}</div>`:""}
       <div class="small muted" style="margin-bottom:8px">Best teams found at level ${lvl}${pool==="mine"?" from your cards":pool==="all"?" from every card":""}${must!=null?` with ${esc(shortName(CARDS[must]))}`:""}${src?` (${esc(FIND_SRC.find(x=>x[0]===src)[1].toLowerCase())})`:""}${mode==="pvp"?" (a draw counts as half a win)":""}:</div>
       <div class="stack">${groups.map((t,i)=>teamRowHtml(t,{best:i===0,ch:ctx&&ctx.ch,diff:ctx&&ctx.diff,lvl})).join("")}</div>`;
@@ -5121,14 +5131,15 @@ const UPDATE_GROUPS=[    ["2026-10-02",[
       `Best-team-per-chapter search is saved instead of recomputed every time.`,
       `Renamed to <b>Linguine Sandbox</b>, with a cleaner layout for phones.`,
     ]],];
-const GUIDE_CATS=[["general","General","#/guide/basics"],["ranked","Ranked","#/guide/ranked"],["fishing","Fishing","#/guide/fishing/start"],["gambling","Gambling","#/guide/gambling"]];
-const GUIDE_SECS={general:[["basics","How battles work"],["team","Leaders and supporters"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"],["crates","Crates"],["earning","Earning SL$"],["settings","Game settings"],["numbers","About the numbers"],["updates","Updates"],["about","About"]],
+const GUIDE_CATS=[["general","General","#/guide/crates"],["battle","Battle","#/guide/basics"],["ranked","Ranked","#/guide/ranked"],["fishing","Fishing","#/guide/fishing/start"],["gambling","Gambling","#/guide/gambling"]];
+const GUIDE_SECS={battle:[["basics","How battles work"],["stats","Stats"],["team","Leaders and supporters"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"]],
+  general:[["crates","Crates"],["earning","Earning SL$"],["settings","Game settings"],["numbers","About the numbers"],["updates","Updates"],["about","About"]],
   ranked:[["ranked","How it works"],["ranked-rating","Rating"],["ranked-tiers","Tiers"],["ranked-dist","Distribution"],["ranked-s1","Season 1"]],
   get gambling(){return GAMB_SECS.map(([k,l])=>[k==="overview"?"gambling":"gambling-"+k,l]);}};   // getter: GAMB_SECS is defined further down
 function pageGuide(args){
   const fishing=args[0]==="fishing";
   const sec=fishing?(args[1]==="rods"?"gear":args[1]||"start"):(args[0]||"basics");   // "rods" = the tab's old name
-  const cat=fishing?"fishing":sec.startsWith("ranked")?"ranked":sec.startsWith("gambling")?"gambling":"general";
+  const cat=fishing?"fishing":sec.startsWith("ranked")?"ranked":sec.startsWith("gambling")?"gambling":GUIDE_SECS.battle.some(x=>x[0]===sec)?"battle":"general";
   const secs=fishing?FISH_SECS:GUIDE_SECS[cat],pre=fishing?"#/guide/fishing/":"#/guide/";
   $("#view").innerHTML=`<div class="fadein">
     <div class="seg" style="margin-bottom:14px">${GUIDE_CATS.map(([k,l,h])=>`<a class="${k===cat?"on":""}" href="${h}" role="button">${l}</a>`).join("")}</div>
@@ -5136,13 +5147,37 @@ function pageGuide(args){
     ${secs.length>1?`<div class="row tight" style="margin-bottom:16px">${secs.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="${pre}${k}">${l}</a>`).join("")}</div>`:""}
     ${fishing?`<div id="fi_body"></div>`:`<div class="card prose" id="g_body"></div>`}</div>`;
   if(fishing){fishingInto(sec);return;}
-  $("#g_body").innerHTML=({basics:gBasics,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,earning:gEarning,ranked:gRanked,"ranked-rating":gRankedRating,"ranked-tiers":gRankedTiers,"ranked-s1":gRankedS1,"ranked-dist":()=>`<h2>Rank distribution</h2><div id="rk_dist"><p class="muted">Loading the board…</p></div>`,gambling:()=>gGambling("overview"),settings:gSettings,numbers:gNumbers,about:gAbout,updates:gUpdates}[sec]||(sec.startsWith("gambling-")?()=>gGambling(sec.slice(9)):gBasics))();
+  $("#g_body").innerHTML=({basics:gBasics,stats:gStats,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,earning:gEarning,ranked:gRanked,"ranked-rating":gRankedRating,"ranked-tiers":gRankedTiers,"ranked-s1":gRankedS1,"ranked-dist":()=>`<h2>Rank distribution</h2><div id="rk_dist"><p class="muted">Loading the board…</p></div>`,gambling:()=>gGambling("overview"),settings:gSettings,numbers:gNumbers,about:gAbout,updates:gUpdates}[sec]||(sec.startsWith("gambling-")?()=>gGambling(sec.slice(9)):gBasics))();
   if(sec==="ranked-rating")wireRankCalc();
   if(sec==="ranked-dist")loadRanked().then(R=>{const el=$("#rk_dist");if(el&&R)el.innerHTML=rankedDist(R);});
   if(sec==="gambling"||sec==="gambling-race")renderRacePicker();
   if(sec==="statuses"){const q=$("#gs_q");q.oninput=()=>{const v=q.value.toLowerCase();$$("#gs_list tr").forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");};}
 }
 ACT.guideCat=el=>go(el.dataset.h);
+// Guide > Battle > Stats (battle_sim.gd / runtime_leader.gd, v194)
+const gStats=()=>`<h2>Stats</h2>
+  <p class="rule">Damage = the attacker's attack × the element bonus + any flat bonuses. Defense never lowers damage: it gives a chance to dodge or block.</p>
+  <h3>Health (HP)</h3>
+  <ul class="tight"><li>A leader falls at 0. Health in battle is capped at <b>999</b>.</li>
+  <li>Healing can go up to <b>120%</b> of max health (overheal). In overtime all healing is halved.</li></ul>
+  <h3>Attack (ATK)</h3>
+  <ul class="tight"><li>Each hit does the attacker's attack, times the <a href="#/guide/elements">element</a> bonus, plus flat bonuses from abilities and statuses.</li>
+  <li><b>10%</b> crit chance for <b>+5</b> damage (20% when Lucky).</li>
+  <li>Capped at <b>199</b>. Abilities that lower attack stop at <b>1</b>; statuses that drain it each turn and "set attack" effects can take it to <b>0</b>, and then hits do no damage.</li></ul>
+  <h3>Defense (DEF)</h3>
+  <div class="stats gk">
+    <div class="stat good"><div class="v">DEF ÷ 4 %</div><div class="k">Dodge chance: the hit does no damage</div></div>
+    <div class="stat good"><div class="v">DEF ÷ 2 %</div><div class="k">Block chance: the hit does half damage</div></div>
+    <div class="stat"><div class="v">50</div><div class="k">Defense cap: at best a 12.5% dodge and 25% block</div></div>
+  </div>
+  <ul class="tight"><li>The defender gets one roll per hit: a <b>dodge</b>, a <b>block</b> or a normal hit. Defense does nothing else: 40 defense means a 10% dodge and a 20% block, not less damage.</li>
+  <li>Dodge abilities add to the dodge chance (at most 95% in total). Unblockable attackers ignore dodge and block, and some statuses switch off both.</li>
+  <li>Some statuses set defense to a fixed value while they last.</li></ul>
+  <h3>Speed (SPD)</h3>
+  <ul class="tight"><li>Every turn the fastest leader acts first, for start-of-turn abilities and for attacks. Equal speed is a coin flip each turn.</li>
+  <li>No cap, never below 0. Some statuses set speed to a fixed value while they last.</li>
+  <li>Attack styles like "the fastest enemy" or "the slowest enemy" use speed to pick the target.</li></ul>
+  <a class="more" href="#/guide/levels">Stat gains per level</a>`;
 const gBasics=()=>`<h2>How a battle works</h2>
   <p class="lead" style="margin-top:8px">Both sides bring 3 leaders. Battles play out on their own, turn by turn. Your choices happen before the fight: which cards, which levels.</p>
   <div class="steps" style="margin:18px 0">
@@ -5154,15 +5189,7 @@ const gBasics=()=>`<h2>How a battle works</h2>
   <h3>How you win</h3>
   <div class="callout warn" data-k="The 30-turn clock" style="margin:8px 0"><b>Story:</b> defeat every enemy within 30 turns. If the clock runs out, you lose, even if your whole team is still standing.
   <b style="color:var(--text)">Ranked PvP:</b> running out of time is a draw, but since v193 <b>overtime</b> makes that rare: from turn 12 every leader loses 8% of its max health each turn (16% on turn 13, 24% on turn 14, and so on) and all healing is halved. Since v194, when both teams fall at the same moment, the team that had more health left (as a share of its max health) at the start of that turn wins. Story fights have neither rule.</div>
-  <h3 style="margin-top:16px">Damage in one line</h3>
-  <p class="rule">Damage = the attacker's attack × the element bonus + any flat bonuses.</p>
-  <div class="stats gk">
-    <div class="stat"><div class="v">10%</div><div class="k">Crit chance for +5 damage (20% when Lucky)</div></div>
-    <div class="stat good"><div class="v">DEF ÷ 4 %</div><div class="k">Dodge chance: the hit does no damage</div></div>
-    <div class="stat good"><div class="v">DEF ÷ 2 %</div><div class="k">Block chance: the hit does half damage</div></div>
-    <div class="stat"><div class="v">50</div><div class="k">Defense cap: at best a 12.5% dodge and 25% block</div></div>
-  </div>
-  <p class="muted">The defender gets one roll per hit: a <b>dodge</b>, a <b>block</b> or a normal hit.</p>
+  <a class="more" href="#/guide/stats">Damage, defense and speed</a>
   
   `;
 const gTeam=()=>`<h2>Leaders and supporters</h2>
@@ -5627,6 +5654,8 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-22 · Fix",[
+  `<b>New Guide category: Battle.</b> How battles work, Leaders and supporters, Elements, Statuses and Levels moved there, plus a new <a href="#/guide/stats">Stats</a> page: what health, attack, defense and speed do, their caps, and why defense means dodge and block chances instead of less damage.`,
+  `<b>More varied team search results.</b> One strong card no longer fills every row: a card shows up in at most two teams, and teams that differ by only one card are listed as alternatives instead of separate rows.`,
   `<b>Team search results no longer outlive their opponent.</b> After switching to another player team, the old results (found against the previous one) stayed on screen and could show 100% for teams that only win 80% against the new one. They're now cleared, and player-team opponents are named by their leaders instead of "the player team".`,
 ]],["2026-10-21 · Guides",[
   `<b>Fact check against the game code.</b> Crate odds now show exact values (60.45%, not 60%), the Circle Selector colors are right (GREAT is the ring over the green circle), every fishing spot has all five rarities, and the rarest fish qualities show 0.0025% instead of 0.00%. Smaller fixes on Ranked, Elements, Mines, Blackjack, rods and Save History. New <a href="#/guide/about">About</a> page.`,
@@ -5804,7 +5833,7 @@ const SX_ALIAS={"hilo":"higher or lower","hi lo":"higher or lower","higher lower
   "freeze":"frozen","confusion":"confused","purify":"purified","stun":"stunned","poison":"poisoned","burn":"on fire","fire":"on fire","curse":"cursed",
   "bleed":"bleeding","bless":"blessed","doom":"doomed","revive":"survives","dark mode":"theme","light mode":"theme",
   "my cards":"import your cards","import":"import your cards","owned":"import your cards","what's new":"updates","whats new":"updates","changelog":"updates",
-  "sl":"sl$","sl$":"sl$","income":"earning sl$","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
+  "sl":"sl$","sl$":"sl$","defense":"stats","def":"stats","dodge":"stats","block":"stats","speed":"stats","spd":"stats","attack":"stats","atk":"stats","hp":"stats","health":"stats","crit":"stats","damage":"stats","income":"earning sl$","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
   "free spins":"slots","free spin":"slots","jackpot":"slots","dealer":"blackjack","scratch":"lottery","tickets":"lottery","ranks":"rank distribution","fl":"fl$","fl$":"fl$","np":"nutrition points","money":"sl$"};
 function buildSearchIndex(){
   const out=[],seen=new Set();
@@ -5858,7 +5887,7 @@ function buildSearchIndex(){
     if(t)add("Update",t,date+": "+sxClean(d.textContent).slice(t.length,t.length+140),()=>sxGo("#/guide/updates",()=>sxFlash(t)),"update changelog");}
   // every heading, table row and list label of the Guide and Fishing pages
   const G=(fn)=>typeof fn==="function"?fn:null;
-  const secs=[["guide","basics","Guide: How battles work",G(typeof gBasics!=="undefined"&&gBasics)],["guide","team","Guide: Leaders and supporters",G(typeof gTeam!=="undefined"&&gTeam)],
+  const secs=[["guide","basics","Guide: How battles work",G(typeof gBasics!=="undefined"&&gBasics)],["guide","team","Guide: Leaders and supporters",G(typeof gTeam!=="undefined"&&gTeam)],["guide","stats","Guide: Stats",G(typeof gStats!=="undefined"&&gStats)],
     ["guide","elements","Guide: Elements",G(typeof gElements!=="undefined"&&gElements)],["guide","statuses","Guide: Statuses",null],["guide","levels","Guide: Levels",G(typeof gLevels!=="undefined"&&gLevels)],
     ["guide","crates","Guide: Crates",G(typeof gCrates!=="undefined"&&gCrates)],["guide","earning","Guide: Earning SL$",G(typeof gEarning!=="undefined"&&gEarning)],["guide","ranked","Guide: Ranked",G(typeof gRanked!=="undefined"&&gRanked)],["guide","ranked-rating","Guide: Ranked rating",G(typeof gRankedRating!=="undefined"&&gRankedRating)],
     ["guide","ranked-tiers","Guide: Ranked tiers",G(typeof gRankedTiers!=="undefined"&&gRankedTiers)],["guide","ranked-dist","Guide: Rank distribution",()=>"<h2>Rank distribution</h2>"],["guide","ranked-s1","Guide: Ranked Season 1",G(typeof gRankedS1!=="undefined"&&gRankedS1)],
