@@ -2467,7 +2467,7 @@ window.addEventListener("scroll",hideTip,{passive:true});
 // =====================================================================================
 // simulation workers (same engine as the page; falls back to the main thread)
 // =====================================================================================
-let WK=null,WK_FAIL=false,GEN=0;const PEND=new Set();
+let WK=null,WK_FAIL=false,GEN=0,RUN=0;const PEND=new Set();   // RUN: id of each batch run, echoed back by the workers
 const HARNESS=`
 let CW=null;
 function deckIds(j){const d=j.ids.map(id=>applyPlayerLevel(CW[id],j.lvl||10));for(const id of j.supp||[])d.push(Object.assign({},CW[id]));return d;}
@@ -2487,7 +2487,7 @@ function runOne(j,m){
   return{k:j.k,w,l,d,n:j.n,tw,deaths,firsts};
 }
 self.onmessage=e=>{const m=e.data;if(m.type==="init"){CW=m.cards;return;}
-  const out=[];for(const j of m.jobs)out.push(runOne(j,m));self.postMessage({id:m.id,out});};`;
+  const out=[];for(const j of m.jobs)out.push(runOne(j,m));self.postMessage({id:m.id,run:m.run,out});};`;
 function workers(){
   if(WK)return WK;
   if(WK_FAIL)return null;
@@ -2531,20 +2531,24 @@ async function runJobsNow(jobs,shared,onprog,mode){
   }
   return new Promise((res,rej)=>{
     PEND.add(rej);
-    const R=[];let sent=0,mid=0;
+    const R=[];let sent=0,mid=0;const run=++RUN;   // a cancelled run's workers still answer: those answers carry its old id
     const per=Math.max(1,Math.ceil(jobs.length/(ws.length*8)));
     const chunks=[];for(let i=0;i<jobs.length;i+=per)chunks.push(jobs.slice(i,i+per));
-    const feed=w=>{if(sent<chunks.length)w.postMessage({id:mid++,jobs:chunks[sent++],pd:shared.pd,ed:shared.ed,mode});};
-    for(const w of ws){
-      w.onmessage=e=>{
-        if(GEN!==my)return;
+    const feed=w=>{if(sent<chunks.length)w.postMessage({id:mid++,run,jobs:chunks[sent++],pd:shared.pd,ed:shared.ed,mode});};
+    // one listener per run (two runs can overlap, e.g. "Try it" during a search): each run only reads its own answers
+    const hs=[],done=()=>{ws.forEach((w,i)=>{w.removeEventListener("message",hs[i]);w.removeEventListener("error",errH);});PEND.delete(rej);};
+    const errH=err=>{done();WK_FAIL=true;rej(err.message||"worker error");};
+    ws.forEach((w,i)=>{
+      hs[i]=e=>{
+        if(e.data.run!==run)return;
+        if(GEN!==my){done();return;}
         R.push(...e.data.out);
         if(onprog)onprog(R.length,jobs.length);
-        if(R.length>=jobs.length){PEND.delete(rej);res(R);}else feed(w);
+        if(R.length>=jobs.length){done();res(R);}else feed(w);
       };
-      w.onerror=err=>{PEND.delete(rej);WK_FAIL=true;rej(err.message||"worker error");};
+      w.addEventListener("message",hs[i]);w.addEventListener("error",errH);
       feed(w);feed(w);
-    }
+    });
   });
 }
 function wc(){const w=workers();return w?w.length:1;}
@@ -3571,6 +3575,9 @@ ACT.lvl=el=>{const t=sideTeam(el.dataset.side),id=+el.dataset.id;t.levels[id]=Ma
 ACT.clearTeam=()=>{const undo=snapshotTeam();S.team={leaders:[null,null,null],supp:[],levels:{}};save();renderTeamPill();renderTeamPanel();clearResult();toast("Team cleared.",undo);};
 function renderOppPanel(){
   const el=$("#opp_panel");if(!el)return;
+  {const fo=$("#fb_out");   // Oct 22: results found against an earlier opponent stayed on screen, labelled the same
+    if(fo&&fo.dataset.opp&&fo.dataset.opp!==oppSig()){delete fo.dataset.opp;fo.innerHTML=`<div class="callout">The opponent changed. These results were for the old one: search again.</div>`;}
+    const h=$("#tool_out h3");if(h&&/^Find a team against /.test(h.textContent))h.textContent="Find a team against "+oppLabel();}
   const o=S.opp;
   let body;
   if(o.kind==="chapter"){
@@ -3609,8 +3616,10 @@ ACT.runSim=()=>runSim();
 function clearResult(keepTools){const r=$("#result_panel");if(r)r.innerHTML="";if(!keepTools){const t=$("#tool_out");if(t)t.innerHTML="";}}
 function oppLabel(){
   if(S.opp.kind==="chapter"){const ch=CHM[S.opp.ch];return`Season ${ch.season||1} ${chName(ch)} (${S.opp.diff==="hard"?"EXTREME":"Normal"})`;}
-  return"the player team";
+  const L=(S.opp.pvp&&S.opp.pvp.leaders||[]).filter(id=>id!=null&&CARDS[id]);
+  return L.length?L.map(id=>shortName(CARDS[id])).join(" + "):"the player team";
 }
+const oppSig=()=>JSON.stringify(S.opp.kind==="chapter"?[S.opp.ch,S.opp.diff,S.opp.suppOv&&S.opp.suppOv[S.opp.ch+S.opp.diff]]:[S.opp.pvp.leaders,S.opp.pvp.supp,S.opp.pvp.levels]);
 async function runSim(){
   const t=S.team;
   if(t.leaders.filter(x=>x!=null).length<3){toast("Add 3 leaders first.");return;}
@@ -3764,7 +3773,9 @@ ACT.findBest=el=>{
   const lv=ready?Math.round(S.team.leaders.reduce((a,id)=>a+(S.team.levels[id]||10),0)/3):10;
   out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">Takes 10 to 60 seconds depending on your device.</div></div></div>
     ${findControls("fb",lv,20)}<div id="fb_out" style="margin-top:12px"></div></div>`;
-  wireFindControls("fb",o=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");teamSearch({ed:oppDeck(),pool:o.pool,src:o.src,must:o.must,adv:o.adv,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
+  wireFindControls("fb",o=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");
+    const fo=$("#fb_out");if(fo)fo.dataset.opp=oppSig();const h=out.querySelector("h3");if(h)h.textContent="Find a team against "+oppLabel();
+    teamSearch({ed:oppDeck(),pool:o.pool,src:o.src,must:o.must,adv:o.adv,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
     ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});},S.opp.kind==="chapter"?S.opp.ch:null);
   showOut(out);
 };
@@ -5615,7 +5626,9 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <div class="callout warn" data-k="Keep in mind" style="margin:10px 0">It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</div>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-21 · Guides",[
+const SITE_UPDATES=[["2026-10-22 · Fix",[
+  `<b>Team search results no longer outlive their opponent.</b> After switching to another player team, the old results (found against the previous one) stayed on screen and could show 100% for teams that only win 80% against the new one. They're now cleared, and player-team opponents are named by their leaders instead of "the player team".`,
+]],["2026-10-21 · Guides",[
   `<b>Fact check against the game code.</b> Crate odds now show exact values (60.45%, not 60%), the Circle Selector colors are right (GREAT is the ring over the green circle), every fishing spot has all five rarities, and the rarest fish qualities show 0.0025% instead of 0.00%. Smaller fixes on Ranked, Elements, Mines, Blackjack, rods and Save History. New <a href="#/guide/about">About</a> page.`,
   `<b>Tidier lists.</b> One "Try it" button everywhere. Community builds and the Home tile now lead with EXTREME fights won 95%+, like Best teams. Ranked shows the top 10 first, Best spots drops the repeated tiles, and chapter teams are more compact with the enemy staying in view. On phones: card names in team rows, shorter Teams tabs, the Cards filters fold away, and tables are narrower.`,
   `<b>Earning SL$.</b> A new <a href="#/guide/earning">guide page</a> on every SL$ source: Ranked Season 2 wins pay the most, then fishing into gear crates. Which crates to open and which to sell, story totals, and what never pays.`,
