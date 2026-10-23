@@ -4035,6 +4035,12 @@ ACT.importSave=()=>{
         <li>Copy this folder path and paste it into the address bar of the file window that opens: <span class="row tight" style="display:inline-flex"><code class="code" style="font-size:12px">${esc(SAVE_DIR)}</code><button class="btn xs" id="imp_cp">${ic("copy")}Copy</button></span></li>
         <li>Pick <b>skin_data.cfg</b>.</li></ol>
       <label class="btn primary" style="cursor:pointer">${ic("download")}Choose the file<input type="file" id="imp_file" style="display:none"></label>
+      <details style="margin-top:14px"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800">On Linux, Steam Deck or Mac?</summary>
+        <p class="small muted" style="margin-bottom:4px"><b>Linux and Steam Deck</b> (the game runs through Proton):</p>
+        <code class="code" style="font-size:11.5px;word-break:break-all;display:block">~/.steam/steam/steamapps/compatdata/4368350/pfx/drive_c/users/steamuser/AppData/Roaming/Godot/app_userdata/Silly Linguine Cat Simulator Deluxe Online</code>
+        <p class="small muted" style="margin:6px 0 4px">Flatpak Steam starts with <code class="code">~/.var/app/com.valvesoftware.Steam/.local/share/Steam/</code> instead, and a game on another drive has its <code class="code">compatdata</code> in that drive's <code class="code">steamapps</code> folder. Hidden folders: Ctrl+H.</p>
+        <p class="small muted" style="margin:8px 0 4px"><b>Mac:</b></p>
+        <code class="code" style="font-size:11.5px;word-break:break-all;display:block">~/Library/Application Support/Godot/app_userdata/Silly Linguine Cat Simulator Deluxe Online</code></details>
       <details style="margin-top:14px"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800">On a phone, or the file window hides the file?</summary>
         <p class="small muted">Easiest: import on your PC first, then press <b>Share my cards</b> there and open the link on your phone.</p>
         <p class="small muted">Or copy the file's text on your PC with this PowerShell command and paste it below:</p>
