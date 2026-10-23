@@ -5903,7 +5903,7 @@ function sxFlash(text){   // after navigating: scroll to the row / heading showi
   let t=rows.find(r=>first(r)===want)||rows.find(r=>first(r).startsWith(want));
   if(!t){const els=[...$$("#view h2,#view h3,#view li > b,#view .step b,#view b,#view summary,#view td")];
     const el=els.find(e=>sxClean(e.textContent).toLowerCase()===want)||els.find(e=>sxClean(e.textContent).toLowerCase().startsWith(want));
-    if(!el)return;t=el.closest("tr,li,.step")||el;}
+    if(!el)return;t=el.closest("tr,li,.step,.callout")||el;}
   t.scrollIntoView({block:"center",behavior:"smooth"});t.classList.remove("sx_flash");void t.offsetWidth;t.classList.add("sx_flash");
 }
 function sxLeave(){   // close the search layer without leaving its history entry behind (Back must not hit a dead step)
@@ -5927,7 +5927,7 @@ const SX_ALIAS={"hilo":"higher or lower","hi lo":"higher or lower","higher lower
   "freeze":"frozen","confusion":"confused","purify":"purified","stun":"stunned","poison":"poisoned","burn":"on fire","fire":"on fire","curse":"cursed",
   "bleed":"bleeding","bless":"blessed","doom":"doomed","revive":"survives","dark mode":"theme","light mode":"theme",
   "my cards":"import your cards","import":"import your cards","owned":"import your cards","what's new":"updates","whats new":"updates","changelog":"updates",
-  "sl":"sl$","sl$":"sl$","defense":"stats","def":"stats","dodge":"stats","block":"stats","speed":"stats","spd":"stats","attack":"stats","atk":"stats","hp":"stats","health":"stats","crit":"stats","damage":"stats","income":"earning sl$","ban":"account status","banned":"account status","bans":"account status","ban check":"account status","flagged":"account status","cheater":"account status","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
+  "sl":"sl$","sl$":"sl$","defense":"stats","def":"stats","dodge":"stats","block":"stats","speed":"stats","spd":"stats","attack":"stats","atk":"stats","hp":"stats","health":"stats","crit":"stats","damage":"stats","income":"earning sl$","gold dot":"apex","yellow dot":"apex","dot":"apex","ban":"account status","banned":"account status","bans":"account status","ban check":"account status","flagged":"account status","cheater":"account status","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
   "free spins":"slots","free spin":"slots","jackpot":"slots","dealer":"blackjack","scratch":"lottery","tickets":"lottery","ranks":"rank distribution","fl":"fl$","fl$":"fl$","np":"nutrition points","money":"sl$"};
 function buildSearchIndex(){
   const out=[],seen=new Set();
@@ -5956,6 +5956,7 @@ function buildSearchIndex(){
   if(typeof STA!=="undefined")for(const id of Object.keys(STA))add("Status",ST_NAME(id),statusDesc(id),()=>sxGo("#/guide/statuses",()=>{sxFill("#gs_q",ST_NAME(id));sxFlash(ST_NAME(id));}));
   // elements
   (ELN||[]).forEach((n,i)=>n&&add("Element",n,"Element: strengths and weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash(n))));
+  add("Element","Apex","The gold dot on a card: ignores its element's small weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash("Apex")),"apex gold dot yellow dot");
   // story chapters (also findable as s2e20, s2 20, ch20, chapter 20)
   for(const c of CH_ALL){const n=chNum(c),sn=c.season||1;
     add("Story",`${chName(c)}: ${c.title}`,`Season ${sn}${c.hard&&c.hard.length?" · Normal and EXTREME":""}`,()=>sxGo(chHref(c)),
