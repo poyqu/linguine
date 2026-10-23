@@ -5358,21 +5358,19 @@ function gBans(){
   <p class="small faint" id="ban_meta" style="margin-top:10px"></p>
   <h3>What it checks</h3>
   <ul class="tight"><li><b>Banned:</b> on the developer's ban list (part of it is built into the game, the rest the game downloads). Banned players are hidden from the leaderboards and left out of ranked matchmaking.</li>
-  <li><b>Flagged:</b> since v195 every player's game checks itself and posts the result to hidden leaderboards; other players' games hide an account whose own check says it cheated, or whose result was tampered with.</li>
-  <li>The anticheat also scores the pets leaderboard on each player's PC and can hide entries from there. That part differs between players and isn't covered.</li>
+  <li><b>Flagged:</b> the game's anticheat hides the account from the leaderboards. Not every hidden entry shows up here.</li>
   <li>Custom profile links (steamcommunity.com/id/name) don't contain the ID; use the number from a /profiles/ link.</li></ul>`;
 }
 function wireBans(){
   const out=$("#ban_out"),meta=$("#ban_meta"),inp=$("#ban_in");if(!out)return;
-  loadBans().then(B=>{if(meta)meta.textContent=B?`Updated manually, last on ${new Date(B.ts*1000).toLocaleDateString(undefined,{dateStyle:"medium"})} (${agoText(B.ts)}): ${B.n} banned, ${Object.keys(B.f||{}).length} flagged.`:"The account list couldn't be loaded.";});
+  loadBans().then(B=>{if(meta)meta.textContent=B?`Updated manually, last on ${new Date(B.ts*1000).toLocaleDateString(undefined,{dateStyle:"medium"})} (${agoText(B.ts)}): ${B.n} banned, ${(B.f||[]).length} flagged.`:"The account list couldn't be loaded.";});
   const go=async()=>{
     const id=steamId64(inp.value);
     if(!id){out.innerHTML=`<div class="callout warn">That doesn't look like a Steam ID or a /profiles/ link.</div>`;return;}
     const B=await loadBans();if(!B){out.innerHTML=`<div class="callout warn">The account list couldn't be loaded.</div>`;return;}
-    const h=await sha16(id),fl=(B.f||{})[h];
+    const h=await sha16(id),fl=(B.f||[]).includes(h);
     out.innerHTML=B.h.includes(h)?`<div class="callout bad" data-k="Banned"><b>${id}</b> is on the leaderboard ban list.</div>`
-      :fl==="self"?`<div class="callout bad" data-k="Flagged"><b>${id}</b> is flagged: its own game reports it as cheating, so other players' games hide it from the leaderboards.</div>`
-      :fl?`<div class="callout bad" data-k="Flagged"><b>${id}</b> is flagged: its anticheat result doesn't match what the game expects, so other players' games hide it from the leaderboards.</div>`
+      :fl?`<div class="callout bad" data-k="Flagged"><b>${id}</b> is flagged by the game's anticheat and hidden from the leaderboards.</div>`
       :`<div class="callout good" data-k="Good standing"><b>${id}</b> doesn't seem to be banned or flagged.</div>`;
   };
   $("#ban_go").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go();};
