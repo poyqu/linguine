@@ -2829,7 +2829,7 @@ function openCard(id,ctx){
     <div class="divider"></div>
     <h3>Element: ${esc(ELN[c.element]||"Unknown")}</h3>
     <div style="margin-top:8px">${chartFacts(c.element,c.apex)}</div>
-    ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: it ignores the small weaknesses of its element (the ×1.05 to ×1.25 hits it takes). The ×1.2 strengths of other elements and the big multipliers still apply.</p>':""}
+    ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: shrugs off most of the small element bonuses against it (×1.05 to ×1.25). Big bonuses like ×1.8 still hit it.</p>':""}
     ${isCard?`<div class="divider"></div><h3>How to get it</h3>
     <div class="stack" style="gap:6px;margin-top:8px">${srcList(c).map(([l,cl,h,u])=>`<div class="row tight"><span class="tag ${cl}">${esc(l)}</span><span class="small muted">${esc(h)}${u?` <a href="${u}" target="_blank" rel="noopener">Steam page</a>`:""}</span></div>`).join("")}</div>`:""}
     ${isCard?cookieBox(id,c):""}
@@ -5259,7 +5259,7 @@ function gElements(){
   return`<h2>Elements</h2>
   <p class="lead" style="margin-top:6px">Every card has one of 6 elements, picked from keywords in its name but balanced so each element has about the same number of cards. About 1 in 10 cards of each element is Apex.</p>
   <div class="tblwrap" style="margin:14px 0"><table class="tbl echart">${head}${rows}</table></div>
-  <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (a small gold dot on their badge) ignore the small weaknesses of their own element (the <b>×1.05 to ×1.25</b> hits they take). An attacker's ×1.2 strength (Chonblonkle on Monblonkin, Monblonkin on Gorblegorble) and the big multipliers like <b>×1.8</b> still apply.</div>
+  <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (gold dot) shrug off most of the small element bonuses against them (<b>×1.05 to ×1.25</b>). Big bonuses like <b>×1.8</b> still hit them.</div>
   <div class="callout" data-k="Good to know" style="margin:12px 0">When a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes <b>30% of its attack</b> back as recoil.</div>`;
 }
 function gStatuses(){
@@ -5956,7 +5956,7 @@ function buildSearchIndex(){
   if(typeof STA!=="undefined")for(const id of Object.keys(STA))add("Status",ST_NAME(id),statusDesc(id),()=>sxGo("#/guide/statuses",()=>{sxFill("#gs_q",ST_NAME(id));sxFlash(ST_NAME(id));}));
   // elements
   (ELN||[]).forEach((n,i)=>n&&add("Element",n,"Element: strengths and weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash(n))));
-  add("Element","Apex","The gold dot on a card: ignores its element's small weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash("Apex")),"apex gold dot yellow dot");
+  add("Element","Apex","The gold dot on a card: shrugs off most small element bonuses against it",()=>sxGo("#/guide/elements",()=>sxFlash("Apex")),"apex gold dot yellow dot");
   // story chapters (also findable as s2e20, s2 20, ch20, chapter 20)
   for(const c of CH_ALL){const n=chNum(c),sn=c.season||1;
     add("Story",`${chName(c)}: ${c.title}`,`Season ${sn}${c.hard&&c.hard.length?" · Normal and EXTREME":""}`,()=>sxGo(chHref(c)),
