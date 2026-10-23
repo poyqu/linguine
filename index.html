@@ -4424,7 +4424,7 @@ ACT.submitBuild=()=>{
 // =====================================================================================
 const OVR=(DATA.recommended||{}).overall||null;
 function teamsSwitch(cur){
-  return`<div class="seg" style="margin-bottom:14px"><a class="${cur==="best"?"on":""}" href="#/teams" role="button">Best<span class="lgw"> overall</span></a><a class="${cur==="community"?"on":""}" href="#/builds" role="button"><span class="lgw">Community </span>builds</a><a class="${cur==="ranked"?"on":""}" href="#/ranked" role="button">Ranked<span class="lgw"> top 100</span></a></div>`;
+  return`<div class="seg" style="margin-bottom:14px"><a class="${cur==="best"?"on":""}" href="#/teams" role="button">Best<span class="lgw">&nbsp;overall</span></a><a class="${cur==="community"?"on":""}" href="#/builds" role="button"><span class="lgw">Community&nbsp;</span>builds</a><a class="${cur==="ranked"?"on":""}" href="#/ranked" role="button">Ranked<span class="lgw">&nbsp;top 100</span></a></div>`;
 }
 // ---------- ranked top 100 (ranked.json: a snapshot of the game's "Decks" Steam leaderboard, no player names) ----------
 let RANKED=null,rankedReq=null;
