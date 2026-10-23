@@ -844,8 +844,10 @@
 "trigger": "on_miracle",
 "effect": "survive_at_1",
 "params": {},
-"condition": "",
-"cond_params": {},
+"condition": "ctx_flag",
+"cond_params": {
+"key": "by_attack"
+},
 "once_game": true,
 "once_turn": false,
 "desc": "(Once per game) When this Linguine is going to be killed by an attack, it survives at 1 Health."
@@ -8589,9 +8591,9 @@
 },
 "condition": "",
 "cond_params": {},
-"once_game": false,
+"once_game": true,
 "once_turn": false,
-"desc": "When this Linguine dies, it revives with 1 HP and is inflicted with [Cursed]."
+"desc": "(Once per game) When this Linguine dies, it revives with 1 HP and is inflicted with [Cursed]."
 }
 ],
 "element": 4,
@@ -8726,8 +8728,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_flag",
+"cond_params": {
+"key": "by_attack"
+},
 "once_game": true,
 "once_turn": false,
 "desc": "(Once per game) When this Linguine would die from an attack, it survives at 1 HP and is inflicted with [Strengthened]."
@@ -25587,8 +25591,10 @@
 "trigger": "on_miracle",
 "effect": "survive_at_1",
 "params": {},
-"condition": "",
-"cond_params": {},
+"condition": "ctx_flag",
+"cond_params": {
+"key": "by_attack"
+},
 "once_game": true,
 "once_turn": false,
 "desc": "(Once per game) When this Linguine's health is greater than 1, when this Linguine is attacked for more damage than its remaining health (a fatal attack), instead of dying, This Linguine's health is set to 1."
@@ -25614,8 +25620,10 @@
 }
 ]
 },
-"condition": "",
-"cond_params": {},
+"condition": "ctx_flag",
+"cond_params": {
+"key": "by_attack"
+},
 "once_game": true,
 "once_turn": false,
 "desc": "When this Linguine's health is set to 1, this Linguine is inflicted with [Strengthened] and [Lucky]."
@@ -48770,6 +48778,337 @@
 }
 },
 "stext_desc": "The health of your Lowest-Health Leader is increased by 4."
+},
+"979": {
+"id": 979,
+"name": "Linguine With Black Spooky Makeup",
+"hp": 158,
+"spd": 488,
+"def": 16,
+"atk": 26,
+"style": 1,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "horrified",
+"target": "target"
+},
+"condition": "random_chance",
+"cond_params": {
+"chance": 0.15
+},
+"once_game": false,
+"once_turn": false,
+"desc": "When this Linguine attacks, there is a 15% chance the target is inflicted with [Horrified]."
+}
+],
+"element": 3,
+"apex": false,
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "speed",
+"amount": 10,
+"target": "fastest_enemy"
+}
+},
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
+},
+"980": {
+"id": 980,
+"name": "Linguine With Red Spooky Makeup",
+"hp": 140,
+"spd": 480,
+"def": 15,
+"atk": 26,
+"style": 5,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "bleeding",
+"target": "target"
+},
+"condition": "random_chance",
+"cond_params": {
+"chance": 0.15
+},
+"once_game": false,
+"once_turn": false,
+"desc": "When this Linguine attacks, there is a 15% chance the target is inflicted with [Bleeding]."
+}
+],
+"element": 0,
+"apex": false,
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "attack",
+"amount": 1,
+"target": "lowest_atk_enemy"
+}
+},
+"stext_desc": "The attack of the Lowest-Attack Enemy Leader is decreased by 1."
+},
+"981": {
+"id": 981,
+"name": "Linguine With Orange Spooky Makeup",
+"hp": 142,
+"spd": 478,
+"def": 15,
+"atk": 25,
+"style": 1,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "on_fire",
+"target": "target"
+},
+"condition": "random_chance",
+"cond_params": {
+"chance": 0.15
+},
+"once_game": false,
+"once_turn": false,
+"desc": "When this Linguine attacks, there is a 15% chance the target is inflicted with [On Fire]."
+}
+],
+"element": 5,
+"apex": false,
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "health",
+"amount": 2,
+"target": "highest_hp_enemy"
+}
+},
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 2."
+},
+"982": {
+"id": 982,
+"name": "Linguine With Green Spooky Makeup",
+"hp": 160,
+"spd": 485,
+"def": 16,
+"atk": 25,
+"style": 4,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "poisoned",
+"target": "target"
+},
+"condition": "random_chance",
+"cond_params": {
+"chance": 0.15
+},
+"once_game": false,
+"once_turn": false,
+"desc": "When this Linguine attacks, there is a 15% chance the target is inflicted with [Poisoned]."
+}
+],
+"element": 4,
+"apex": false,
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "health",
+"amount": 2,
+"target": "lowest_hp_ally"
+}
+},
+"stext_desc": "The health of your Lowest-Health Leader is increased by 2."
+},
+"983": {
+"id": 983,
+"name": "Linguine (Ghost Costume)",
+"hp": 145,
+"spd": 460,
+"def": 8,
+"atk": 18,
+"style": 5,
+"abilities": [
+{
+"trigger": "passive_damage_taken",
+"effect": "",
+"params": {
+"flat": -20
+},
+"condition": "date_between",
+"cond_params": {
+"from": 20261001,
+"to": 20261031
+},
+"once_game": false,
+"once_turn": false,
+"desc": "This Linguine takes 20 less damage in October of 2026."
+}
+],
+"element": 3,
+"apex": true,
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "speed",
+"amount": 10,
+"target": "fastest_enemy"
+}
+},
+"stext_desc": "The speed of the fastest Enemy Leader is decreased by 10."
+},
+"984": {
+"id": 984,
+"name": "Linguine Wearing A Pumpkin",
+"hp": 150,
+"spd": 470,
+"def": 15,
+"atk": 23,
+"style": 8,
+"abilities": [
+{
+"trigger": "turn_start",
+"effect": "gain_stat",
+"params": {
+"stat": "health",
+"amount": 3
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "At the start of each turn, this Linguine's health is increased by 3."
+}
+],
+"element": 5,
+"apex": false,
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "health",
+"amount": 3,
+"target": "lowest_hp_ally"
+}
+},
+"stext_desc": "The health of your Lowest-Health Leader is increased by 3."
+},
+"985": {
+"id": 985,
+"name": "Linguine Wearing An Enchanted Pumpkin",
+"hp": 168,
+"spd": 480,
+"def": 17,
+"atk": 27,
+"style": 8,
+"abilities": [
+{
+"trigger": "on_attack",
+"effect": "inflict_status",
+"params": {
+"status_id": "confused",
+"target": "target"
+},
+"condition": "random_chance",
+"cond_params": {
+"chance": 0.2
+},
+"once_game": false,
+"once_turn": false,
+"desc": "When this Linguine attacks, there is a 20% chance the target is inflicted with [Confused]."
+}
+],
+"element": 1,
+"apex": false,
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "attack",
+"amount": 2,
+"target": "highest_hp_ally"
+}
+},
+"stext_desc": "The attack of your Highest-Health Leader is increased by 2."
+},
+"986": {
+"id": 986,
+"name": "Linguine With A Half Skeleton Face",
+"hp": 157,
+"spd": 490,
+"def": 16,
+"atk": 26,
+"style": 5,
+"abilities": [
+{
+"trigger": "turn_start",
+"effect": "gain_stat",
+"params": {
+"stat": "attack",
+"amount": 8
+},
+"condition": "self_hp_at_or_below",
+"cond_params": {
+"value": 60
+},
+"once_game": true,
+"once_turn": false,
+"desc": "(Once per game) When this Linguine's health is 60 or less, its attack is increased by 8."
+}
+],
+"element": 0,
+"apex": false,
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "attack",
+"amount": 1,
+"target": "lowest_atk_ally"
+}
+},
+"stext_desc": "The attack of your Lowest-Attack Leader is increased by 1."
+},
+"987": {
+"id": 987,
+"name": "Linguine (Skeleton)",
+"hp": 130,
+"spd": 450,
+"def": 6,
+"atk": 16,
+"style": 1,
+"abilities": [
+{
+"trigger": "passive_damage_bonus",
+"effect": "",
+"params": {
+"amount": 50
+},
+"condition": "date_between",
+"cond_params": {
+"from": 20261001,
+"to": 20261031
+},
+"once_game": false,
+"once_turn": false,
+"desc": "This Linguine does 50 more damage in October of 2026."
+}
+],
+"element": 3,
+"apex": true,
+"supporter": {
+"effect": "lose_stat_target",
+"params": {
+"stat": "health",
+"amount": 3,
+"target": "highest_hp_enemy"
+}
+},
+"stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 3."
 },
 "875": {
 "id": 875,

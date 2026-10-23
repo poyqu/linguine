@@ -123,6 +123,16 @@ class RL{ // runtime leader
   hasHpFloor(){for(const sid in this.st)if(staF(sid).hp_floor_1)return true;return false;}
   takeDamage(amount){   // RuntimeLeader.take_damage: hp floor (soul_bound), marks dead immediately
     if(!(amount>0))return 0;
+    if(this.hp>0&&amount>=this.hp&&!this.hasHpFloor()&&this.lethal){   // v195 lethal_hook
+      const maxBefore=this.mhp;
+      this.lethal(this,amount);
+      let t=Math.min(this.hp,amount);
+      if(this.hasHpFloor()&&t>=this.hp)t=Math.max(0,this.hp-1);
+      this.hp-=t;this.dmgTurn+=t;
+      if(this.mhp>maxBefore)this.mhp=Math.max(maxBefore,this.hp);   // "Surviving with a Miracle no longer sets max HP way too high"
+      if(this.hp<=0){this.hp=0;this.alive=false;}
+      return t;
+    }
     let taken=Math.min(this.hp,amount);
     if(this.hasHpFloor()&&taken>=this.hp)taken=Math.max(0,this.hp-1);
     this.hp-=taken;this.dmgTurn+=taken;
@@ -130,6 +140,7 @@ class RL{ // runtime leader
     return taken;
   }
 }
+function todayOrd(){const d=new Date();return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate();}   // battle_sim.today_ord
 class Sim{
   constructor(seed,log,story=true){this.story=story;this.rng=mulberry32(seed);this.turn=0;this.teams=[[],[]];this.depth=0;this.pending=[];this.log=log||null;
     this.chainD=0;this.drawn=[0,0];this.drawnLast=[0,0];this._statGainBySupporter=false;
@@ -210,7 +221,7 @@ class Sim{
   healAmt(a){return a>0&&this.overtime()?Math.ceil(a*0.5):a;}   // battle_sim._heal_amt: healing halved in overtime
   applyStatDeltas(l,d){   // battle_sim._apply_stat_deltas (heal caps at max_hp; attack floor 0; no death check)
     if(!d)return;
-    if(_has(d,"health")){const a=_i(d.health);if(a<0)l.takeDamage(-a);else l.hp=Math.min(l.hp+this.healAmt(a),l.mhp);}
+    if(_has(d,"health")){const a=_i(d.health);if(a<0)l.takeDamage(-a);else l.hp=Math.max(l.hp,Math.min(l.hp+this.healAmt(a),Math.floor(l.mhp*OVERHEAL)));}
     if(_has(d,"attack"))l.atk=Math.max(0,Math.min(MAXATK,l.atk+_i(d.attack)));
     if(_has(d,"defense"))l.dfn=Math.max(0,Math.min(DEFCAP,l.dfn+_i(d.defense)));
     if(_has(d,"speed"))l.spd=Math.max(0,l.spd+_i(d.speed));
@@ -230,7 +241,7 @@ class Sim{
   mod(l,stat,amt){   // battle_sim._modify_stat
     if(stat==="health"){
       if(amt<0)l.takeDamage(-amt);
-      else l.hp=Math.min(l.hp+this.healAmt(amt),Math.floor(l.mhp*OVERHEAL));   // overheal up to 120% max hp (halved in overtime, v193)
+      else l.hp=Math.max(l.hp,Math.min(l.hp+this.healAmt(amt),Math.floor(l.mhp*OVERHEAL)));   // v195: a heal never lowers hp   // overheal up to 120% max hp (halved in overtime, v193)
     }else if(stat==="attack"){
       l.atk=Math.max(MINATK,Math.min(MAXATK,l.atk+amt));
       if(amt>0&&this.depth<24){this.depth++;this.fire(l,"on_boost",{});this.depth--;}
@@ -305,6 +316,7 @@ class Sim{
       case"ctx_status_in":return(cp.status_ids||[]).includes(ctx.status_id);
       case"ctx_is_enemy":{const x=ctx[cp.key||"attacker"];return x instanceof RL&&x.side!==self.side;}// game default key "attacker"
       case"ctx_flag":return!!ctx[cp.key||""];
+      case"date_between":{const t=this.dateOrd||todayOrd();return t>=_i(cp.from||0)&&t<=_i(cp.to!=null?cp.to:99999999);}
       case"drawn_card_has_tag":case"ctx_card_has_any_tag":{
         const card=ctx.card;if(!card)return false;
         const tags=(cp.tags&&cp.tags.length)?cp.tags:[cp.tag||""];
@@ -668,7 +680,7 @@ class Sim{
         return;
       }
       case"kill_self":
-        if(self.hp>0)self.takeDamage(self.hp);
+        if(self.hp>0){this.lethalOff=true;self.takeDamage(self.hp);this.lethalOff=false;}
         this.checkDeath(self);return;
       case"set_stat":{
         const v=p.value||0;
@@ -858,6 +870,20 @@ class Sim{
     return card;
   }
   // ---- triggers ----
+  onLethal(l,amount){   // battle_sim._on_lethal (v195): Miracle on any lethal damage; by_attack = it came from an attack
+    if(this.lethalOff||!l.alive)return;
+    const atk=this.lethalAtk||null;this.lethalAtk=null;
+    const byAttack=atk!=null;
+    this.fire(l,"on_miracle",{attacker:atk,incoming:amount,by_attack:byAttack});
+    if(amount>=l.hp){
+      for(const al of this.alive(l.side)){
+        if(al===l)continue;
+        this.fire(al,"on_ally_miracle",{ally:l,attacker:atk,incoming:amount,by_attack:byAttack});
+        if(amount<l.hp){this.L(`    ✨ ${al.name.slice(0,22)} saves ${l.name.slice(0,22)}`);break;}
+      }
+    }
+    this.lethalAtk=atk;
+  }
   fire(l,trig,ctx,force){
     if(this.chainD>=5)return;   // game _MAX_CHAIN_DEPTH
     if(!l.alive&&!(force||trig==="on_death"))return;
@@ -1025,7 +1051,7 @@ class Sim{
     const dfv=tgt.effDef();
     let dodge=(dfv/4)/100,block=(dfv/2)/100;
     let pd=0;
-    for(const a of tgt.abil)if(a.trigger==="passive_dodge")pd+=Number(_g(a.params||{},"amount",0))/100;
+    for(const a of tgt.abil)if(a.trigger==="passive_dodge"&&this.cond(tgt,a.condition||"",a.cond_params||{},{}))pd+=Number(_g(a.params||{},"amount",0))/100;
     dodge=Math.min(0.95,dodge+pd);
     const nob=tgt.flag("blocks_block");
     if(atk.hasPassive("passive_unblockable")){dodge=0;block=0;}
@@ -1058,16 +1084,10 @@ class Sim{
     if(blocked)this.fire(atk,"on_blocked_or_dodged",{target:tgt});
     dmg=this.modIncoming(atk,tgt,dmg);
     dmg=this.shareDamage(tgt,dmg);
-    if(dmg>=tgt.hp)this.fire(tgt,"on_miracle",{attacker:atk,incoming:dmg});
-    if(dmg>=tgt.hp){
-      for(const al of this.alive(tgt.side)){
-        if(al===tgt)continue;
-        this.fire(al,"on_ally_miracle",{ally:tgt,attacker:atk,incoming:dmg});
-        if(dmg<tgt.hp){this.L(`    ✨ ${al.name.slice(0,22)} saves ${tgt.name.slice(0,22)}`);break;}
-      }
-    }
     if(!atk.alive||!tgt.alive)return;
+    this.lethalAtk=atk;
     const actual=tgt.takeDamage(dmg);
+    this.lethalAtk=null;
     if(actual>0)tgt.hitsTurn++;
     this.L(`    ${atk.name.slice(0,22)} hit ${tgt.name.slice(0,22)} for ${actual}${isCrit?" (crit)":""}${blocked?" (blocked)":""} (${tgt.hp} left)`);
     if(atk.elem===2&&tgt.elem===5){                 // Element.recoil_fraction: Blobgob -> Monblonkin 0.3
@@ -1124,7 +1144,7 @@ class Sim{
       hits.push([t,d,eb,this.statusIds(t),0]);
     }
     for(const h of hits){
-      h[4]=h[0].takeDamage(h[1]);
+      this.lethalAtk=atk;h[4]=h[0].takeDamage(h[1]);this.lethalAtk=null;
       if(h[4]>0)h[0].hitsTurn++;
       this.L(`    ${atk.name.slice(0,22)} hits ${h[0].name.slice(0,22)} for ${h[4]} (all-out) (${h[0].hp} left)`);
     }
@@ -1291,6 +1311,7 @@ class Sim{
     this.teams=[[],[]];
     deckA.slice(0,3).forEach((c,i)=>{if(c)this.teams[0].push(new RL(c,0,i));});   // null slot = empty (battle_sim skips it)
     deckB.slice(0,3).forEach((c,i)=>{if(c)this.teams[1].push(new RL(c,1,i));});
+    for(const l of this.teams[0].concat(this.teams[1]))l.lethal=(x,a)=>this.onLethal(x,a);   // v195: rl.lethal_hook = _on_lethal
     this.decks=[deckA.slice(3,7).map(x=>Object.assign({},x)),deckB.slice(3,7).map(x=>Object.assign({},x))];
     this.disc=[[],[]];
     this.shuffle(this.decks[0],this.shuf[0]);this.shuffle(this.decks[1],this.shuf[1]);
