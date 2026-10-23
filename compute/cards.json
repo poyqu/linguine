@@ -31604,10 +31604,23 @@
 },
 {
 "trigger": "on_supporter_drawn",
+"effect": "chance_branch",
+"params": {
+"chance": 0.5,
+"then": {
 "effect": "gain_stat",
 "params": {
 "stat": "health",
 "amount": 8
+}
+},
+"else": {
+"effect": "lose_stat",
+"params": {
+"stat": "health",
+"amount": 8
+}
+}
 },
 "condition": "",
 "cond_params": {},
@@ -31650,10 +31663,23 @@
 },
 {
 "trigger": "on_supporter_drawn",
+"effect": "chance_branch",
+"params": {
+"chance": 0.5,
+"then": {
 "effect": "gain_stat",
 "params": {
 "stat": "health",
 "amount": 12
+}
+},
+"else": {
+"effect": "lose_stat",
+"params": {
+"stat": "health",
+"amount": 12
+}
+}
 },
 "condition": "",
 "cond_params": {},

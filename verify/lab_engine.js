@@ -120,7 +120,16 @@ class RL{ // runtime leader
   }
   hasPassive(t){return this.abil.some(a=>a.trigger===t);}
   hasTag(tag){return defHasTag(this.d,tag);}
-  hasHpFloor(){for(const sid in this.st)if(staF(sid).hp_floor_1)return true;return false;}
+  hasHpFloor(){   // RuntimeLeader.has_hp_floor (v196: an expired one, or one past its per-turn deltas, no longer counts)
+    for(const sid in this.st){
+      if(!staF(sid).hp_floor_1)continue;
+      const e=this.st[sid],dl=STA[sid][1]||[];
+      if(e[0]<=0)continue;
+      if(dl.length&&e[1]>=dl.length)continue;
+      return true;
+    }
+    return false;
+  }
   takeDamage(amount){   // RuntimeLeader.take_damage: hp floor (soul_bound), marks dead immediately
     if(!(amount>0))return 0;
     if(this.hp>0&&amount>=this.hp&&!this.hasHpFloor()&&this.lethal){   // v195 lethal_hook
