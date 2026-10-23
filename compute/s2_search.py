@@ -52,7 +52,8 @@ else:
         byid.setdefault(int(s), []).extend(re.findall(r'"([^"]+)"', cs))
     def crate_ok(sid):
         lst = byid.get(sid)
-        return bool(lst) and any(x not in ("money", "Story", "music") for x in lst) and sid in sim.LEADERS and sid != 150 and sid not in UNAVAIL
+        # event crates (v195 "Halloween 2026") don't count: the cards are time-limited and some only work in that month
+        return bool(lst) and any(x not in ("money", "Story", "music") and not re.fullmatch(r"Halloween \d{4}", x) for x in lst)             and sid in sim.LEADERS and sid != 150 and sid not in UNAVAIL
     CRATE = {s for s in byid if crate_ok(s)}
 
 # story skin rewards per chapter: (normal, extreme)

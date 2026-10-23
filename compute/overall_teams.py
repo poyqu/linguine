@@ -71,6 +71,9 @@ def candidates():
         if os.path.exists(p):
             for t, sp in get(json.load(open(p))):
                 C[(tuple(sorted(t)), tuple(x for x in sp if x not in t))] = 1
+    p = os.path.join(HERE, "extra_overall.json")             # hand-added candidates, e.g. strong ranked teams (Oct 18 2026)
+    if os.path.exists(p):
+        for r in json.load(open(p)): C[(tuple(sorted(r["team"])), tuple(x for x in r.get("supp", []) if x not in r["team"]))] = 1
     return [(list(t), list(s)) for t, s in C]
 
 def diverse(rows, k):
