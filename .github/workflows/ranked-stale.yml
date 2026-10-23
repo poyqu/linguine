@@ -1,0 +1,38 @@
+# Once a day: if the ranked top 100 (ranked.json, refreshed daily by the Raspberry Pi) is more than 2 days old,
+# post to Discord. Catches the case the Pi can't report itself (offline, no power). Same webhook and ping as
+# steam-watch.yml: the DISCORD_WEBHOOK secret and the optional DISCORD_PING variable.
+name: Ranked data age check
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ranked.json
+          sparse-checkout-cone-mode: false
+      - env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_PING: ${{ vars.DISCORD_PING }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, time, urllib.request
+          ts = json.load(open("ranked.json"))["ts"]
+          age = (time.time() - ts) / 3600
+          print(f"ranked.json is {age:.1f} hours old")
+          if age > 48 and os.environ.get("DISCORD_WEBHOOK"):
+              msg = (os.environ.get("DISCORD_PING", "") + " Linguine Sandbox: the ranked top 100 hasn't updated for "
+                     f"{age / 24:.1f} days. The Raspberry Pi may be offline or its daily update stopped.").strip()
+              req = urllib.request.Request(os.environ["DISCORD_WEBHOOK"], data=json.dumps({"content": msg}).encode(),
+                                           headers={"Content-Type": "application/json", "User-Agent": "linguine-ranked-age"})
+              urllib.request.urlopen(req, timeout=20).read()
+          EOF
