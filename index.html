@@ -414,6 +414,7 @@ a.hc{color:var(--text);text-decoration:none}
 .echart td.up{color:var(--good);font-weight:900}
 .echart td.down{color:var(--bad);font-weight:900}
 .echart td.n{color:var(--text3)}
+.echart .apxdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--e5);margin-left:4px;vertical-align:2px}
 
 /* ---------- overlays ---------- */
 .scrim{position:fixed;inset:0;z-index:80;background:#0009;display:flex;justify-content:flex-end;animation:fade .15s}
@@ -2829,7 +2830,7 @@ function openCard(id,ctx){
     <div class="divider"></div>
     <h3>Element: ${esc(ELN[c.element]||"Unknown")}</h3>
     <div style="margin-top:8px">${chartFacts(c.element,c.apex)}</div>
-    ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: shrugs off most of the small element bonuses against it (×1.05 to ×1.25). Big bonuses like ×1.8 still hit it.</p>':""}
+    ${c.apex?'<p class="small muted" style="margin-top:8px">Apex: ignores the bonuses marked with a gold dot in the element chart (Guide, Elements). Every other bonus still hits it.</p>':""}
     ${isCard?`<div class="divider"></div><h3>How to get it</h3>
     <div class="stack" style="gap:6px;margin-top:8px">${srcList(c).map(([l,cl,h,u])=>`<div class="row tight"><span class="tag ${cl}">${esc(l)}</span><span class="small muted">${esc(h)}${u?` <a href="${u}" target="_blank" rel="noopener">Steam page</a>`:""}</span></div>`).join("")}</div>`:""}
     ${isCard?cookieBox(id,c):""}
@@ -4163,8 +4164,9 @@ const SUPP_GROUPS=[["Helps your team",k=>/^\+\w+:ally|^-\w+:enemy|^x:/.test(k)],
 function pageCards(args){
   // two modes with their own filters: Leaders (role, element, ability, stats) and Supporters (what the supporter
   // ability does). Only the current mode's filters apply, so nothing hidden can filter cards out.
-  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:false,unob:false,sort:Object.keys(TIER).length?"tier":"rec",lvl:10,
+  const F=Object.assign({q:"",el:"",src:"",own:"all",role:"",more:false,trig:"",eff:"",st:"",rar:"",apex:"",unob:false,sort:Object.keys(TIER).length?"tier":"rec",lvl:10,
     view:"lead",sdir:"",sstat:"",sside:"",spick:"",ssort:"amt",atk:"",tier:[]},S.ui.cardsFilters||{});
+  if(F.apex===true)F.apex="only";else if(F.apex!=="only"&&F.apex!=="no")F.apex="";   // was a checkbox
   F.tier=(Array.isArray(F.tier)?F.tier:F.tier?[F.tier]:[]).filter(t=>TIER_ORDER.includes(t));   // was one tier, now a list
   if(F.mine!==undefined){if(F.mine)F.own="mine";delete F.mine;}   // old saved filter shapes
   if(F.view!=="supp")F.view="lead";
@@ -4176,7 +4178,7 @@ function pageCards(args){
   const T=new Set(),E=new Set(),ST=new Set();for(const id in META){META[id].t.forEach(x=>T.add(x));META[id].e.forEach(x=>E.add(x));META[id].s.forEach(x=>ST.add(x));}
   const srcSel=`<select class="select" id="cf_src" aria-label="How to get"><option value="">Any source</option>${SRC_FILTER.map(k=>`<option value="${k}" ${F.src===k?"selected":""}>${SRC[k][0]}</option>`).join("")}</select>`;
   const rarSel=`<select class="select" id="cf_rar"><option value="">Any rarity</option>${RAR_ORDER.map(r=>`<option value="${r}" ${F.rar===r?"selected":""}>${RAR[r]}</option>`).join("")}</select>`;
-  const unobBox=`<label style="justify-content:flex-end"><span class="check" title="Cards from past events or with no known source"><input type="checkbox" id="cf_unob" ${F.unob?"checked":""}> Show cards you can't get</span></label>`;
+  const unobBox=`<label>Cards you can't get<select class="select" id="cf_unob" title="Cards from past events or with no known source"><option value="">Hidden</option><option value="1" ${F.unob?"selected":""}>Shown</option></select></label>`;
   const SORTS=SUP?[["amt","Strongest first"],["group","Best per effect"],["rec","Most used in recommended teams"],["name","Name"],["id","Newest first"]]
     :[...(Object.keys(TIER).length?[["tier","Best tier first"]]:[]),["rec","Most used in chapter teams"],["name","Name"],["hp","Most health"],["atk","Most attack"],["def","Most defense"],["spd","Fastest"],["spdlow","Slowest"],["hplow","Least health"],["id","Newest first"]];
   const sortKey=SUP?"ssort":"sort";
@@ -4201,7 +4203,7 @@ function pageCards(args){
       <label>Attacks<select class="select" id="cf_atk"><option value="">Any target</option>${Object.entries(STYLE).map(([k,v])=>`<option value="${k}" ${String(F.atk)===k?"selected":""}>${esc(v.replace(/^the enemy with /,"").replace(/^(.)/,m=>m.toUpperCase()))}</option>`).join("")}</select></label>
       <label>Rarity${rarSel}</label>
       <label>Stats at level<select class="select" id="cf_lvl">${[1,10,15,20].map(x=>`<option ${x===F.lvl?"selected":""}>${x}</option>`).join("")}</select></label>
-      <label style="justify-content:flex-end"><span class="check"><input type="checkbox" id="cf_apex" ${F.apex?"checked":""}> Apex only</span></label>
+      <label>Apex<select class="select" id="cf_apex"><option value="">Any</option><option value="only" ${F.apex==="only"?"selected":""}>Apex only</option><option value="no" ${F.apex==="no"?"selected":""}>Not Apex</option></select></label>
       ${unobBox}`}
       <div class="row tight" style="grid-column:1/-1"><button class="btn sm ghost" id="cf_clearmine">Clear all my cards</button><button class="btn sm ghost" id="cf_reset">Reset filters</button></div>
     </div>
@@ -4231,7 +4233,7 @@ function pageCards(args){
       if(F.el!==""&&c.element!==+F.el)return false;
       if(F.role&&!rolesOf(c.id).includes(F.role))return false;
       if(F.tier.length&&!F.tier.includes((tierOf(c.id)||[])[0]))return false;
-      if(F.apex&&!c.apex)return false;
+      if(F.apex==="only"&&!c.apex||F.apex==="no"&&c.apex)return false;
       if(F.atk&&String(c.style)!==String(F.atk))return false;
       const m=META[c.id];
       if(F.trig&&!m.t.has(F.trig))return false;
@@ -4271,7 +4273,7 @@ function pageCards(args){
   function activeFilters(){
     const a=[];if(F.own!=="all")a.push(F.own==="mine"?"My cards":"Cards I'm missing");if(F.src)a.push("source ("+SRC[F.src][0]+")");if(F.rar)a.push("rarity");
     if(SUP&&suppActive(F))a.push("supporter filters");
-    else{if(F.role)a.push("role");if(F.tier.length)a.push("tier");if(F.atk)a.push("attack target");if(F.el!=="")a.push("element");if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.apex)a.push("Apex only");}
+    else{if(F.role)a.push("role");if(F.tier.length)a.push("tier");if(F.atk)a.push("attack target");if(F.el!=="")a.push("element");if(F.trig)a.push("trigger");if(F.eff)a.push("effect");if(F.st)a.push("status");if(F.apex)a.push(F.apex==="only"?"Apex only":"not Apex");}
     return a;   // (unobtainable cards are never hidden from a name search)
   }
   function paint(){
@@ -4325,7 +4327,7 @@ function pageCards(args){
   function refresh(){S.ui.cardsFilters=F;save();limit=90;cur=list();paint();bulk();}
   const bind=(id,k,ev="change",fn=x=>x.value)=>{const el=$(id);if(el)el.addEventListener(ev,e=>{F[k]=fn(e.target);refresh();});};
   {const q=$("#cf_q");let tq=null;q.addEventListener("input",()=>{clearTimeout(tq);tq=setTimeout(()=>{F.q=q.value;refresh();},160);});}
-  bind("#cf_own","own");bind("#cf_src","src");bind("#cf_rar","rar");bind("#cf_unob","unob","change",x=>x.checked);bind("#cf_sort",sortKey);
+  bind("#cf_own","own");bind("#cf_src","src");bind("#cf_rar","rar");bind("#cf_unob","unob","change",x=>x.value==="1");bind("#cf_sort",sortKey);
   if(SUP)for(const k of SUPP_KEYS)bind("#cf_"+k,k);
   else{bind("#cf_role","role");
     {const box=$("#cf_tier");if(box){const btn=box.querySelector(".msel_btn"),menu=box.querySelector(".msel_menu"),cbs=[...menu.querySelectorAll("input")];
@@ -4341,7 +4343,7 @@ function pageCards(args){
       menu.onclick=e=>e.stopPropagation();
       document.addEventListener("click",function close(){if(!document.body.contains(box)){document.removeEventListener("click",close);return;}open(false);});
       box.addEventListener("keydown",e=>{if(e.key==="Escape"){open(false);btn.focus();}});
-      label();}}bind("#cf_atk","atk");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex","change",x=>x.checked);}
+      label();}}bind("#cf_atk","atk");bind("#cf_trig","trig");bind("#cf_eff","eff");bind("#cf_st","st");bind("#cf_lvl","lvl","change",x=>+x.value);bind("#cf_apex","apex");}
   $("#cf_view").onclick=e=>{const b=e.target.closest("[data-v]");if(!b||b.dataset.v===F.view)return;F.view=b.dataset.v;S.ui.cardsFilters=F;save();pageCards([]);};
   $("#cf_morebtn").onclick=()=>{F.more=!F.more;$("#cf_more").style.display=F.more?"":"none";$("#cf_filters").classList.toggle("cf_open",F.more);$("#cf_els")&&$("#cf_els").classList.toggle("cf_open",F.more);$("#cf_morebtn").classList.toggle("ghost",!F.more);S.ui.cardsFilters=F;save();};
   $("#cf_clearmine").onclick=()=>{if(!OWN.size)return;if(!confirm(`Clear all ${cardsN(OWN.size)} marked as yours${Object.keys(S.ownLv).length?" and their imported levels":""}?`))return;const before=new Set(OWN),lv=S.ownLv;OWN.clear();S.ownLv={};save();$("#owncount").textContent=0;refresh();
@@ -5255,11 +5257,12 @@ const gTeam=()=>`<h2>Leaders and supporters</h2>
 function gElements(){
   if(typeof CHART==="undefined")return"";
   const head=`<tr><th>Attacker ↓ / Defender →</th>${ELN.map((n,i)=>`<th><span class="elname el${i}"><span class="eln_l">${n}</span><span class="eln_s" title="${n}">${n.slice(0,4)}</span></span></th>`).join("")}</tr>`;
-  const rows=ELN.map((n,a)=>`<tr><th><span class="elname el${a}">${n}</span></th>${CHART[a].map(m=>`<td class="${m>1?"up":m<1?"down":"n"}">${m===1?"·":"×"+m}</td>`).join("")}</tr>`).join("");
+  const rows=ELN.map((n,a)=>`<tr><th><span class="elname el${a}">${n}</span></th>${CHART[a].map((m,d)=>{const ax=m>1&&typeof catWeak==="function"&&catWeak(a,d);   // the defender's own weakness: Apex ignores it
+      return`<td class="${m>1?"up":m<1?"down":"n"}${ax?" apx":""}"${ax?' title="Apex cards ignore this bonus"':""}>${m===1?"·":"×"+m}${ax?'<i class="apxdot"></i>':""}</td>`;}).join("")}</tr>`).join("");
   return`<h2>Elements</h2>
   <p class="lead" style="margin-top:6px">Every card has one of 6 elements, picked from keywords in its name but balanced so each element has about the same number of cards. About 1 in 10 cards of each element is Apex.</p>
   <div class="tblwrap" style="margin:14px 0"><table class="tbl echart">${head}${rows}</table></div>
-  <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (gold dot) shrug off most of the small element bonuses against them (<b>×1.05 to ×1.25</b>). Big bonuses like <b>×1.8</b> still hit them.</div>
+  <div class="callout" data-k="Good to know" style="margin:12px 0"><b>Apex</b> cards (gold dot) ignore the bonuses marked with a gold dot in the chart. Every other bonus still hits them.</div>
   <div class="callout" data-k="Good to know" style="margin:12px 0">When a <span class="elname el2">Blobgob</span> hits a <span class="elname el5">Monblonkin</span>, it takes <b>30% of its attack</b> back as recoil.</div>`;
 }
 function gStatuses(){
@@ -5741,6 +5744,7 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
 const SITE_UPDATES=[["2026-10-23 · Game update v196",[
+  `<b>Apex in the element chart.</b> A gold dot marks the bonuses Apex cards ignore (Guide, Elements).`,
   `<b>Simulator updated for v196.</b> Soul Bound stops protecting once it has run out, and Linguine (Gambler) and (Addicted to Gambling) now really gain or lose health on a coin flip. Every recommended team was re-tested.`,
   `<b>New: <a href="#/guide/bans">Account status</a></b> (Guide, General). Paste a Steam ID or profile link to see if the account is banned or flagged by the game's anticheat on the leaderboards. The simulator got <b>Swap sides</b> (next to Set all levels, against a player team) and a Clear button for the opponent.`,
 ]],["2026-10-23 · Game update v195",[
@@ -5956,7 +5960,7 @@ function buildSearchIndex(){
   if(typeof STA!=="undefined")for(const id of Object.keys(STA))add("Status",ST_NAME(id),statusDesc(id),()=>sxGo("#/guide/statuses",()=>{sxFill("#gs_q",ST_NAME(id));sxFlash(ST_NAME(id));}));
   // elements
   (ELN||[]).forEach((n,i)=>n&&add("Element",n,"Element: strengths and weaknesses",()=>sxGo("#/guide/elements",()=>sxFlash(n))));
-  add("Element","Apex","The gold dot on a card: shrugs off most small element bonuses against it",()=>sxGo("#/guide/elements",()=>sxFlash("Apex")),"apex gold dot yellow dot");
+  add("Element","Apex","The gold dot on a card: ignores the element bonuses marked with a dot",()=>sxGo("#/guide/elements",()=>sxFlash("Apex")),"apex gold dot yellow dot");
   // story chapters (also findable as s2e20, s2 20, ch20, chapter 20)
   for(const c of CH_ALL){const n=chNum(c),sn=c.season||1;
     add("Story",`${chName(c)}: ${c.title}`,`Season ${sn}${c.hard&&c.hard.length?" · Normal and EXTREME":""}`,()=>sxGo(chHref(c)),
