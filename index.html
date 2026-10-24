@@ -295,6 +295,8 @@ label.check input{accent-color:var(--acc);width:17px;height:17px}
 
 /* ---------- team builder ---------- */
 .slots{display:grid;gap:10px}
+.oppmore{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin-top:12px}.oppm_row{min-width:0;display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line2);border-radius:var(--r2,10px);background:var(--surface2)}.oppm_av{display:flex;gap:2px;flex:none}.oppm_nm{flex:1;min-width:0;font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.oppm_row .xbtn{position:static}
+.perrow{display:flex;flex-wrap:wrap;gap:6px;width:100%}.permu{display:inline-flex;align-items:center;gap:4px}
 .slot{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r2);background:var(--surface2);border:1px solid var(--line);min-width:0}
 .slot.empty{border-style:dashed;background:transparent;cursor:pointer;color:var(--text3);justify-content:center;min-height:66px;font-weight:800}
 .slot.empty:hover{border-color:var(--acc);color:var(--acc)}
@@ -355,9 +357,9 @@ details.adv>.in{padding:0 16px 16px}
 .more::before{content:"→";color:var(--acc);font-weight:900}
 @media(max-width:440px){.lgw{display:none}}   /* Teams switch: short labels on phones */
 @media(min-width:900px){   /* chapter team rows: win meter above Try it, both next to the names; supporters and tags below */
-  .teamrow.chrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,auto);grid-template-areas:"t t" "m w" "m a" "s s" "d d";align-items:center;column-gap:18px;row-gap:6px}
+  .teamrow.chrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,auto);grid-template-areas:"t t" "m w" "m a" "p p" "s s" "d d";align-items:center;column-gap:18px;row-gap:6px}
   .teamrow.chrow>.besttag{grid-area:t}.teamrow.chrow .members{grid-area:m;min-width:0}.teamrow.chrow>.wm{grid-area:w;align-self:end}
-  .teamrow.chrow>.acts{grid-area:a;align-self:start;justify-self:end;margin-left:0}.teamrow.chrow>.supps{grid-area:s}.teamrow.chrow>details{grid-area:d}}
+  .teamrow.chrow>.acts{grid-area:a;align-self:start;justify-self:end;margin-left:0}.teamrow.chrow>.supps{grid-area:s}.teamrow.chrow>.perrow{grid-area:p}.teamrow.chrow>details{grid-area:d}}
 @media(min-width:961px){#ch_right{position:sticky;top:72px;align-self:start}}   /* the enemy stays in view while scrolling teams */
 @media(max-width:600px){.card{padding:14px}.eln_l{display:none}   /* phones: narrower tables */
   .crtbl td:nth-child(2),.crtbl th:nth-child(2),.crtbl td:nth-child(3),.crtbl th:nth-child(3),.crtbl td:nth-child(4),.crtbl th:nth-child(4),
@@ -491,6 +493,7 @@ a.hc{color:var(--text);text-decoration:none}
 .prose>p,.prose>ul,.prose>ol{max-width:76ch;line-height:1.65}
 .prose b,.prose strong{color:var(--text);font-weight:800}
 .prose h3{display:flex;align-items:center;gap:10px;font-size:19px;margin:30px 0 8px;padding-top:20px;border-top:1px solid var(--line)}
+.evpage h4{margin:22px 0 8px;font-size:15.5px}.evpage .tblwrap+p{margin-top:8px}
 .prose h3::before{content:"";flex:none;width:4px;height:18px;border-radius:2px;background:var(--acc)}
 .prose>h2{font-size:26px;margin-bottom:6px}
 .prose ul.tight{margin:6px 0 10px;padding-left:20px}.prose ul.tight li{margin:3px 0}
@@ -2221,7 +2224,7 @@ const LS_KEY="sandbox_v2";
 function freshState(){return{
   team:{leaders:[null,null,null],supp:[],levels:{}},
   owned:[],ownLv:{},
-  opp:{kind:"chapter",ch:"F1",diff:"hard",pvp:{leaders:[null,null,null],supp:[],levels:{}},suppOv:{}},
+  opp:{kind:"chapter",ch:"F1",diff:"hard",pvp:{leaders:[null,null,null],supp:[],levels:{}},more:[],suppOv:{}},
   saved:{},theme:null,simN:500,fixedSeed:false,seed:1,user:"",
   ui:{season:1,diff:"normal",cardsFilters:{}},lastEval:null,migrated:false};}
 function loadState(){
@@ -2248,6 +2251,7 @@ function loadState(){
   if(!CHM[s.opp.ch])s.opp.ch="F1";
   if(!s.opp.pvp)s.opp.pvp=base.opp.pvp;
   if(!s.opp.suppOv)s.opp.suppOv={};
+  s.opp.more=(Array.isArray(s.opp.more)?s.opp.more:[]).filter(t=>t&&Array.isArray(t.leaders)).map(t=>({leaders:[0,1,2].map(i=>CARDS[t.leaders[i]]?t.leaders[i]:null),supp:(t.supp||[]).filter(x=>CARDS[x]).slice(0,4),levels:t.levels||{}}));
   if(!s.ownLv||typeof s.ownLv!=="object")s.ownLv={};
   if(!s.team||!Array.isArray(s.team.leaders))s.team=base.team;
   if(!s.team.levels)s.team.levels={};
@@ -2504,7 +2508,7 @@ const HARNESS=`
 let CW=null;
 function deckIds(j){const d=j.ids.map(id=>applyPlayerLevel(CW[id],j.lvl||10));for(const id of j.supp||[])d.push(Object.assign({},CW[id]));return d;}
 function runOne(j,m){
-  const pd=j.pd||(j.ids?deckIds(j):m.pd), ed=j.ed||(j.eids?deckIds({ids:j.eids,supp:j.esupp,lvl:j.elvl}):m.ed);
+  const pd=j.pd||(j.ids?deckIds(j):m.pd), ed=j.ed||(j.e!=null&&m.eds?m.eds[j.e]:null)||(j.eids?deckIds({ids:j.eids,supp:j.esupp,lvl:j.elvl}):m.ed);
   let w=0,l=0,d=0,tw=0;const deaths={},firsts={};
   for(let s=0;s<j.n;s++){
     const S=new Sim((j.seed+s*13)>>>0,null,m.mode!=="pvp");   // story_mode is on for every non-PvP fight
@@ -2566,7 +2570,7 @@ async function runJobsNow(jobs,shared,onprog,mode){
     const R=[];let sent=0,mid=0;const run=++RUN;   // a cancelled run's workers still answer: those answers carry its old id
     const per=Math.max(1,Math.ceil(jobs.length/(ws.length*8)));
     const chunks=[];for(let i=0;i<jobs.length;i+=per)chunks.push(jobs.slice(i,i+per));
-    const feed=w=>{if(sent<chunks.length)w.postMessage({id:mid++,run,jobs:chunks[sent++],pd:shared.pd,ed:shared.ed,mode});};
+    const feed=w=>{if(sent<chunks.length)w.postMessage({id:mid++,run,jobs:chunks[sent++],pd:shared.pd,ed:shared.ed,eds:shared.eds,mode});};
     // one listener per run (two runs can overlap, e.g. "Try it" during a search): each run only reads its own answers
     const hs=[],done=()=>{ws.forEach((w,i)=>{w.removeEventListener("message",hs[i]);w.removeEventListener("error",errH);});PEND.delete(rej);};
     const errH=err=>{done();WK_FAIL=true;rej(err.message||"worker error");};
@@ -3198,6 +3202,7 @@ function teamRowHtml(t,o){
     <div class="acts">
       <button class="btn sm${o.best?" primary":""}" data-act="useTeam" data-j="${jattr({team:t.team,supp,ch:o.ch,diff:o.diff,lvl:o.lvl})}">${ic("play")}Try it</button>
     </div>
+    ${o.eds&&t.per?`<div class="perrow">${t.per.map((x,i)=>`<span class="permu" title="${esc(teamName(o.eds[i].t))}">${av(o.eds[i].t[0],"sm")}<span class="pctpill w_${winInfo(x).cls}">${pct(x)}</span></span>`).join("")}</div>`:""}
     <div class="supps" style="width:100%">${supp.length?suppBox(supp,t.wr,t.wr_ns):`<span title="None of these leaders draw supporters, so supporters would never come into play">No supporters needed</span>`}
       <span class="spacer"></span>${lvTag(t.min,t.wr,t)} ${myLvTag(t.team,t.min,t.wr,t)} ${teamEaseTags(t.team.concat(supp))} ${rewardTags(t.team.concat(supp))}${own!=null?` <span class="tag ${own===3?"good":""}">You own ${own}/3</span>`:""}</div>
     ${t.alts&&t.alts.length&&third!=null?`<details style="width:100%"><summary class="small" style="cursor:pointer;color:var(--acc);font-weight:800;margin-top:4px">Missing ${esc(shortName(ALLC[third]))}? ${t.alts.length} other card${t.alts.length>1?"s work":" works"} in its place</summary>
@@ -3362,6 +3367,7 @@ function wireFindControls(pre,onGo,ctxCh){   // ctxCh: chapter id (story rewards
   pool.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b||b.disabled)return;pool.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));S.ui.findOpts=Object.assign(FO,{pool:b.dataset.p});save();setHint();});
   $("#"+pre+"_src").addEventListener("change",e=>{S.ui.findOpts=Object.assign(FO,{src:e.target.value});save();});
   const adv=$("#"+pre+"_adv"),est=()=>{const e=findEstimate(cur(),$("#"+pre+"_src").value,must,ctxCh);
+    {const m=pre==="fb"&&S.opp.kind==="pvp"?oppTeams().length:1;if(m>1){e.battles*=m;e.secs*=m;}}   // several opponents: every team fights all of them
     const tm=e.secs<60?`${Math.max(5,Math.round(e.secs/5)*5)} seconds`:e.secs<3600?`${Math.round(e.secs/60)} minute${Math.round(e.secs/60)===1?"":"s"}`:`${(e.secs/3600).toFixed(1)} hours`;
     $("#"+pre+"_est").textContent=`(${e.n} card${e.n===1?"":"s"}, about ${e.battles>=1e6?(e.battles/1e6).toFixed(1)+" million":Math.max(1,Math.round(e.battles/1000))+" thousand"} battles, roughly ${tm}${S.ui.findBps?" on this device":""})`;};
   const advSet=e=>{const k=e.target.dataset.adv;if(!k)return;const a=findAdv();a[k]=k==="unob"?e.target.checked:k==="pkg"?e.target.value:+e.target.value;S.ui.findAdv=a;save();est();};
@@ -3434,8 +3440,19 @@ function diverseGroups(list,maxGroups,altsPer,cap=2){
   return out;
 }
 ACT.cancelSearch=()=>{cancelWork();toast("Search stopped.");};
-async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
+async function teamSearch({ed,eds,goal,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
   const my=GEN;adv=adv||findAdv();
+  // several enemy teams (eds): each job runs against all of them; the score is the average win share, or the worst
+  // matchup (goal "worst", the average as tie-break). r.per keeps each matchup for the result rows.
+  const E=eds&&eds.length>1?eds:null,one=r=>(r.w+(mode==="pvp"?r.d*.5:0))/r.n;
+  const wrOf=r=>r.sc!=null?r.sc:one(r);
+  const RJ=async(jobs,prog)=>{
+    if(!E)return runJobs(jobs,{ed},prog,mode);
+    const xj=[];jobs.forEach((j,i)=>{for(let e=0;e<E.length;e++)xj.push({...j,k:i*E.length+e,e});});
+    const res=await runJobs(xj,{eds:E.map(x=>x.ed)},prog,mode),by=[];
+    for(const r of res){const i=Math.floor(r.k/E.length),e=r.k%E.length;const b=by[i]||(by[i]={k:jobs[i].k,w:0,l:0,d:0,n:0,per:Array(E.length).fill(0)});b.w+=r.w;b.l+=r.l;b.d+=r.d;b.n+=r.n;b.per[e]=one(r);}
+    return by.filter(Boolean).map(b=>{const avg=b.per.reduce((a,x)=>a+x,0)/E.length,worst=Math.min(...b.per);b.sc=goal==="worst"?worst+avg*.001:avg+worst*.001;return b;});
+  };
   if(pool==="strong")await loadRanked();
   // cards you could have: not unobtainable, allowed by the source option, and (in a chapter) no story reward from this chapter or later
   const can=id=>{const c=CARDS[id];return c&&(pool==="mine"||((adv.unob||!unobtainable(c))&&findAllowed(c,src)))&&!(ctx&&ctx.ch&&rewardLate([id],ctx.ch));};
@@ -3447,14 +3464,14 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
   const prog=(label,f)=>{out.innerHTML=`<div class="row between"><div class="small muted row tight"><span class="spin"></span>${label}</div><button class="btn xs ghost" data-act="cancelSearch">Stop</button></div><div class="progress" style="margin-top:8px"><i style="width:${Math.round(f*100)}%"></i></div>`;};
   try{
     let base=null;
-    if(baseline){prog("Checking your current team first...",0);const r=await runJobs([{k:0,pd:baseline,seed:4242,n:250}],{ed},null,mode);base=mode==="pvp"?(r[0].w+r[0].d*.5)/r[0].n:r[0].w/r[0].n;}
+    if(baseline){prog("Checking your current team first...",0);const r=await RJ([{k:0,pd:baseline,seed:4242,n:250}],null);base=E?(goal==="worst"?Math.min(...r[0].per):r[0].per.reduce((a,x)=>a+x,0)/E.length):wrOf(r[0]);}
     const keep=adv.keep+(must!=null?10:0);   // with a must-use card only pairs are searched, so more cards fit
     const screen=async(list,tries,n,keepN,from,span)=>{   // each card in random trios (with the must-use card when set); keep the best
       const rng=mulberry32(12345+list.length),jobs=[],sp=pkgs[0]||[];
       for(const c of list)for(let r=0;r<tries;r++){const a=must!=null?must:list[Math.floor(rng()*list.length)],b=list[Math.floor(rng()*list.length)];if(a===c||b===c||a===b)continue;
         jobs.push({k:c,ids:[c,a,b],supp:sp.filter(id=>id!==c&&id!==a&&id!==b),lvl,seed:31+r*997,n});}
-      const res=await runJobs(jobs,{ed},(d,t)=>prog(`Screening ${list.length} cards...`,from+d/t*span),mode);
-      const sc={};for(const r of res)sc[r.k]=(sc[r.k]||0)+(r.w+(mode==="pvp"?r.d*.5:0))/r.n;
+      const res=await RJ(jobs,(d,t)=>prog(`Screening ${list.length} cards...`,from+d/t*span));
+      const sc={};for(const r of res)sc[r.k]=(sc[r.k]||0)+wrOf(r);
       return list.slice().sort((a,b)=>(sc[b]||0)-(sc[a]||0)).slice(0,keepN);
     };
     const P0=P.slice();
@@ -3480,10 +3497,10 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
     let scored=[],done=0,tDone=0,tPend=0,batch=[];   // done = battles setups run; tDone/tPend = teams finished / in this batch
     const fmtT=x=>x<60?`${Math.max(1,Math.round(x))} s`:x<3600?`${Math.round(x/60)} min`:`${(x/3600).toFixed(1)} h`;
     const flush=async()=>{
-      const res=await runJobs(batch,{ed},(d,t)=>{const el=(performance.now()-tq)/1000,cnt=tDone+Math.round(d/t*tPend),f=Math.min(1,cnt/Math.max(1,nT));
-        prog(`Trying every team of 3: ${cnt.toLocaleString()} of ${Math.round(nT).toLocaleString()}${el>3&&cnt?`, about ${fmtT(el/cnt*Math.max(0,nT-cnt))} left`:""}...`,.25+f*.5);},mode);
+      const res=await RJ(batch,(d,t)=>{const el=(performance.now()-tq)/1000,cnt=tDone+Math.round(d/t*tPend),f=Math.min(1,cnt/Math.max(1,nT));
+        prog(`Trying every team of 3: ${cnt.toLocaleString()} of ${Math.round(nT).toLocaleString()}${el>3&&cnt?`, about ${fmtT(el/cnt*Math.max(0,nT-cnt))} left`:""}...`,.25+f*.5);});
       if(GEN!==my)throw"cancelled";
-      for(const r of res){const j=batch[r.k];const wr=(r.w+(mode==="pvp"?r.d*.5:0))/r.n;if(wr>0)scored.push({team:j.team,supp:j.supp,wr});}
+      for(const r of res){const j=batch[r.k];const wr=wrOf(r);if(wr>0)scored.push({team:j.team,supp:j.supp,wr,per:r.per});}
       if(scored.length>KEEP_BEST*2){scored.sort((a,b)=>b.wr-a.wr);scored.length=KEEP_BEST;}
       done+=batch.length;tDone+=tPend;tPend=0;batch=[];
     };
@@ -3495,7 +3512,7 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
     }
     if(batch.length)await flush();
     if(GEN!==my)return;
-    {const sec=(performance.now()-tq)/1000;if(sec>1){const bps=done*adv.quickN/sec;S.ui.findBps=Math.round(S.ui.findBps?S.ui.findBps*.5+bps*.5:bps);save();}}   // for the time estimate
+    {const sec=(performance.now()-tq)/1000;if(sec>1){const bps=done*adv.quickN*(E?E.length:1)/sec;S.ui.findBps=Math.round(S.ui.findBps?S.ui.findBps*.5+bps*.5:bps);save();}}   // for the time estimate
     scored.sort((a,b)=>b.wr-a.wr);
     const seen=new Set(),uniq=[];
     for(const r of scored){if(r.wr<=0)break;const key=r.team.slice().sort((a,b)=>a-b).join(",");if(seen.has(key))continue;seen.add(key);uniq.push(r);if(uniq.length>=300)break;}
@@ -3508,9 +3525,9 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
           for(const id of A){if(t.team.includes(id))continue;const team=t.team.slice();team[sl]=id;const kk=key(team);if(known.has(kk))continue;known.add(kk);
             const sp=teamDraws(team)?((t.supp&&t.supp.length?t.supp:pkgs[0])||[]).filter(x=>!team.includes(x)):[];
             pj.push({k:pj.length,team,ids:team,supp:sp,lvl,seed:5,n:adv.quickN});}}
-        const pr=await runJobs(pj,{ed},(d,t)=>prog(`Final polish${adv.polish>1?` (round ${round} of ${adv.polish})`:""}: every card in every slot of the best ${base.length} teams, ${pj.length.toLocaleString()} teams...`,.75+(round-1+d/t)/adv.polish*.1),mode);
+        const pr=await RJ(pj,(d,t)=>prog(`Final polish${adv.polish>1?` (round ${round} of ${adv.polish})`:""}: every card in every slot of the best ${base.length} teams, ${pj.length.toLocaleString()} teams...`,.75+(round-1+d/t)/adv.polish*.1));
         if(GEN!==my)return;
-        const found=pr.map(r=>({team:pj[r.k].team,supp:pj[r.k].supp,wr:(r.w+(mode==="pvp"?r.d*.5:0))/r.n})).filter(x=>x.wr>0).sort((a,b)=>b.wr-a.wr).slice(0,80);
+        const found=pr.map(r=>({team:pj[r.k].team,supp:pj[r.k].supp,wr:wrOf(r),per:r.per})).filter(x=>x.wr>0).sort((a,b)=>b.wr-a.wr).slice(0,80);
         uniq.push(...found);uniq.sort((a,b)=>b.wr-a.wr);
         const cut=uniq[Math.min(uniq.length,adv.polishTeams)-1];base=found.filter(f=>f.wr>=cut.wr).slice(0,adv.polishTeams);   // next round starts from new teams that reach the top
       }
@@ -3519,13 +3536,13 @@ async function teamSearch({ed,pool,src,must,adv,lvl,out,btn,ctx,mode,baseline}){
     const val=[],vs=new Set();
     for(const g of diverseGroups(uniq,Math.ceil(adv.checkTeams/5),5,3))for(const r of g.members){const key=r.team.slice().sort((a,b)=>a-b).join(",");if(!vs.has(key)){vs.add(key);val.push(r);}}
     const vjobs=val.map((r,i)=>({k:i,ids:r.team,supp:r.supp,lvl,seed:(1+Math.floor(Math.random()*2e9))>>>0,n:adv.checkN}));
-    const fin=await runJobs(vjobs,{ed},(d,t)=>prog(`Double-checking the best ${val.length} teams...`,.85+d/t*.15),mode);
+    const fin=await RJ(vjobs,(d,t)=>prog(`Double-checking the best ${val.length} teams...`,.85+d/t*.15));
     if(GEN!==my)return;
-    const res=rankTeams(fin.map(r=>({...val[r.k],wr:mode==="pvp"?(r.w+r.d*.5)/r.n:r.w/r.n})).sort((a,b)=>b.wr-a.wr));
-    const groups=diverseGroups(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,lead:g.pair,alts:g.members.slice(1)}));
+    const res=rankTeams(fin.map(r=>({...val[r.k],wr:E?(goal==="worst"?Math.min(...r.per):r.per.reduce((a,x)=>a+x,0)/E.length):wrOf(r),per:r.per})).sort((a,b)=>b.wr-a.wr));
+    const groups=diverseGroups(res,6,8).map(g=>({team:g.members[0].team,supp:g.members[0].supp,wr:g.members[0].wr,per:g.members[0].per,lead:g.pair,alts:g.members.slice(1)}));
     out.innerHTML=`${base!=null?`<div class="callout ${groups[0]&&groups[0].wr>base+.02?"good":""}" style="margin-bottom:10px">Your current team: <b>${pct(base)}</b>. ${groups[0]&&groups[0].wr>base+.02?`The best team below wins ${pct(groups[0].wr)}.`:"Nothing found clearly beats it."}</div>`:""}
-      <div class="small muted" style="margin-bottom:8px">Best teams found at level ${lvl}${pool==="mine"?" from your cards":pool==="all"?" from every card":""}${must!=null?` with ${esc(shortName(CARDS[must]))}`:""}${src?` (${esc(FIND_SRC.find(x=>x[0]===src)[1].toLowerCase())})`:""}${mode==="pvp"?" (a draw counts as half a win)":""}:</div>
-      <div class="stack">${groups.map((t,i)=>teamRowHtml(t,{best:i===0,ch:ctx&&ctx.ch,diff:ctx&&ctx.diff,lvl})).join("")}</div>`;
+      <div class="small muted" style="margin-bottom:8px">Best teams found at level ${lvl}${pool==="mine"?" from your cards":pool==="all"?" from every card":""}${must!=null?` with ${esc(shortName(CARDS[must]))}`:""}${src?` (${esc(FIND_SRC.find(x=>x[0]===src)[1].toLowerCase())})`:""}${E?`, ${goal==="worst"?"rated by the worst":"rated by the average"} of ${E.length} opponents`:""}${mode==="pvp"?" (a draw counts as half a win)":""}:</div>
+      <div class="stack">${groups.map((t,i)=>teamRowHtml(t,{best:i===0,ch:ctx&&ctx.ch,diff:ctx&&ctx.diff,lvl,eds:E})).join("")}</div>`;
   }catch(e){out.innerHTML=e==="cancelled"?`<div class="small faint">Search stopped.</div>`:`<div class="callout warn">The search stopped: ${esc(e&&e.message||e)}</div>`;}
   finally{btn.disabled=false;}
 }
@@ -3638,15 +3655,40 @@ function renderOppPanel(){
       ${(t.leaders||[]).some(x=>x!=null)||(t.supp||[]).length?`<button class="btn sm ghost" data-act="clearOpp">Clear</button>`:""}</div>
     <div class="slots">${t.leaders.map((id,i)=>slotHtml(t,id,"L",i,"opp")).join("")}</div>
     <details style="margin-top:10px" id="opp_supp" ${S.ui.oppSuppOpen?"open":""}><summary class="small" style="cursor:pointer;color:var(--text2);font-weight:800">Their supporters (${t.supp.length}/4)</summary>
-      <div class="slots" style="margin-top:8px">${t.supp.map((id,i)=>slotHtml(t,id,"S",i,"opp")).join("")}${t.supp.length<4?slotHtml(t,null,"S",0,"opp"):""}</div></details>`;
+      <div class="slots" style="margin-top:8px">${t.supp.map((id,i)=>slotHtml(t,id,"S",i,"opp")).join("")}${t.supp.length<4?slotHtml(t,null,"S",0,"opp"):""}</div></details>
+    ${oppMore().length?`<div class="oppmore">${oppMore().map((m,i)=>{const L=m.leaders.filter(id=>id!=null);return`<div class="oppm_row">
+      <span class="oppm_av">${L.map(id=>av(id,"sm")).join("")}</span><span class="oppm_nm">${esc(teamName(L))}<span class="faint"> · Lv ${L.map(id=>m.levels[id]||10).join("/")}${m.supp.length?` · ${m.supp.length} supporter${m.supp.length===1?"":"s"}`:""}</span></span>
+      <button class="btn xs ghost" data-act="oppEdit" data-i="${i}">Edit</button><button class="xbtn" data-act="oppRm" data-i="${i}" aria-label="Remove this team" title="Remove this team">${ic("x")}</button></div>`;}).join("")}</div>`:""}
+    <div class="row tight" style="margin-top:10px">${(t.leaders||[]).some(x=>x!=null)?`<button class="btn sm ghost" data-act="oppAddNew">${ic("plus")}Add another team</button>`:""}</div>`;
   }
   el.innerHTML=`<div class="card_head"><div><h3><span class="stepn">2</span>Opponent</h3></div>
     <div class="seg"><button class="${o.kind==="chapter"?"on":""}" data-act="oppKind" data-k="chapter">Story chapter</button><button class="${o.kind==="pvp"?"on":""}" data-act="oppKind" data-k="pvp">Player team</button></div></div>${body}`;
   const sel=$("#opp_ch");if(sel)sel.addEventListener("change",e=>{S.opp.ch=e.target.value;if(!CHM[S.opp.ch].hard.length)S.opp.diff="normal";save();renderOppPanel();renderAdvanced();clearResult();});
   const ds=$("#opp_supp");if(ds)ds.addEventListener("toggle",()=>{S.ui.oppSuppOpen=ds.open;save();});
 }
-ACT.clearOpp=()=>{const prev=JSON.stringify(S.opp.pvp);S.opp.pvp={leaders:[null,null,null],supp:[],levels:{}};save();renderOppPanel();renderTeamPanel();clearResult();
-  toast("Opponent cleared.",()=>{S.opp.pvp=JSON.parse(prev);save();renderOppPanel();renderTeamPanel();});};
+ACT.clearOpp=()=>{const prev=JSON.stringify([S.opp.pvp,S.opp.more]);S.opp.pvp={leaders:[null,null,null],supp:[],levels:{}};S.opp.more=[];save();renderOppPanel();renderTeamPanel();clearResult();
+  toast("Opponent cleared.",()=>{[S.opp.pvp,S.opp.more]=JSON.parse(prev);save();renderOppPanel();renderTeamPanel();});};
+// several player teams as opponents: S.opp.pvp is the one being edited, S.opp.more the others
+const blankTeam=()=>({leaders:[null,null,null],supp:[],levels:{}});
+const teamOk=t=>!!t&&(t.leaders||[]).some(id=>id!=null&&CARDS[id]);
+function oppMore(){if(!Array.isArray(S.opp.more))S.opp.more=[];return S.opp.more;}
+function oppTeams(){return[S.opp.pvp,...oppMore()].filter(teamOk);}   // every opponent team, the edited one first
+const oppChanged=()=>{save();renderOppPanel();renderAdvanced();clearResult();};
+const oppUndo=()=>{const prev=JSON.stringify([S.opp.kind,S.opp.pvp,S.opp.more]);return()=>{[S.opp.kind,S.opp.pvp,S.opp.more]=JSON.parse(prev);if(PAGE==="team")oppChanged();else save();};};
+ACT.oppAddNew=()=>{if(teamOk(S.opp.pvp))oppMore().push(S.opp.pvp);S.opp.pvp=blankTeam();oppChanged();};
+ACT.oppEdit=el=>{const i=+el.dataset.i,m=oppMore();if(!m[i])return;const cur=S.opp.pvp;S.opp.pvp=m[i];if(teamOk(cur))m[i]=cur;else m.splice(i,1);oppChanged();};
+ACT.oppRm=el=>{const i=+el.dataset.i,m=oppMore();if(!m[i])return;const undo=oppUndo();m.splice(i,1);oppChanged();toast("Team removed.",undo);};
+ACT.addOpp=el=>{   // the "Add" next to every "Fight it": keeps the opponents you have and adds this team
+  const j=J(el);if(!j)return;const undo=oppUndo();
+  const t={leaders:[0,1,2].map(i=>CARDS[(j.team||[])[i]]?j.team[i]:null),supp:(j.supp||[]).filter(id=>CARDS[id]).slice(0,4),levels:j.lv?Object.fromEntries((j.team||[]).map((id,i)=>[id,j.lv[i]])):{}};
+  const key=x=>JSON.stringify([x.leaders,x.supp,x.leaders.map(id=>x.levels[id]||10)]);
+  if(S.opp.kind==="pvp"&&oppTeams().some(x=>key(x)===key(t)))return toast("That team is already an opponent.");
+  if(S.opp.kind!=="pvp"){S.opp.kind="pvp";S.opp.pvp=t;S.opp.more=[];}
+  else if(!teamOk(S.opp.pvp))S.opp.pvp=t;else oppMore().push(t);
+  save();if(PAGE==="team"){renderOppPanel();renderTeamPanel();renderAdvanced();clearResult();}
+  const n=oppTeams().length;toast(n>1?`Added. ${n} opponent teams in the simulator.`:"Added as the opponent in the simulator.",undo);
+};
+const addBtn=(j,cls="xs")=>`<button class="btn ${cls} ghost" data-act="addOpp" data-j="${jattr(j)}" title="Add it as another opponent in the simulator">${ic("plus")}Add</button>`;
 ACT.swapTeams=()=>{   // player-team opponent <-> your team, levels and supporters included
   const me=S.team,op=S.opp.pvp||{leaders:[null,null,null],supp:[],levels:{}};
   S.team={leaders:[0,1,2].map(i=>op.leaders[i]??null),supp:(op.supp||[]).slice(0,4),levels:Object.assign({},op.levels||{})};
@@ -3667,10 +3709,11 @@ ACT.runSim=()=>runSim();
 function clearResult(keepTools){const r=$("#result_panel");if(r)r.innerHTML="";if(!keepTools){const t=$("#tool_out");if(t)t.innerHTML="";}}
 function oppLabel(){
   if(S.opp.kind==="chapter"){const ch=CHM[S.opp.ch];return`Season ${ch.season||1} ${chName(ch)} (${S.opp.diff==="hard"?"EXTREME":"Normal"})`;}
-  const L=(S.opp.pvp&&S.opp.pvp.leaders||[]).filter(id=>id!=null&&CARDS[id]);
+  const L=(S.opp.pvp&&S.opp.pvp.leaders||[]).filter(id=>id!=null&&CARDS[id]),m=oppMore().filter(teamOk).length;
+  if(m)return`${m+(L.length?1:0)} player teams`;
   return L.length?L.map(id=>shortName(CARDS[id])).join(" + "):"the player team";
 }
-const oppSig=()=>JSON.stringify(S.opp.kind==="chapter"?[S.opp.ch,S.opp.diff,S.opp.suppOv&&S.opp.suppOv[S.opp.ch+S.opp.diff]]:[S.opp.pvp.leaders,S.opp.pvp.supp,S.opp.pvp.levels]);
+const oppSig=()=>JSON.stringify(S.opp.kind==="chapter"?[S.opp.ch,S.opp.diff,S.opp.suppOv&&S.opp.suppOv[S.opp.ch+S.opp.diff]]:[S.opp.pvp.leaders,S.opp.pvp.supp,S.opp.pvp.levels,S.opp.more]);
 async function runSim(){
   const t=S.team;
   if(t.leaders.filter(x=>x!=null).length<3){toast("Add 3 leaders first.");return;}
@@ -3683,10 +3726,25 @@ async function runSim(){
     const r=await simulate(pd,ed,n,f=>{const p=$("#run_prog i");if(p)p.style.width=Math.round(f*100)+"%";},mode);
     if(stamp!==sigLv(S.team)+JSON.stringify(S.opp)&&!$("#result_panel"))return;
     renderResult(r,mode,label,stamp,pd,ed);
+    if(mode==="pvp"&&oppTeams().length>1)await multiResult(pd,stamp);
     const rp=$("#result_panel");
     if(rp){const b=rp.getBoundingClientRect();if(b.top<0||b.top>innerHeight*.6)rp.scrollIntoView({behavior:"smooth",block:"start"});}
   }catch(e){if(e!=="cancelled"&&$("#result_panel"))$("#result_panel").innerHTML=`<div class="callout warn">The run stopped: ${esc(e&&e.message||e)}</div>`;}
   finally{SIM_BUSY=false;renderRunPanel();}
+}
+async function multiResult(pd,stamp){   // several opponent teams: one row per team, the big result above is the edited one
+  const T=oppTeams(),n=Math.min(S.simN,500),el=$("#result_panel");if(!el||T.length<2)return;
+  const box=document.createElement("div");box.className="card fadein";box.style.marginTop="12px";
+  box.innerHTML=`<div class="small muted row tight"><span class="spin"></span>Fighting all ${T.length} opponent teams...</div>`;el.appendChild(box);
+  const res=await runJobs(T.map((t,i)=>({k:i,ed:playerDeck(t),seed:777+i*31,n})),{pd},null,"pvp");
+  if(stamp!==sigLv(S.team)+JSON.stringify(S.opp)||!box.isConnected)return;
+  const rows=res.sort((a,b)=>a.k-b.k).map(r=>({t:T[r.k],i:r.k,p:pct3(r.w,r.l,r.d,r.n),s:(r.w+r.d*.5)/r.n}));
+  const avg=rows.reduce((a,r)=>a+r.s,0)/rows.length,worst=rows.reduce((a,r)=>r.s<a.s?r:a);
+  box.innerHTML=`<div class="card_head"><div><h3>Against all ${rows.length} teams</h3><div class="card_sub">Average <b>${pct(avg)}</b> (a draw counts as half a win), worst <b class="w_${winInfo(worst.s).cls}">${pct(worst.s)}</b>. ${n} battles each.</div></div></div>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th>Opponent</th><th>Win</th><th>Loss</th><th>Draw</th></tr></thead><tbody>
+    ${rows.map(r=>{const L=r.t.leaders.filter(id=>id!=null);return`<tr><td><div class="row tight">${L.map(id=>av(id,"sm")).join("")}<span>${esc(teamName(L))}</span>${r.i===0?'<span class="tag">editing</span>':""}</div></td>
+      <td><span class="pctpill w_${winInfo(r.p[0]/100).cls}">${r.p[0]}%</span></td><td class="muted">${r.p[1]}%</td><td class="faint">${r.p[2]}%</td></tr>`;}).join("")}
+    </tbody></table></div>`;
 }
 let LAST_DECKS=null;   // the decks the shown result was computed with (for "Watch a battle")
 function renderResult(r,mode,label,stamp,pd,ed){
@@ -3775,7 +3833,7 @@ function renderTools(){   // real buttons, one row each: the cards used to read 
   const row=(act,icon,label,desc)=>`<div class="toolrow"><button class="btn" data-act="${act}">${ic(icon)}${label}</button><span class="small muted">${desc}</span></div>`;
   el.innerHTML=`<div class="card"><div class="card_head"><div><h3>More with this team</h3></div></div>
     ${row("evalAll","grid","Check every chapter","Run your team, at your levels, against every story fight and see where it wins.")}
-    ${row("findBest","search","Find a better team","Search for the best team against the opponent you picked above.")}
+    ${row("findBest","search","Find a better team","Search for the best team against the opponent above, or against all your opponent teams at once.")}
     ${row("shareReport","copy","Share","A page with your team's win rate in every chapter, to send to friends or post.")}
     ${row("pvpCheck","trophy","PvP check","Fight the 30 best teams of the ranked leaderboard, at their real levels, and find your worst matchups. Needs 4 supporters.")}
   </div>`;
@@ -3822,11 +3880,14 @@ ACT.findBest=el=>{
   const {out}=toolStart(el);
   const ready=S.team.leaders.every(x=>x!=null);
   const lv=ready?Math.round(S.team.leaders.reduce((a,id)=>a+(S.team.levels[id]||10),0)/3):10;
-  out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">Takes 10 to 60 seconds depending on your device.</div></div></div>
+  const multi=()=>S.opp.kind==="pvp"&&oppTeams().length>1;
+  out.innerHTML=`<div class="card"><div class="card_head"><div><h3>Find a team against ${esc(oppLabel())}</h3><div class="card_sub">${multi()?`Every team is tried against all ${oppTeams().length} opponents, so this takes ${oppTeams().length} times as long as one.`:"Takes 10 to 60 seconds depending on your device."}</div></div>
+    ${multi()?`<select class="select" id="fb_goal" aria-label="What counts as best">${[["avg","Best average"],["worst","Best worst matchup"]].map(([v,l])=>`<option value="${v}" ${(S.ui.multiGoal||"avg")===v?"selected":""}>${l}</option>`).join("")}</select>`:""}</div>
     ${findControls("fb",lv,20)}<div id="fb_out" style="margin-top:12px"></div></div>`;
+  {const g=$("#fb_goal");if(g)g.onchange=()=>{S.ui.multiGoal=g.value;save();};}
   wireFindControls("fb",o=>{if(S.opp.kind==="pvp"&&!S.opp.pvp.leaders.some(x=>x!=null))return toast("Give the opponent at least one leader first.");
     const fo=$("#fb_out");if(fo)fo.dataset.opp=oppSig();const h=out.querySelector("h3");if(h)h.textContent="Find a team against "+oppLabel();
-    teamSearch({ed:oppDeck(),pool:o.pool,src:o.src,must:o.must,adv:o.adv,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
+    teamSearch({ed:oppDeck(),eds:multi()?oppTeams().map(t=>({ed:playerDeck(t),t:t.leaders.filter(id=>id!=null)})):null,goal:S.ui.multiGoal||"avg",pool:o.pool,src:o.src,must:o.must,adv:o.adv,lvl:Math.min(S.opp.kind==="chapter"?capOf(S.opp.ch):20,o.lvl),out:$("#fb_out"),btn:$("#fb_go"),
     ctx:S.opp.kind==="chapter"?{ch:S.opp.ch,diff:S.opp.diff}:null,mode:S.opp.kind==="pvp"?"pvp":"story",baseline:ready?playerDeck(S.team,S.opp.kind==="chapter"?capOf(S.opp.ch):20):null});},S.opp.kind==="chapter"?S.opp.ch:null);
   showOut(out);
 };
@@ -3883,7 +3944,7 @@ ACT.pvpCheck=async el=>{
       <div class="tblwrap"><table class="tbl"><thead><tr><th>Opponent</th><th>Win</th><th>Loss</th><th>Draw</th><th></th></tr></thead><tbody>
       ${rows.map(r=>`<tr><td><div class="row tight">${r.m.rank?`<span class="faint small">#${r.m.rank}</span>`:""}${r.m.t.map(id=>av(id,"sm")).join("")}<span>${esc(r.m.n)}</span></div></td>
         <td><span class="pctpill w_${winInfo(r.p[0]/100).cls}">${r.p[0]}%</span></td><td class="muted">${r.p[1]}%</td><td class="faint">${r.p[2]}%</td>
-        <td><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:r.m.t,supp:r.m.s,lv:r.m.lv})}">Fight it</button></td></tr>`).join("")}
+        <td><div class="row tight" style="flex-wrap:nowrap"><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:r.m.t,supp:r.m.s,lv:r.m.lv})}">Fight it</button>${addBtn({team:r.m.t,supp:r.m.s,lv:r.m.lv})}</div></td></tr>`).join("")}
       </tbody></table></div></div>`;
   }catch(e){if(e!=="cancelled"&&live())out.innerHTML=`<div class="callout warn">${esc(e&&e.message||e)}</div>`;}
   finally{if(el)el.disabled=false;if(live())TOOL_BUSY=false;}
@@ -3914,7 +3975,7 @@ function renderAdvanced(){
       ${names.length?`<div class="stack" style="gap:6px">${names.map(n=>{const t=S.saved[n];const L=(t.leaders||[]).filter(id=>CARDS[id]),sp=(t.supp||[]).filter(id=>CARDS[id]);
         return`<div class="teamrow savedrow" style="padding:8px 10px"><div style="flex:1;min-width:0"><b>${esc(n)}</b>
           <div class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(L.map(id=>shortName(CARDS[id])).join(" + "))}${sp.length?` <span class="faint">+${sp.length} supporter${sp.length===1?"":"s"}</span>`:""}</div></div>
-        <div class="row tight"><button class="btn xs" data-act="loadSaved" data-n="${esc(n)}">Load</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:L,supp:sp,lv:L.map(id=>(t.levels||{})[id]||10)})}" title="Load it as your opponent">Fight it</button><button class="btn xs ghost" data-act="delSaved" data-n="${esc(n)}">Delete</button></div></div>`;}).join("")}</div>`:'<p class="small faint">No saved teams yet.</p>'}
+        <div class="row tight"><button class="btn xs" data-act="loadSaved" data-n="${esc(n)}">Load</button><button class="btn xs" data-act="fightTeam" data-j="${jattr({team:L,supp:sp,lv:L.map(id=>(t.levels||{})[id]||10)})}" title="Load it as your opponent">Fight it</button>${addBtn({team:L,supp:sp,lv:L.map(id=>(t.levels||{})[id]||10)})}<button class="btn xs ghost" data-act="delSaved" data-n="${esc(n)}">Delete</button></div></div>`;}).join("")}</div>`:'<p class="small faint">No saved teams yet.</p>'}
     </div>
     <div class="stack"><h4>Team code</h4>
       <p class="small muted" style="margin:0">Paste the code from the game's "Copy Team ID" button.</p>
@@ -4404,7 +4465,7 @@ function renderBuildList(view){
         :clOf(b)?`<div class="wm_top"><span class="wm_pct w_${winInfo(clOf(b)[0]/clOf(b)[1]).cls}">${clOf(b)[0]} of ${clOf(b)[1]}</span><span class="small faint">${sk==="s1"?"Season 1 ":sk==="s2"?"Season 2 ":""}EXTREME fights won 95%+, average ${pct(sc)}</span></div>`
         :`<div class="wm_top"><span class="wm_pct w_${winInfo(sc).cls}">${pct(sc)}</span><span class="small faint">${sk==="s1"?"Season 1 EXTREME":sk==="s2"?"Season 2 EXTREME":"average EXTREME win"}</span></div><div class="small faint" style="margin-top:3px">Season 1 ${pct(b.eff_s1)} (Lv 15) · Season 2 ${pct(b.eff_s2)} (Lv 20)</div>`}</div>
       <div class="acts"><button class="btn sm${i===0?" primary":""}" data-act="useTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[],lvl:pvp?10:sk==="s1"?15:20,auto:pvp?"pvp":"eval",season:pvp?undefined:sk==="s1"?1:sk==="s2"?2:undefined})}" title="${pvp?"Load it and run the PvP check":"Load it and check it on every chapter"}">${ic("play")}Try it</button>
-        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button>${typeof ACT.reportTeam==="function"?`<button class="btn sm ghost" data-act="reportTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">${ic("copy")}Share</button>`:""}</div>
+        <button class="btn sm ghost" data-act="fightTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">Fight it</button>${addBtn({team:b.leaders,supp:b.supp||[]},"sm")}${typeof ACT.reportTeam==="function"?`<button class="btn sm ghost" data-act="reportTeam" data-j="${jattr({team:b.leaders,supp:b.supp||[]})}">${ic("copy")}Share</button>`:""}</div>
       <div class="supps" style="width:100%">${b.by==="auto"?"found by the site's own search":`by <b style="color:var(--text)">${esc(b.by||"?")}</b>`}${b.date?` · ${esc(b.date)}`:""} · ${(b.supp||[]).length?`Supporters: ${b.supp.map(id=>cchip(id)).join("")}`:"No supporters"}<span class="spacer"></span>${teamEaseTags(b.leaders.concat(b.supp||[]))}</div>
     </div>`;}).join("");
 }
@@ -4520,7 +4581,7 @@ function pageRanked(args){
         ${R.top.map(e=>`<tr class="${e.r<=3?`rk_p${e.r}`:""}${e.r>10?" rk_hid":""}"><td class="rk_n">${e.r.toLocaleString()}</td><td class="rk_rt num"><div class="rk_rbar"><i style="width:${Math.max(2,Math.min(100,e.rating/rkMax*100)).toFixed(1)}%"></i><span>${e.rating.toLocaleString()}</span></div>${e.w!=null?`<div class="small faint" style="margin-top:3px">${s2Tier(e.rating)?esc(s2Tier(e.rating).name)+" · ":""}${e.w}-${e.l}${e.w+e.l?` · <span title="Win rate">${Math.round(e.w/(e.w+e.l)*100)}%</span>`:""}</div>`:""}</td>
           <td><div class="rk_team">${e.t.map((id,i)=>`<span class="rk_m">${cchip(id)}${e.lv[i]<20?`<span class="rk_lv lvlow" title="Level ${e.lv[i]} (below 20)">Lv ${e.lv[i]}</span>`:""}</span>`).join("")}</div></td>
           <td><div class="rk_supp">${e.s.map(id=>`<button type="button" class="cc bare" data-card="${id}" title="${esc(dname(CARDS[id]))}">${av(id,"sm")}</button>`).join("")}</div></td>
-          <td><div class="rk_btns">${rankedBuildable(e)?`<button class="btn xs${e.r===1?" primary":""}" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (your imported levels, else level 20) and run the PvP check">${ic("play")}Try it</button>`:`<span class="tag bad" title="Uses the developer-only card or the same leader more than once">Can't be built</span>`}<button class="btn xs ghost" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button></div></td></tr>`).join("")}
+          <td><div class="rk_btns">${rankedBuildable(e)?`<button class="btn xs${e.r===1?" primary":""}" data-act="useTeam" data-j="${jattr({team:e.t,supp:e.s,lvl:20,auto:"pvp"})}" title="Load it as your team (your imported levels, else level 20) and run the PvP check">${ic("play")}Try it</button>`:`<span class="tag bad" title="Uses the developer-only card or the same leader more than once">Can't be built</span>`}<button class="btn xs ghost" data-act="fightTeam" data-j="${jattr({team:e.t,supp:e.s,lv:e.lv})}" title="Load it as your opponent, at its real levels">Fight it</button>${addBtn({team:e.t,supp:e.s,lv:e.lv})}</div></td></tr>`).join("")}
         </tbody></table></div>
         ${R.top.length>10?`<button class="btn sm" data-act="rkMore" style="margin-top:10px">Show all ${R.top.length}</button>`:""}</div>`;
   });
@@ -5179,15 +5240,16 @@ const UPDATE_GROUPS=[    ["2026-10-02",[
       `Best-team-per-chapter search is saved instead of recomputed every time.`,
       `Renamed to <b>Linguine Sandbox</b>, with a cleaner layout for phones.`,
     ]],];
-const GUIDE_CATS=[["general","General","#/guide/crates"],["battle","Battle","#/guide/basics"],["ranked","Ranked","#/guide/ranked"],["fishing","Fishing","#/guide/fishing/start"],["gambling","Gambling","#/guide/gambling"]];
+const GUIDE_CATS=[["general","General","#/guide/crates"],["battle","Battle","#/guide/basics"],["ranked","Ranked","#/guide/ranked"],["fishing","Fishing","#/guide/fishing/start"],["gambling","Gambling","#/guide/gambling"],["events","Events","#/guide/events"]];
 const GUIDE_SECS={battle:[["basics","How battles work"],["team","Leaders and supporters"],["stats","Stats"],["elements","Elements"],["statuses","Statuses"],["levels","Levels"]],
   general:[["crates","Crates"],["earning","Earning SL$"],["settings","Game settings"],["bans","Account status"],["numbers","About the numbers"],["updates","Updates"],["about","About"]],
+  events:[["events","Halloween 2026"],["events-friends","Friend Crowns"],["events-past","Past events"]],   // newest first; old events stay as an archive
   ranked:[["ranked","How it works"],["ranked-rating","Rating"],["ranked-tiers","Tiers"],["ranked-dist","Distribution"],["ranked-s1","Season 1"]],
   get gambling(){return GAMB_SECS.map(([k,l])=>[k==="overview"?"gambling":"gambling-"+k,l]);}};   // getter: GAMB_SECS is defined further down
 function pageGuide(args){
   const fishing=args[0]==="fishing";
   const sec=fishing?(args[1]==="rods"?"gear":args[1]||"start"):(args[0]||"basics");   // "rods" = the tab's old name
-  const cat=fishing?"fishing":sec.startsWith("ranked")?"ranked":sec.startsWith("gambling")?"gambling":GUIDE_SECS.battle.some(x=>x[0]===sec)?"battle":"general";
+  const cat=fishing?"fishing":sec.startsWith("ranked")?"ranked":sec.startsWith("gambling")?"gambling":sec.startsWith("events")?"events":GUIDE_SECS.battle.some(x=>x[0]===sec)?"battle":"general";
   const secs=fishing?FISH_SECS:GUIDE_SECS[cat],pre=fishing?"#/guide/fishing/":"#/guide/";
   $("#view").innerHTML=`<div class="fadein">
     <div class="seg" style="margin-bottom:14px">${GUIDE_CATS.map(([k,l,h])=>`<a class="${k===cat?"on":""}" href="${h}" role="button">${l}</a>`).join("")}</div>
@@ -5195,7 +5257,7 @@ function pageGuide(args){
     ${secs.length>1?`<div class="row tight" style="margin-bottom:16px">${secs.map(([k,l])=>`<a class="chip click ${k===sec?"on":""}" href="${pre}${k}">${l}</a>`).join("")}</div>`:""}
     ${fishing?`<div id="fi_body"></div>`:`<div class="card prose" id="g_body"></div>`}</div>`;
   if(fishing){fishingInto(sec);return;}
-  $("#g_body").innerHTML=({basics:gBasics,stats:gStats,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,earning:gEarning,ranked:gRanked,"ranked-rating":gRankedRating,"ranked-tiers":gRankedTiers,"ranked-s1":gRankedS1,"ranked-dist":()=>`<h2>Rank distribution</h2><div id="rk_dist"><p class="muted">Loading the board…</p></div>`,gambling:()=>gGambling("overview"),settings:gSettings,numbers:gNumbers,about:gAbout,bans:gBans,updates:gUpdates}[sec]||(sec.startsWith("gambling-")?()=>gGambling(sec.slice(9)):gBasics))();
+  $("#g_body").innerHTML=({basics:gBasics,stats:gStats,team:gTeam,elements:gElements,statuses:gStatuses,levels:gLevels,crates:gCrates,earning:gEarning,ranked:gRanked,"ranked-rating":gRankedRating,"ranked-tiers":gRankedTiers,"ranked-s1":gRankedS1,"ranked-dist":()=>`<h2>Rank distribution</h2><div id="rk_dist"><p class="muted">Loading the board…</p></div>`,gambling:()=>gGambling("overview"),settings:gSettings,events:gEvHw26,"events-friends":gEvFriends,"events-past":gEvPast,numbers:gNumbers,about:gAbout,bans:gBans,updates:gUpdates}[sec]||(sec.startsWith("gambling-")?()=>gGambling(sec.slice(9)):gBasics))();
   if(sec==="ranked-rating")wireRankCalc();
   if(sec==="bans")wireBans();
   if(sec==="ranked-dist")loadRanked().then(R=>{const el=$("#rk_dist");if(el&&R)el.innerHTML=rankedDist(R);});
@@ -5358,6 +5420,76 @@ function steamId64(t){   // a 64-bit id, a /profiles/ link, [U:1:n] or STEAM_0:y
   return null;
 }
 async function sha16(x){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(x));return[...new Uint8Array(b)].map(v=>v.toString(16).padStart(2,"0")).join("").slice(0,16);}
+// Events (Guide, General): the game's events, newest first, kept as an archive. Halloween 2026 = pumpkin_event.gd
+// (v196: START/END_UNIX, SHOP, REPEAT, ONCE), crate odds crate_rewards.gd type 21, skins skin_manager.gd; Friend Crowns =
+// Steam_Manager.FRIEND_CROWNS + main.gd _events_list (counted from the Friends view of the pet leaderboard).
+const HW26={start:1792627200,end:1793779199,odds:{C:28,UC:24,R:22,UR:13,L:12},
+  skins:[[980,"C"],[981,"C"],[979,"UC"],[982,"UC"],[984,"R"],[986,"R"],[985,"UR"],[983,"L"],[987,"L"]],
+  once:[["Win any Story Mode Battle",10],["Win any Story Mode Battle on EXTREME",28,"the same win also counts for the one above"],["Settings: click the pumpkin at the top right",39],
+    ["Pet Linguine 1,000 times",5],["Pet Linguine 10,000 times",55],["Pet Linguine 100,000 times",200],["Pet Linguine 1,000,000 times",300],
+    ["Reach Silver in Ranked Season 2",100,"peak rating 1,100"],["Reach Gold",300,"peak 1,250"],["Reach Diamond",750,"peak 1,400"],["Go Gambling",17,"just open it"],["Open a Fall Crate",10]],
+  shop:[["Halloween 2026 Crate",40,"as many as you like"],['"Halloween 2026" title',10],['"Spooky" title',50],['"Very Spooky" title',200],['"Halloween Master 2026" title',1000]]};
+function gEvHw26(){
+  const now=Date.now()/1000,H=HW26,n=x=>Math.round(x).toLocaleString();
+  const left=H.end-now,live=now>=H.start&&left>0;
+  const tag=(cls,t)=>`<span class="tag ${cls}" style="vertical-align:middle;margin-left:6px">${t}</span>`;
+  const status=live?tag("good",left>=86400?`Live, ${Math.floor(left/86400)} day${Math.floor(left/86400)===1?"":"s"} left`:`Live, ${Math.max(1,Math.round(left/3600))} hours left`):now<H.start?tag("","Soon"):tag("","Ended");
+  const tot=Object.values(H.odds).reduce((a,b)=>a+b,0),per=r=>H.odds[r]/tot/H.skins.filter(x=>x[1]===r).length;
+  const onceSum=H.once.reduce((a,x)=>a+x[1],0),titles=H.shop.slice(1).reduce((a,x)=>a+x[1],0);
+  const end=new Date(H.end*1000).toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  const row=([q,v,note])=>`<tr><td>${esc(q)}${note?` <span class="faint">(${esc(note)})</span>`:""}</td><td style="text-align:right"><b>${n(v)}</b></td></tr>`;
+  return`<div class="evpage"><h2>Halloween 2026${status}</h2>
+  <p class="muted" style="margin-top:0">October 22 to November 3, 2026. Ends ${esc(end)} your time. Pumpkins only drop while it runs and the shop closes with it.</p>
+  <p class="rule">Ranked Season 2 earns the most Pumpkins an hour, then fishing. Grab the quick quests first and leave the autoclicker on.</p>
+  <h3>Best ways to earn</h3>
+  <div class="stats">
+    <div class="stat good"><div class="v">360-480/h</div><div class="k"><b>1. Ranked Season 2</b><br>12 a win, at 60 to 80 matches an hour with half of them won. Also unlocks the rank quests: up to 1,150 more.</div></div>
+    <div class="stat"><div class="v">~360/h</div><div class="k"><b>2. Fishing</b><br>3 a fish, 7 a Legendary fish, at about 30 seconds a catch. Beats ranked if you win less than half your matches.</div></div>
+    <div class="stat"><div class="v">104</div><div class="k"><b>Quick quests, once</b><br>Settings pumpkin 39, opening Gambling 17, a Fall Crate 10, one EXTREME story win 38. A few minutes.</div></div>
+    <div class="stat"><div class="v">560</div><div class="k"><b>Autoclicker, once</b><br>The pet quests count pets made during the event, autoclicker included. 1,000,000 take about 27 hours at top speed.</div></div>
+  </div>
+  <p class="small muted">Small extras: every Halloween 2026 Crate you open gives 6 back, and a new Legendary skin gives 5 (9 if it's not in the Normal crates), once per skin.</p>
+  <div class="grid g2" style="align-items:start">
+    <div><h3>One-time quests <span class="faint" style="font-weight:700;font-size:14px">${n(onceSum)} in total</span></h3>
+      <div class="tblwrap"><table class="tbl"><tbody>${H.once.map(row).join("")}</tbody></table></div></div>
+    <div><h3>Event shop <span class="faint" style="font-weight:700;font-size:14px">titles ${n(titles)} in total</span></h3>
+      <div class="tblwrap"><table class="tbl"><tbody>${H.shop.map(row).join("")}</tbody></table></div></div>
+  </div>
+  <h3>Skins from the Halloween 2026 Crate</h3>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Skin</th><th>Rarity</th><th>Chance a crate</th></tr></thead><tbody>
+    ${H.skins.map(([id,r])=>`<tr><td>${cchip(id,{own:true})}</td><td>${RAR[r]}</td><td>${(per(r)*100).toFixed(1)}%</td></tr>`).join("")}
+  </tbody></table></div>
+  <p class="small muted">All 9 take about 31 crates on average, so about <b>1,025 Pumpkins</b> to earn (the 6 back per crate and 9 for each new Legendary buy more crates). Half of players are done within 27 crates (about 900), the unluckiest 10% need 50 or more (about 1,680). The two Legendaries alone take about 25 crates. Ghost Costume and Skeleton are stronger in October 2026: their abilities check the date.</p>
+  <h3>Changes</h3>
+  <ul class="tight"><li><b>v196</b> (October 23): opening a Fall Crate pays 10 Pumpkins once. In v195 every Fall Crate paid 2.</li></ul></div>`;
+}
+function gEvFriends(){
+  const tag=(cls,t)=>`<span class="tag ${cls}" style="vertical-align:middle;margin-left:6px">${t}</span>`;
+  return`<div class="evpage"><h2>Friend Crowns${tag("good","Ongoing")}</h2>
+  <p class="muted" style="margin-top:0">Since October 13, 2026, no end date.</p>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Skin</th><th>Needs</th></tr></thead><tbody>
+    <tr><td>${cchip(978,{own:true})}</td><td>1 Steam friend who plays</td></tr>
+    <tr><td>${cchip(977,{own:true})}</td><td>5 Steam friends who play</td></tr>
+  </tbody></table></div>
+  <ul class="tight"><li>A friend counts once they're on the game's pet leaderboard (the Friends board in the main menu). The game checks when that board loads.</li>
+    <li>Your highest count is kept, so friends don't have to keep playing.</li></ul></div>`;
+}
+// older events, from main.gd _events_list (dates) and the grant code: each skin came from logging in during the event
+// (a popup granted it), the Red Jacket and Hacked from beating Story in that week
+const EV_PAST=[["Update 3 Celebration","September 29 to October 5",[[873,"everyone who played that week"],[874,"beating Story Season 2"]]],
+  ["50,000+ Players Celebration","July 17 to 26",[[661,"everyone who played"]]],
+  ["Update 2 Celebration","July 5 to 12",[[658,"everyone who played"],[659,"beating Story that week"]]],
+  ["Gambling Mini-Games","May 19 to 27",[[578,"everyone who played"]]],
+  ["Content Update #1","April 27 to May 4",[[445,'everyone who played, with the "Update 1" title']]],
+  ["April Fools 2026","April 1",[[373,"playing on April 1"]]],
+  ["Day 1 Leaderboard Reset","March 27 to 28",[[368,"the day-one players, as an apology for the leaderboard reset"]]]];
+function gEvPast(){
+  return`<div class="evpage"><h2>Past events</h2>
+  <p class="muted" style="margin-top:0">All in 2026. None of these skins can be gotten anymore.</p>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Event</th><th>Dates</th><th>Skins</th></tr></thead><tbody>
+  ${EV_PAST.map(([e,d,sk])=>`<tr><td><b>${esc(e)}</b></td><td style="white-space:nowrap">${esc(d)}</td><td><div class="stack" style="gap:6px">${sk.map(([id,how])=>`<div class="row tight" style="flex-wrap:wrap">${cchip(id,{own:true})}<span class="small muted">${esc(how)}</span></div>`).join("")}</div></td></tr>`).join("")}
+  </tbody></table></div></div>`;
+}
 function gBans(){
   return`<h2>Account status</h2>
   <p class="rule">Paste a Steam ID or profile link to see if the account is banned or flagged on the leaderboards.</p>
@@ -5743,7 +5875,10 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <div class="callout warn" data-k="Keep in mind" style="margin:10px 0">It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</div>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-23 · Game update v196",[
+const SITE_UPDATES=[["2026-10-24",[
+  `<b>New: <a href="#/guide/events">Events</a></b> in the Guide, an archive of the game's events. Halloween 2026 has the best ways to earn Pumpkins, every quest, the shop and the crate odds; Friend Crowns shows what counts as a friend.`,
+  `<b>Several opponents at once.</b> Every "Fight it" now has an <b>Add</b> button next to it that adds the team as another opponent in the simulator. Simulate shows how your team does against each of them, and <b>Find a better team</b> searches for the team with the best average (or the best worst matchup) against all of them.`,
+]],["2026-10-23 · Game update v196",[
   `<b>Apex in the element chart.</b> A gold dot marks the bonuses Apex cards ignore (Guide, Elements).`,
   `<b>Simulator updated for v196.</b> Soul Bound stops protecting once it has run out, and Linguine (Gambler) and (Addicted to Gambling) now really gain or lose health on a coin flip. Every recommended team was re-tested.`,
   `<b>New: <a href="#/guide/bans">Account status</a></b> (Guide, General). Paste a Steam ID or profile link to see if the account is banned or flagged by the game's anticheat on the leaderboards. The simulator got <b>Swap sides</b> (next to Set all levels, against a player team) and a Clear button for the opponent.`,
@@ -5931,7 +6066,7 @@ const SX_ALIAS={"hilo":"higher or lower","hi lo":"higher or lower","higher lower
   "freeze":"frozen","confusion":"confused","purify":"purified","stun":"stunned","poison":"poisoned","burn":"on fire","fire":"on fire","curse":"cursed",
   "bleed":"bleeding","bless":"blessed","doom":"doomed","revive":"survives","dark mode":"theme","light mode":"theme",
   "my cards":"import your cards","import":"import your cards","owned":"import your cards","what's new":"updates","whats new":"updates","changelog":"updates",
-  "sl":"sl$","sl$":"sl$","defense":"stats","def":"stats","dodge":"stats","block":"stats","speed":"stats","spd":"stats","attack":"stats","atk":"stats","hp":"stats","health":"stats","crit":"stats","damage":"stats","income":"earning sl$","gold dot":"apex","yellow dot":"apex","dot":"apex","ban":"account status","banned":"account status","bans":"account status","ban check":"account status","flagged":"account status","cheater":"account status","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
+  "sl":"sl$","sl$":"sl$","defense":"stats","def":"stats","dodge":"stats","block":"stats","speed":"stats","spd":"stats","attack":"stats","atk":"stats","hp":"stats","health":"stats","crit":"stats","damage":"stats","income":"earning sl$","gold dot":"apex","yellow dot":"apex","dot":"apex","ban":"account status","event":"event","events":"event","pumpkin":"halloween 2026","pumpkins":"halloween 2026","halloween":"halloween 2026","friend crown":"friend crowns","banned":"account status","bans":"account status","ban check":"account status","flagged":"account status","cheater":"account status","earn":"earning sl$","make money":"earning sl$","planner":"fishing planner","route":"fishing planner",
   "free spins":"slots","free spin":"slots","jackpot":"slots","dealer":"blackjack","scratch":"lottery","tickets":"lottery","ranks":"rank distribution","fl":"fl$","fl$":"fl$","np":"nutrition points","money":"sl$"};
 function buildSearchIndex(){
   const out=[],seen=new Set();
@@ -5988,7 +6123,7 @@ function buildSearchIndex(){
   const G=(fn)=>typeof fn==="function"?fn:null;
   const secs=[["guide","basics","Guide: How battles work",G(typeof gBasics!=="undefined"&&gBasics)],["guide","team","Guide: Leaders and supporters",G(typeof gTeam!=="undefined"&&gTeam)],["guide","stats","Guide: Stats",G(typeof gStats!=="undefined"&&gStats)],
     ["guide","elements","Guide: Elements",G(typeof gElements!=="undefined"&&gElements)],["guide","statuses","Guide: Statuses",null],["guide","levels","Guide: Levels",G(typeof gLevels!=="undefined"&&gLevels)],
-    ["guide","crates","Guide: Crates",G(typeof gCrates!=="undefined"&&gCrates)],["guide","earning","Guide: Earning SL$",G(typeof gEarning!=="undefined"&&gEarning)],["guide","bans","Guide: Account status",G(typeof gBans!=="undefined"&&gBans)],["guide","ranked","Guide: Ranked",G(typeof gRanked!=="undefined"&&gRanked)],["guide","ranked-rating","Guide: Ranked rating",G(typeof gRankedRating!=="undefined"&&gRankedRating)],
+    ["guide","crates","Guide: Crates",G(typeof gCrates!=="undefined"&&gCrates)],["guide","earning","Guide: Earning SL$",G(typeof gEarning!=="undefined"&&gEarning)],["guide","bans","Guide: Account status",G(typeof gBans!=="undefined"&&gBans)],["guide","events","Guide: Halloween 2026 event",G(typeof gEvHw26!=="undefined"&&gEvHw26)],["guide","events-friends","Guide: Friend Crowns event",G(typeof gEvFriends!=="undefined"&&gEvFriends)],["guide","events-past","Guide: Past events",G(typeof gEvPast!=="undefined"&&gEvPast)],["guide","ranked","Guide: Ranked",G(typeof gRanked!=="undefined"&&gRanked)],["guide","ranked-rating","Guide: Ranked rating",G(typeof gRankedRating!=="undefined"&&gRankedRating)],
     ["guide","ranked-tiers","Guide: Ranked tiers",G(typeof gRankedTiers!=="undefined"&&gRankedTiers)],["guide","ranked-dist","Guide: Rank distribution",()=>"<h2>Rank distribution</h2>"],["guide","ranked-s1","Guide: Ranked Season 1",G(typeof gRankedS1!=="undefined"&&gRankedS1)],
     ["guide","gambling","Guide: Gambling",G(typeof gGambling!=="undefined"&&gGambling)],
     ...GAMB_SECS.slice(1).map(([k,l])=>["guide","gambling-"+k,"Guide: "+l,()=>gGambling(k)]),["guide","settings","Guide: Game settings",G(typeof gSettings!=="undefined"&&gSettings)],
