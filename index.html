@@ -3757,10 +3757,11 @@ function renderResult(r,mode,label,stamp,pd,ed){
   const stale=stamp&&stamp!==sigLv(S.team)+JSON.stringify(S.opp);
   const resCol={good:"--good",ok:"--ok",mid:"--mid",bad:"--bad"}[w.cls];
   const deadSupp=S.team.supp.length&&!S.team.leaders.some(id=>id!=null&&drawsSupporters(id));
-  const tnames=(pd?pd.slice(0,3).filter(Boolean):S.team.leaders.filter(id=>id!=null&&CARDS[id]).map(id=>CARDS[id])).map(c=>shortName(c)).join(" + ");
+  const tdeck=pd||playerDeck(S.team),tsupp=tdeck.slice(3).filter(Boolean);
+  const tnames=tdeck.slice(0,3).filter(Boolean).map(c=>esc(shortName(c))+(c.level?` <span>Lv ${c.level}</span>`:"")).join(" + ");
   el.innerHTML=`<div class="card result fadein"${resCol?` style="--rescol:var(${resCol})"`:""}>
     ${stale?`<div class="callout warn">You changed the team or opponent while this was running. These numbers are for the previous setup. Press Run again.</div>`:""}
-    <div class="res_for">${esc(tnames)} <span>vs</span> ${esc(label||oppLabel())}</div>
+    <div class="res_for">${tnames} <span>vs</span> ${esc(label||oppLabel())}${tsupp.length?`<br><span>Supporters</span> ${esc(tsupp.map(c=>shortName(c)).join(", "))}`:""}</div>
     <div class="row" style="gap:22px;align-items:center">
       <div class="res_num"><span class="bigpct w_${w.cls}">${pct(r.w/r.n)}</span><span class="res_pm">${ci>=.005?`give or take ${pct(ci)}`:`over ${r.n} battles`}</span></div>
       <div style="flex:1;min-width:220px"><div class="verdict w_${w.cls}">${w.word}</div>
@@ -5875,7 +5876,9 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <div class="callout warn" data-k="Keep in mind" style="margin:10px 0">It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</div>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-10-24",[
+const SITE_UPDATES=[["2026-10-29",[
+  `The simulator result now names your leaders' levels and your supporters, so a shared screenshot shows the whole team.`,
+]],["2026-10-24",[
   `<b>New: <a href="#/guide/events">Events</a></b> in the Guide, an archive of the game's events. Halloween 2026 has the best ways to earn Pumpkins, every quest, the shop and the crate odds; Friend Crowns shows what counts as a friend.`,
   `<b>Several opponents at once.</b> Every "Fight it" now has an <b>Add</b> button next to it that adds the team as another opponent in the simulator. Simulate shows how your team does against each of them, and <b>Find a better team</b> searches for the team with the best average (or the best worst matchup) against all of them.`,
 ]],["2026-10-23 · Game update v196",[
