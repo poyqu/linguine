@@ -4909,7 +4909,10 @@ function fSpots(){
   const card=(title,rows,key,unit,note)=>`<div class="card"><h3>${title}</h3><p class="small muted" style="margin:4px 0 10px">${note}</p>
     <div class="stack" style="gap:6px">${top(rows,key).map((r,i)=>`<div class="row between${i?"":" fi_top"}" style="padding:6px 0;border-top:${i?"1px solid var(--line)":"0"}"><span>${spotLink(r.spot)} <span class="small faint">difficulty ${r.d}</span>${SPOT_BY[r.spot]?`<div class="small faint">${spotWhere(SPOT_BY[r.spot])}</div>`:""}</span><span class="mono">${fnum(r[key])} ${unit}</span></div>`).join("")}</div></div>`;
   const tile=(rows,key,unit,lbl,sub,cls)=>{const r=top(rows,key,1)[0];return r?`<div class="stat${cls}"><div class="eyebrow">${lbl}</div><div class="v">${spotLink(r.spot)}</div><div class="k">Difficulty ${r.d}, <span class="hl">${fnum(r[key])} ${unit}</span>. ${sub}</div></div>`:"";};
+  const X=FI.xp;
   return`<div class="stack">
+  <div class="card"><div class="card_head"><div><h3>Where you haven't fished</h3><div class="card_sub">Load your save to list the spots (+${X.new_location} XP each) and difficulties (difficulty × ${X.diff_step} XP, up to ${X.diff_max_tier}) you haven't fished yet.</div>
+    ${saveBox("sn")}</div><div class="row tight">${saveBtn("sn")}</div></div><div id="sn_out"></div></div>
   ${RK?`<div class="grid g2">
     ${card("Most NP per hour (feeding)",RK.ta,"np_h","NP/h","With a Time Acceleration rod. Difficulty 8 spots win: one minigame per catch.")}
     ${card("Most FL per hour (selling)",RK.ta,"fl_h","FL/h","With a Time Acceleration rod. Difficulty 10 spots win: more minigames, more upgrades.")}
@@ -4928,6 +4931,23 @@ function fSpots(){
     <p class="muted" style="margin:4px 0 0">They stay hidden in your journal until you catch one: ${sec.map(x=>`${esc(x.name)} <span class="faint">(${RAR_NAME[x.rarity]})</span>`).join(", ")}. Cold Lake is difficulty 8, so it's also one of the best feeding spots.</p>`;})()}</div>
   </div>`;
 }
+// spots and difficulties from the save (inventory_manager: [seen_loc] spot name=true, [seen_diff] difficulty=true;
+// fishing_level_data: new spot XP_NEW_LOCATION, new difficulty d*XP_DIFF_STEP for d <= XP_DIFF_MAX_TIER)
+const snSeen=()=>FSAVE?new Set((FSAVE.seen_loc||[]).filter(([,v])=>v==="true").map(([k])=>k)):null;
+function spotsNew(){
+  const o=$("#sn_out");if(!o)return;if(!FSAVE){o.innerHTML="";return;}
+  const X=FI.xp,seen=snSeen(),sd=new Set((FSAVE.seen_diff||[]).filter(([,v])=>v==="true").map(([k])=>+k));
+  const left=FI.spots.filter(s=>!seen.has(s.name)).sort((a,b)=>a.diff-b.diff||(a.need||1)-(b.need||1)||a.name.localeCompare(b.name));
+  const dl=[];for(let d=1;d<=X.diff_max_tier;d++)if(!sd.has(d))dl.push(d);
+  const first={};left.forEach(s=>{if(dl.includes(s.diff)&&!first[s.diff])first[s.diff]=s.name;});
+  const easiest=d=>FI.spots.filter(s=>s.diff===d).sort((a,b)=>(a.need||1)-(b.need||1)||a.name.localeCompare(b.name))[0];
+  const xp=left.length*X.new_location+dl.reduce((a,d)=>a+d*X.diff_step,0);
+  o.innerHTML=`<p class="small" style="margin:10px 0"><b>Fished ${FI.spots.length-left.length} of ${FI.spots.length} spots.</b> ${xp?`<span class="hl">${fnum(xp)} XP</span> left from new spots and difficulties.`:"Every spot and difficulty is done."}</p>
+    ${dl.length?`<div class="rule"><span><b>New difficulties:</b> ${dl.map(d=>{const s=first[d]?SPOT_BY[first[d]]:easiest(d);return`difficulty ${d} <span class="faint">(+${d*X.diff_step} XP${s?`, for example ${spotLink(s.name)}`:""})</span>`;}).join(" · ")}</span></div>`:""}
+    ${left.length?`<div class="tblwrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>Spot</th><th class="num">Difficulty</th><th>Where</th><th class="num">Fishing level</th><th class="num">XP</th></tr></thead><tbody>
+    ${left.map(s=>`<tr><td>${spotLink(s.name)}</td><td class="num">${s.diff}</td><td class="small muted">${spotWhere(s)}</td><td class="num">${s.need||1}</td><td class="num">${X.new_location}${first[s.diff]===s.name?` <span class="tag good">+${s.diff*X.diff_step} difficulty</span>`:""}</td></tr>`).join("")}
+    </tbody></table></div>`:""}`;
+}
 let SP_SORT={k:"np",dir:-1},SP_ALL=false;
 function wireSpots(){
   const RK=FI.rank,by={};if(RK)for(const r of RK.ta)by[r.spot]=r;
@@ -4938,9 +4958,11 @@ function wireSpots(){
     const key={name:s=>s.name.toLowerCase(),diff:s=>s.diff,np:s=>(by[s.name]||{}).np_h||0,fl:s=>(by[s.name]||{}).fl_h||0}[SP_SORT.k];
     rows.sort((a,b)=>{const x=key(a),y=key(b);return(x<y?-1:x>y?1:0)*SP_SORT.dir;});
     const more=$("#sp_more"),cut=!SP_ALL&&rows.length>15;if(more)more.hidden=!cut;if(cut)rows=rows.slice(0,15);
-    $("#sp_tbl tbody").innerHTML=rows.map(s=>{const r=by[s.name];return`<tr><td>${spotLink(s.name)}</td><td>${s.diff}</td><td class="small muted">${spotWhere(s)}</td><td class="small">${esc(spotWater(s.tags))}</td>
+    const seen=snSeen();
+    $("#sp_tbl tbody").innerHTML=rows.map(s=>{const r=by[s.name];return`<tr><td>${spotLink(s.name)}${seen&&!seen.has(s.name)?' <span class="tag good">New</span>':""}</td><td>${s.diff}</td><td class="small muted">${spotWhere(s)}</td><td class="small">${esc(spotWater(s.tags))}</td>
       ${RK?`<td class="mono${r&&r.np_h>=n5?" v_good":""}">${r?fnum(r.np_h):"-"}</td><td class="mono${r&&r.fl_h>=f5?" v_good":""}">${r?fnum(r.fl_h):"-"}</td>`:""}<td class="small muted">${s.local.length?esc(s.local.join(", ")):"-"}</td></tr>`;}).join("");
   };
+  wireSave("sn",()=>{spotsNew();paint();});spotsNew();
   $("#sp_d").onchange=paint;$("#sp_w").onchange=paint;if($("#sp_more"))$("#sp_more").onclick=()=>{SP_ALL=true;paint();};
   $$("#sp_tbl th[data-k]").forEach(th=>th.onclick=()=>{SP_SORT=SP_SORT.k===th.dataset.k?{k:th.dataset.k,dir:-SP_SORT.dir}:{k:th.dataset.k,dir:th.dataset.k==="name"?1:-1};paint();});
   paint();
@@ -5153,12 +5175,27 @@ function fishPlan(sel){
     ${FF_CNT&&steps.length>1?`<p class="small" style="margin:10px 0 0"><b>Total:</b> about ${ffHrs({fish:steps.flatMap(st=>st.fish)},steps)}</p>`:""}
     ${none.length?`<p class="small faint">No spot data for ${none.map(fi=>esc(FI.fish[fi].name)).join(", ")}.</p>`:""}`;
 }
+// a loaded inventory.cfg, shared by Best spots and Every fish: section -> [[key, value], ...] (quotes around keys dropped)
+let FSAVE=null;
+function saveParse(t){const out={};let sec=null;
+  for(const ln of t.split(/\r?\n/)){const h=ln.match(/^\[(.+)\]\s*$/);if(h){sec=out[h[1]]=out[h[1]]||[];continue;}
+    const m=sec&&ln.match(/^"?([^"=]+?)"?\s*=\s*(.*?)\s*$/);if(m)sec.push([m[1],m[2]]);}
+  return out;}
+const saveBox=id=>`<div class="small faint" style="margin-top:6px">Folder: <span class="row tight" style="display:inline-flex"><code class="code" style="font-size:12px">${esc(SAVE_DIR)}</code><button class="btn xs" id="${id}_copy">${ic("copy")}Copy</button></span> File: <code class="code" style="font-size:12px">inventory.cfg</code></div>`;
+const saveBtn=id=>`<label class="btn sm">Load save<input type="file" id="${id}_file" accept=".cfg" hidden></label>`;
+function wireSave(id,done){
+  const c=$(`#${id}_copy`),f=$(`#${id}_file`);
+  if(c)c.onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(SAVE_DIR).then(()=>toast("Folder path copied."),()=>toast("Select it and copy it by hand."));else toast("Select it and copy it by hand.");};
+  if(f)f.onchange=e=>{const x=e.target.files[0];e.target.value="";if(!x)return;
+    x.text().then(t=>{const v=saveParse(t);if(!v.fxp&&!v.fishing&&!v.journal_caught&&!v.seen_loc){toast("That isn't inventory.cfg.");return;}
+      FSAVE=v;FF_CNT=null;done();});};
+}
 let FF_SEL=new Set(),FF_OPEN=new Set(),FF_CNT=null;   // FF_CNT: species -> catches, from a loaded inventory.cfg ([journal_caught])
 const ffNeed=fi=>FI.xp.mastery_needed[FI.fish[fi].rarity]||25;
 function fFish(){
   return`${fishModel()?`<div class="card" id="fp_card" style="margin-bottom:14px"><div class="card_head"><div><h3>Fishing planner</h3><div class="card_sub">Tick fish in the table, or load your save to tick every fish you haven't mastered.</div>
-    <div class="small faint" style="margin-top:6px">Folder: <span class="row tight" style="display:inline-flex"><code class="code" style="font-size:12px">${esc(SAVE_DIR)}</code><button class="btn xs" id="fp_copy">${ic("copy")}Copy</button></span> File: <code class="code" style="font-size:12px">inventory.cfg</code></div></div>
-    <div class="row tight"><label class="btn sm">Load save<input type="file" id="fp_file" accept=".cfg" hidden></label><button class="btn sm" id="fp_clear" hidden>Clear</button></div></div><div id="fp_out"><p class="small muted" style="margin:0">No fish picked yet.</p></div></div>`:""}
+    ${saveBox("fp")}</div>
+    <div class="row tight">${saveBtn("fp")}<button class="btn sm" id="fp_clear" hidden>Clear</button></div></div><div id="fp_out"><p class="small muted" style="margin:0">No fish picked yet.</p></div></div>`:""}
   <div class="card"><div class="card_head"><div><h3>Every fish</h3><div class="card_sub">${FI.fish.length} species, highest NP first. Price is before quality and traits.</div></div>
     <div class="row tight"><div class="search">${ic("search")}<input class="input" id="ff_q" placeholder="Search fish" aria-label="Search fish"></div>
     <select class="select" id="ff_r" aria-label="Rarity"><option value="">Any rarity</option>${RAR_KEYS.map(k=>`<option value="${k}">${RAR_NAME[k]}</option>`).join("")}</select>
@@ -5190,13 +5227,9 @@ function wireFish(){
   $("#ff_b").onchange=e=>{const c=e.target.closest("[data-ffs]");if(c){const i=+c.dataset.ffs;c.checked?FF_SEL.add(i):FF_SEL.delete(i);plan();}};
   if($("#fp_card"))$("#fp_card").onclick=e=>{const x=e.target.closest("[data-ffx]");if(x){FF_SEL.delete(+x.dataset.ffx);plan();paint();}
     else if(e.target.closest("#fp_clear")){FF_SEL.clear();plan();paint();}};
-  if($("#fp_copy"))$("#fp_copy").onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(SAVE_DIR).then(()=>toast("Folder path copied."),()=>toast("Select it and copy it by hand."));else toast("Select it and copy it by hand.");};
-  if($("#fp_file"))$("#fp_file").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-    f.text().then(t=>{const cnt=new Map();let sec="",any=false;
-      for(const ln of t.split(/\r?\n/)){const h=ln.match(/^\[(.+)\]\s*$/);if(h){sec=h[1];continue;}
-        if(sec!=="journal_caught")continue;const m=ln.match(/^"?(\d+)"?\s*=\s*(\d+)/);if(m){any=true;cnt.set(+m[1],+m[2]);}}
-      if(!any&&!/^\[journal_caught\]/m.test(t)){toast("No fish journal in that file. Pick inventory.cfg.");return;}
-      FF_CNT=cnt;FF_SEL=new Set(FI.fish.map((_,fi)=>fi).filter(fi=>(cnt.get(fi)||0)<ffNeed(fi)));plan();paint();});};
+  const fromSave=()=>{if(!FSAVE||FF_CNT)return;FF_CNT=new Map((FSAVE.journal_caught||[]).map(([k,v])=>[+k,+v]));
+    FF_SEL=new Set(FI.fish.map((_,fi)=>fi).filter(fi=>(FF_CNT.get(fi)||0)<ffNeed(fi)));};
+  fromSave();wireSave("fp",()=>{fromSave();plan();paint();});
   $("#ff_q").oninput=paint;$("#ff_r").onchange=paint;$("#ff_h").onchange=paint;paint();plan();
 }
 
@@ -5910,7 +5943,9 @@ const gNumbers=()=>`<h2>About the numbers</h2>
   <div class="callout warn" data-k="Keep in mind" style="margin:10px 0">It's still an estimate: the game's own dice are different, so a 70% team can lose a few times in a row.</div>
   <h3 style="margin-top:14px">What "rated at level X" and "Needs Lv X+" mean</h3>
   <p class="muted" style="margin-top:6px">Recommended teams are rated with every card at the story's level cap for that season: <span class="hl">level ${REC_LEVEL(1)}</span> in Season 1 and <span class="hl">level 20</span> in Season 2. <b>"Needs Lv X+"</b> is the lowest level, with all three leaders at that level, at which the team still wins about as often (around 95% for teams that clear the fight). If you import your cards from the game on the Cards page, chapter pages also tell you whether your levels are high enough, and Use loads your real levels.</p>`;
-const SITE_UPDATES=[["2026-11-03 · Game update Beta v199",[
+const SITE_UPDATES=[["2026-11-06",[
+  `<b>Where you haven't fished.</b> <a href="#/guide/fishing/spots">Best spots</a> can load your save too: it lists the spots and difficulties you haven't fished yet, with the XP each one gives.`,
+]],["2026-11-03 · Game update Beta v199",[
   `<b>Updated for Beta v199.</b> No battle changes in this version.`,
   `<b>Load your save in the fishing planner.</b> <a href="#/guide/fishing/fish">Every fish</a> reads your inventory.cfg, ticks every fish you haven't mastered and shows the catches left and rough hours for each stop.`,
 ]],["2026-11-02 · Game update v198",[
