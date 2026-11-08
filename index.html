@@ -724,7 +724,7 @@ a.stat .tag{font-size:12px}
   </div>
 </div></header>
 <main id="view"></main>
-<footer class="site"><span>Fan-made tool. Win chances are simulated estimates, not guarantees.</span><span><a href="#/guide/updates">What's new</a> · <a href="#/guide/about">About</a> · <a href="classic.html">Classic version</a> · <a href="https://github.com/poyqu/linguine" target="_blank" rel="noopener">GitHub</a></span></footer>
+<footer class="site"><span>Fan-made tool. Win chances are simulated estimates, not guarantees.</span><span><a href="https://store.steampowered.com/app/4368350/" target="_blank" rel="noopener">The game on Steam</a> · <a href="#/guide/updates">What's new</a> · <a href="#/guide/about">About</a> · <a href="classic.html">Classic version</a> · <a href="https://github.com/poyqu/linguine" target="_blank" rel="noopener">GitHub</a></span></footer>
 <nav class="tabbar" id="tabbar"></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="overlay"></div>
@@ -2964,7 +2964,7 @@ function pageHome(){
   $("#view").innerHTML=`<div class="fadein">
   <section class="hero">
     <h1>Find a team that <em>beats the chapter</em> you're stuck on.</h1>
-    <p>Linguine Sandbox simulates thousands of battles with the game's real rules, so you can see which teams win, try your own, and learn what every card does.</p>
+    <p>A fan-made helper for <a href="https://store.steampowered.com/app/4368350/" target="_blank" rel="noopener">Silly Linguine Cat Simulator Deluxe Online</a>, a free game on Steam. It simulates thousands of battles with the game's real rules, so you can see which teams win, try your own, and learn what every card does.</p>
     <div class="row">
       <a class="btn primary lg" href="#/story">${ic("story")}Pick a story chapter</a>
       <a class="btn lg" href="#/team">${ic("swords")}${hasTeam?"Open my team":"Test my own team"}</a>
@@ -5594,7 +5594,7 @@ function gAbout(){   // the game's history (Steam store + news, game code main.g
     ["October","Ranked Season 2 with tiers (v189)"],
     ["Oct 22 to Nov 3","Halloween 2026 event: 9 event cards from a crate bought with Pumpkins (v195)"]];
   return`<h2>About</h2>
-  <p class="lead" style="margin-top:6px"><b>Silly Linguine Cat Simulator Deluxe Online</b> is a free-to-play Godot game by Brody Seyranian. ${GD&&GD.version?`The current version is ${esc(GD.version)}.`:""}</p>
+  <p class="lead" style="margin-top:6px"><a href="https://store.steampowered.com/app/4368350/" target="_blank" rel="noopener"><b>Silly Linguine Cat Simulator Deluxe Online</b></a> is a free-to-play Godot game by Brody Seyranian. ${DATA.game_version?`The current version is ${esc(DATA.game_version)}.`:""}</p>
   <div class="tblwrap" style="margin:10px 0 14px;max-width:640px"><table class="tbl"><tbody>${T.map(([d,t])=>`<tr><td style="white-space:nowrap"><b>${d}</b></td><td>${t}</td></tr>`).join("")}</tbody></table></div>
   <h3>This site</h3>
   <ul class="tight"><li>A fan-made guide and battle simulator, not made by or affiliated with the developer.</li>
