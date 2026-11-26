@@ -1259,9 +1259,26 @@
 }
 ]
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 2
+}
+},
+{
+"condition": "enemy_has_all_statuses",
+"params": {
+"statuses": [
+"poisoned",
+"paralyzed",
+"weak"
+]
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -4403,9 +4420,20 @@
 }
 ]
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_at_or_after",
+"params": {
 "value": 2
+}
+},
+{
+"condition": "self_hp_unchanged_last_turn",
+"params": {}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -5725,13 +5753,18 @@
 "desc": "(Once per game) If this Linguine is at 80 or less health and both ally supporters are alive, then this Linguine's health is increased by 100, and your ally leaders are inflicted with [Dizzy] and [Bleeding]."
 },
 {
-"trigger": "turn_start",
+"trigger": "on_attack",
 "effect": "draw_supporter",
 "params": {
 "count": 1
 },
-"condition": "",
-"cond_params": {},
+"condition": "not_cond",
+"cond_params": {
+"condition": "this_turn_self_drew_at_least",
+"params": {
+"value": 1
+}
+},
 "once_game": false,
 "once_turn": false,
 "desc": "If when this Linguine attacks you have not drawn any supporters this turn, draw 1 supporter."
@@ -5807,23 +5840,26 @@
 "abilities": [
 {
 "trigger": "turn_start",
-"effect": "multi_effect",
+"effect": "draw_supporter_tag_chain",
 "params": {
-"effects": [
-{
-"effect": "draw_supporter",
+"tags": [
+"red",
+"scarf"
+],
+"then": {
+"effect": "gain_stat",
 "params": {
-"count": 1
+"stat": "health",
+"amount": 40
 }
 },
-{
+"else": {
 "effect": "lose_stat",
 "params": {
 "stat": "health",
 "amount": 25
 }
 }
-]
 },
 "condition": "turn_equals",
 "cond_params": {
@@ -6186,8 +6222,10 @@
 "stat": "health",
 "amount": 10
 },
-"condition": "",
-"cond_params": {},
+"condition": "last_turn_opp_drew_at_least",
+"cond_params": {
+"value": 1
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When this Linguine attacks, if your opponent drew a supporter last turn, this Linguine's health is increased by 10."
@@ -7696,9 +7734,20 @@
 "stat": "speed",
 "amount": 80
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "self_is_fastest_ally",
+"params": {}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -7744,9 +7793,17 @@
 "status_id": "on_fire",
 "target": "target"
 },
-"condition": "turn_equals",
+"condition": "latched",
 "cond_params": {
-"value": 1
+"key": "137_on_fire",
+"turn": 1,
+"condition": "ally_has_any_tag",
+"params": {
+"tags": [
+"gold",
+"blue"
+]
+}
 },
 "once_game": false,
 "once_turn": false,
@@ -7924,12 +7981,28 @@
 "params": {
 "count": 3
 },
-"condition": "turn_in_set",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_in_set",
+"params": {
 "values": [
 2,
 4,
 6
+]
+}
+},
+{
+"condition": "ally_has_any_tag",
+"params": {
+"tags": [
+"purple",
+"gold"
+]
+}
+}
 ]
 },
 "once_game": false,
@@ -8142,19 +8215,30 @@
 "style": 1,
 "abilities": [
 {
-"trigger": "turn_start",
+"trigger": "on_any_death",
 "effect": "gain_stat_filtered",
 "params": {
 "side": "ally",
 "stat": "health",
 "amount": 100,
-"filter": {
-"tag": "party hat"
+"filter": {}
+},
+"condition": "all_of",
+"cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
+"value": 3
 }
 },
-"condition": "turn_equals",
-"cond_params": {
-"value": 3
+{
+"condition": "fallen_has_tag",
+"params": {
+"tag": "party hat"
+}
+}
+]
 },
 "once_game": true,
 "once_turn": false,
@@ -8378,7 +8462,7 @@
 "params": {
 "count": 2
 },
-"condition": "",
+"condition": "all_enemies_have_any_status",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -8424,7 +8508,7 @@
 "params": {
 "count": 1
 },
-"condition": "",
+"condition": "all_enemies_have_any_status",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -8471,7 +8555,7 @@
 "stat": "health",
 "amount": 15
 },
-"condition": "",
+"condition": "all_enemies_have_any_status",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -8518,7 +8602,7 @@
 "stat": "speed",
 "amount": 50
 },
-"condition": "",
+"condition": "all_enemies_have_any_status",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -8565,7 +8649,7 @@
 "stat": "attack",
 "amount": 3
 },
-"condition": "",
+"condition": "all_enemies_have_any_status",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -9135,9 +9219,20 @@
 "stat": "speed",
 "amount": 250
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "self_is_lowest_hp_ally",
+"params": {}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -9240,9 +9335,22 @@
 "stat": "health",
 "amount": 100
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "all_enemies_level_at_least",
+"params": {
+"value": 5
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -9304,9 +9412,22 @@
 }
 ]
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 3
+}
+},
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "scuba"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -11664,7 +11785,7 @@
 {
 "effect": "draw_supporter",
 "params": {
-"count": 1
+"count": 2
 }
 }
 ]
@@ -12569,9 +12690,22 @@
 "params": {
 "status_id": "blessed"
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 4
+}
+},
+{
+"condition": "ally_hp_above",
+"params": {
+"value": 70
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -12621,9 +12755,22 @@
 "stat": "attack",
 "amount": 40
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "yellow"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -13756,9 +13903,45 @@
 "params": {
 "count": 1
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "not_cond",
+"params": {
+"condition": "any_leader_stat_above",
+"params": {
+"stat": "health",
+"value": 400
+}
+}
+},
+{
+"condition": "not_cond",
+"params": {
+"condition": "any_leader_stat_above",
+"params": {
+"stat": "defense",
+"value": 20
+}
+}
+},
+{
+"condition": "not_cond",
+"params": {
+"condition": "any_leader_level_equals",
+"params": {
+"value": 7
+}
+}
+}
+]
 },
 "once_game": true,
 "once_turn": false,
@@ -13920,9 +14103,22 @@
 "stat": "health",
 "amount": 200
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "rotated"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -13968,9 +14164,22 @@
 "stat": "health",
 "amount": 50
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 1
+}
+},
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "rotated"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -15082,8 +15291,10 @@
 "stat": "defense",
 "amount": 3
 },
-"condition": "",
-"cond_params": {},
+"condition": "attacker_attack_above",
+"cond_params": {
+"value": 30
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When this Linguine is attacked, if the attacker has over 30 attack, this Linguine's defense is increased by 3."
@@ -16146,7 +16357,7 @@
 "status_id": "slow",
 "target": "target"
 },
-"condition": "",
+"condition": "target_slower_than_self",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -16311,7 +16522,7 @@
 "stat": "attack",
 "amount": 5
 },
-"condition": "",
+"condition": "attacker_defense_above_self",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -18321,7 +18532,7 @@
 "status_id": "lucky",
 "target": "self"
 },
-"condition": "",
+"condition": "self_is_highest_hp",
 "cond_params": {},
 "once_game": false,
 "once_turn": false,
@@ -19217,8 +19428,11 @@
 "status_id": "stunned",
 "target": "target"
 },
-"condition": "",
-"cond_params": {},
+"condition": "self_stat_above",
+"cond_params": {
+"stat": "attack",
+"value": 35
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When this Linguine attacks, if it has more than 35 attack, this Linguine's attacks inflict [Stunned]."
@@ -19455,8 +19669,10 @@
 "params": {
 "amount": 15
 },
-"condition": "",
-"cond_params": {},
+"condition": "allies_count_at_most",
+"cond_params": {
+"value": 1
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When this Linguine attacks, if no other ally leaders are alive, this Linguine's attack deals 15 more damage."
@@ -23606,8 +23822,10 @@
 "stat": "attack",
 "amount": 12
 },
-"condition": "",
-"cond_params": {},
+"condition": "allies_count_at_most",
+"cond_params": {
+"value": 1
+},
 "once_game": true,
 "once_turn": false,
 "desc": "(Once per game) If this is your last leader alive, its attack is increased by 12."
@@ -23712,9 +23930,22 @@
 }
 ]
 },
-"condition": "turn_equals",
+"condition": "all_of",
 "cond_params": {
+"conds": [
+{
+"condition": "turn_equals",
+"params": {
 "value": 2
+}
+},
+{
+"condition": "ally_has_tag",
+"params": {
+"tag": "straw hat"
+}
+}
+]
 },
 "once_game": false,
 "once_turn": false,
@@ -25670,8 +25901,10 @@
 "params": {
 "amount": 40
 },
-"condition": "",
-"cond_params": {},
+"condition": "self_hp_at_or_below",
+"cond_params": {
+"value": 1
+},
 "once_game": false,
 "once_turn": false,
 "desc": "When this Linguine attacks, if its health is exactly 1, this Linguine's attack deals 40 more damage."
@@ -49135,6 +49368,70 @@
 }
 },
 "stext_desc": "The health of the Highest-Health Enemy Leader is decreased by 3."
+},
+"988": {
+"id": 988,
+"name": "Linguine but he's a turkey leg",
+"hp": 165,
+"spd": 463,
+"def": 16,
+"atk": 1,
+"style": 1,
+"abilities": [
+{
+"trigger": "passive_damage_bonus",
+"effect": "",
+"params": {
+"amount": 50
+},
+"condition": "weekday_is",
+"cond_params": {
+"value": 4
+},
+"once_game": false,
+"once_turn": false,
+"desc": "This Linguine deals 50 more damage on Thursdays."
+},
+{
+"trigger": "on_ally_killed",
+"effect": "multi_effect",
+"params": {
+"effects": [
+{
+"effect": "inflict_status_filtered",
+"params": {
+"side": "all",
+"status_id": "doomed",
+"filter": {}
+}
+},
+{
+"effect": "lose_stat",
+"params": {
+"stat": "health",
+"amount": 1000
+}
+}
+]
+},
+"condition": "",
+"cond_params": {},
+"once_game": false,
+"once_turn": false,
+"desc": "If an Ally Leader dies, every leader is inflicted with [Doomed] and this Linguine's health is decreased by 1000"
+}
+],
+"element": 0,
+"apex": false,
+"supporter": {
+"effect": "gain_stat_target",
+"params": {
+"stat": "health",
+"amount": 5,
+"target": "lowest_hp_ally"
+}
+},
+"stext_desc": "The health of your Lowest-Health Leader is increased by 5."
 },
 "875": {
 "id": 875,

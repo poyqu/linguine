@@ -93,7 +93,8 @@ class RL{ // runtime leader
     this.pendingBonus=0;   // RuntimeLeader.pending_bonus_damage (gamble_attack jackpot, applied to the current hit)
     this.st=Object.create(null);   // status_id -> [remaining, tick_index]; insertion order == the game's statuses list order
     this.og=new Set();this.ot=new Set();this.dmgTurn=0;this.alive=true;this.announced=false;this.eot=[];
-    this.waThis=false;this.waLast=false;this.turnNow=0;this.styleOverride=0;this.hitsTurn=0;this.echoGuard=false;
+    this.waThis=false;this.waLast=false;this.turnNow=0;this.hpTS=0;this.hpChg=true;this.latch=Object.create(null);   // v200: hp_turn_start, hp_changed_last_turn, flags["latch:*"]
+    this.styleOverride=0;this.hitsTurn=0;this.echoGuard=false;
   }
   effDef(){   // RuntimeLeader.effective_defense: the FIRST status with force_defense wins; capped at 50
     for(const sid in this.st){const v=staF(sid).force_defense;if(v!=null&&v>=0)return Math.min(v,DEFCAP);}
@@ -329,6 +330,17 @@ class Sim{
       case"ctx_is_enemy":{const x=ctx[cp.key||"attacker"];return x instanceof RL&&x.side!==self.side;}// game default key "attacker"
       case"ctx_flag":return!!ctx[cp.key||""];
       case"date_between":{const t=this.dateOrd||todayOrd();return t>=_i(cp.from||0)&&t<=_i(cp.to!=null?cp.to:99999999);}
+      case"weekday_is":{const o=this.dateOrd||todayOrd();return new Date(Date.UTC(Math.floor(o/10000),Math.floor(o/100)%100-1,o%100)).getUTCDay()===_i(_g(cp,"value",-1));}   // v200, 0 = Sunday
+      case"self_is_lowest_hp_ally":return this.alive(self.side).every(a=>a===self||a.hp>=self.hp);   // v200 conditions from here
+      case"self_is_highest_hp":return this.allL().every(l=>l===self||l.hp<=self.hp);
+      case"all_enemies_level_at_least":{const f=this.alive(this.enemySide(self.side));return f.length>0&&f.every(x=>x.lvl>=_i(cp.value||0));}
+      case"all_enemies_have_any_status":{const f=this.alive(this.enemySide(self.side));return f.length>0&&f.every(x=>Object.keys(x.st).length>0);}
+      case"attacker_attack_above":{const a=ctx.attacker;return a instanceof RL&&a.atk>_i(cp.value||0);}
+      case"attacker_defense_above_self":{const a=ctx.attacker;return a instanceof RL&&a.effDef()>self.effDef();}
+      case"any_leader_stat_above":{const v=_i(cp.value||0),f={health:l=>l.hp,defense:l=>l.effDef(),attack:l=>l.atk,speed:l=>l.effSpd()}[cp.stat||""];return!!f&&this.allL().some(l=>f(l)>v);}
+      case"any_leader_level_equals":return this.allL().some(l=>l.lvl===_i(cp.value||0));
+      case"self_hp_unchanged_last_turn":return!self.hpChg;
+      case"latched":return!!self.latch[String(cp.key!=null?cp.key:"")];
       case"drawn_card_has_tag":case"ctx_card_has_any_tag":{
         const card=ctx.card;if(!card)return false;
         const tags=(cp.tags&&cp.tags.length)?cp.tags:[cp.tag||""];
@@ -811,10 +823,8 @@ class Sim{
         const card=this.drawSingle(self);
         if(card!=null){
           const tags=tagsOf();
-          if(!tags.length||tags.some(t=>defHasTag(card,t))){
-            const th=p.then||{};
-            if(th.effect)this.runEffect(self,th.effect,th.params||{},ctx);
-          }
+          const th=(!tags.length||tags.some(t=>defHasTag(card,t)))?(p.then||{}):(p.else||{});   // v200: "else" branch
+          if(th.effect)this.runEffect(self,th.effect,th.params||{},ctx);
         }
         return;
       }
@@ -1250,7 +1260,7 @@ class Sim{
         this.runEffect(pl,pe.effect||"",pe.params||{},pe.ctx||{});
       }
     }
-    for(const l of this.everyL()){l.dmgTurn=0;l.hitsTurn=0;l.turnNow=this.turn;}
+    for(const l of this.everyL()){l.dmgTurn=0;l.hitsTurn=0;l.turnNow=this.turn;l.hpTS=l.hp;}
     for(const l of this.everyL()){
       if(!l.alive)continue;
       const swaps=[];
@@ -1278,6 +1288,11 @@ class Sim{
         this.checkDeath(l);
       }
       if(!this.alive(0).length||!this.alive(1).length)return;
+    }
+    for(const l of this.allL())for(const a of l.abil){   // v200 "latched": the inner condition is checked once, on its turn, and kept
+      const cp=a.cond_params||{};
+      if(a.condition!=="latched"||_i(_g(cp,"turn",1))!==this.turn)continue;
+      l.latch[String(cp.key!=null?cp.key:"")]=this.cond(l,String(cp.condition||""),cp.params||{},{});
     }
     for(const l of this.orderBySpeed())if(l.alive)this.fire(l,"turn_start",{});
     for(const atk of this.orderBySpeed()){
@@ -1307,7 +1322,7 @@ class Sim{
       l.eot=[];
     }
     for(const l of this.everyL()){                   // attacked-last-turn rollover, then the status sweep
-      l.waLast=l.waThis;l.waThis=false;
+      l.waLast=l.waThis;l.waThis=false;l.hpChg=l.hp!==l.hpTS;
       this.sweepExpired(l);
     }
   }
